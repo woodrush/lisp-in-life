@@ -1,0 +1,34 @@
+digraph G {
+    C [label="C code"]
+
+    C->ELC
+    subgraph cluster_0 {
+        label = "ELVM Toolchain"
+        labeljust = "r"
+        ELC [shape="rect"]
+        elvmunl [label="ELVM Unlambda Backend" shape="rect"]
+        elvmothers [label="..." shape="none"]
+        
+        eli [label="ELVM Assembly"]
+        ELC->eli
+        eli->elvmunl
+        eli->elvmothers [style=invis]
+        elvmqftasm [label="ELVM QFTASM Backend" shape="rect" color="red" penwidth=2]
+        eli->elvmqftasm [color="red" penwidth=2]
+    } [label="ELVM"]
+
+    subgraph cluster_1 {
+        label = "QFT Toolchain"
+        labeljust = "r"
+        lheight = "10.0"
+  
+        QFTASM [label="QFT Assembly"]
+        elvmqftasm->QFTASM [color="red" penwidth=2]
+
+        QFTex [label="QFT Architecture (Varlife)"]
+        QFTASM -> QFTex [label="ROM Tiling"]
+    }
+    QFTgol [label="QFT Architecture (Game of Life)"]
+    QFTex -> QFTgol [taillabel="Metafier"]
+
+}
