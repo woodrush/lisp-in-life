@@ -26,9 +26,28 @@ Addendum:
   - A Varlife version with a blank stdin buffer is available [here](./patterns/lisp_5000B_ram_blankstdin_QFT.mc).
   - However, expanding the RAM makes even Varlife patterns to run slow on Golly, so I haven't been able to verify patterns that have a significantly larger RAM space.
 
+## Screenshots
+![An animation of the RAM module of the QFT computer in the Varlife rule, while it is running.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
+
+An animation of the RAM module of the QFT computer in the Varlife rule, while it is running. The colors of the cells represent the 8 distinct states of the Varlife rule.
+
+![The QFT computer showing the results of the computation.](./img/lisp_512B_ram_printstdin_results_QFT.mc.gif)
+
+The QFT computer showing the results of the computation of the following code:
+
+```lisp
+(print (* 3 14))
+```
+
+The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
+
+![The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running.](./img/lisp_512B_ram_printstdin_QFT.mc.png)
+
+The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running. Each "cell" visible here is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP) zoomed far away.
+
 
 ## The Approach
-![The toolchain used for this project](toolchain.png)
+![The toolchain used for this project](./img/toolchain.png)
 
 Basically, I created a link between two existing works, [ELVM](https://github.com/shinh/elvm) and [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT). There was also lots of work done on the QFT side to actually create a working pattern, obtain the GoL pattern from the Varlife pattern, etc.
 
