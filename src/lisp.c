@@ -4,6 +4,8 @@
 #include "lisp.h"
 #endif
 
+#define debug(x)
+
 //================================================================================
 // Parser
 //================================================================================
@@ -29,6 +31,7 @@ typedef struct Value {
 
 Value* newAtomNode(char* str) {
     Value* node = (Value*)malloc(sizeof(Value));
+    debug("malloc at newAtomNode\n");
     node->type = ATOM;
     node->str = str;
     return node;
@@ -36,6 +39,7 @@ Value* newAtomNode(char* str) {
 
 Value* newListNode(List* list) {
     Value* node = (Value*)malloc(sizeof(Value));
+    debug("malloc at newListNode\n");
     node->type = LIST;
     node->list = list;
     return node;
@@ -43,6 +47,7 @@ Value* newListNode(List* list) {
 
 List* newList(Value* node, List* next) {
     List* list = (List*)malloc(sizeof(List));
+    debug("malloc at newList\n");
     list->value = node;
     list->next = next;
     return list;
@@ -69,6 +74,7 @@ Value* parseAtom() {
     buf[i] = '\0';
 
     char* str = malloc(sizeof(char)*(i+1));
+    debug("malloc at parseAtom\n");
     for (int j=0; j<i; j++) {
         str[j] = buf[j];
     }
@@ -77,12 +83,8 @@ Value* parseAtom() {
 }
 
 List* parseListLoop() {
-    List* taillist = NULL;
     Value* parsednode = parseExpr();
-    if (parsednode) {
-        taillist = newList(parsednode, parseListLoop());
-    }
-    return taillist;
+    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
 }
 
 Value* parseList() {
@@ -98,22 +100,18 @@ Value* parseList() {
 }
 
 Value* parseExpr() {
-    int skipped;
-    do {
-        skipped = 0;
-        char c = curchar();
-        while(c == ' ' || c == '\n') {
-            skipped = 1;
-            popchar();
-            c = curchar();
-        }
-        if (c == ';') {
-            while(c != '\n' && c != EOF) {
-                c = popchar();
-            }
-            skipped = 1;
-        }
-    } while(skipped);
+space:;
+    char c = curchar();
+    if(c == ' ' || c == '\n') {
+        popchar();
+        goto space;
+    }
+    if (c == ';') {
+        do {
+            c = popchar();
+        } while(c != '\n' && c != EOF);
+        goto space;
+    }
     Value* retnode = parseAtom();
     return retnode ? retnode : parseList();
 }
@@ -141,6 +139,7 @@ typedef struct Lambda {
 
 Value* newIntValue(int n){
     Value* ret = malloc(sizeof(Value));
+    debug("malloc at newIntValue\n");
     ret->type = INT;
     ret->n = n;
     return ret;
@@ -148,6 +147,7 @@ Value* newIntValue(int n){
 
 Value* newLambdaValue(Lambda* l){
     Value* ret = malloc(sizeof(Value));
+    debug("malloc at newLambdaValue\n");
     ret->type = LAMBDA;
     ret->lambda = l;
     return ret;
@@ -164,6 +164,7 @@ Value* getVariableValue(char* varname, Env* env) {
 
 Env* newEnv(char* varname, Value* value, Env* next) {
     Env* env = malloc(sizeof(Env));
+    debug("malloc at newEnv\n");
     env->varname = varname;
     env->value = value;
     env->next = next;
@@ -302,6 +303,7 @@ Value* eval(Value* node, Env* env) {
         }
         if (eqstr(headstr, "lambda") || eqstr(headstr, "macro")) {
             Lambda* lambda = malloc(sizeof(Lambda));
+            debug("malloc at lambda\n");
             lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
             lambda->argnames = node->list->next->value->list;
             lambda->body = node->list->next->next->value;
@@ -390,8 +392,13 @@ void printValue(Value* v) {
 
 int main (void) {
     Env* globalEnv = newEnv("", NULL, NULL);
+    List* list = newList(newAtomNode("progn"), NULL);
+    List* curlist = list;
     Value* parsed;
     while((parsed = parseExpr())) {
-        eval(parsed, globalEnv);
+        curlist->next = newList(parsed, NULL);
+        curlist = curlist->next;
     }
+    printValue(newListNode(list));
+    // eval(newListNode(list), globalEnv);
 }

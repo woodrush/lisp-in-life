@@ -1,4 +1,9 @@
-#define QFTASM_MEM_OFFSET 1024
+void placeholder (){
+    const char* __header = "\0\0\0\0\0\0\0\0\0\0";
+}
+
+#define QFTASM_MEM_OFFSET 0
+// #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
 #define QFTASM_NATIVE_ADDR(x) (x - QFTASM_MEM_OFFSET)
 
@@ -15,6 +20,7 @@ void exit(int s);
 #define popchar() getchar()
 
 extern int* _edata;
+
 
 void printStr(char* p) {
     for (; *p; p++){
