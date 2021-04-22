@@ -29,8 +29,9 @@ typedef struct Value {
 } Value;
 
 
+Value* node;
 Value* newAtomNode(char* str) {
-    Value* node = (Value*)malloc(sizeof(Value));
+    node = (Value*)malloc(sizeof(Value));
     debug("malloc at newAtomNode\n");
     node->type = ATOM;
     node->str = str;
@@ -38,15 +39,16 @@ Value* newAtomNode(char* str) {
 }
 
 Value* newListNode(List* list) {
-    Value* node = (Value*)malloc(sizeof(Value));
+    node = (Value*)malloc(sizeof(Value));
     debug("malloc at newListNode\n");
     node->type = LIST;
     node->list = list;
     return node;
 }
 
+List* list;
 List* newList(Value* node, List* next) {
-    List* list = (List*)malloc(sizeof(List));
+    list = (List*)malloc(sizeof(List));
     debug("malloc at newList\n");
     list->value = node;
     list->next = next;
@@ -57,14 +59,18 @@ Value* parseAtom();
 Value* parseList();
 Value* parseExpr();
 
+char c;
+char buf[32];
+int i;
+char* str;
 Value* parseAtom() {
-    char c = curchar();
+    c = curchar();
     if (c == ')' || c == '(' || !c || c == EOF) {
         return NULL;
     }
 
-    char buf[32];
-    int i = 0;
+    // char buf[32];
+    i = 0;
     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
         buf[i] = c;
         i++;
@@ -73,7 +79,7 @@ Value* parseAtom() {
     }
     buf[i] = '\0';
 
-    char* str = malloc(sizeof(char)*(i+1));
+    str = malloc(sizeof(char)*(i+1));
     debug("malloc at parseAtom\n");
     for (int j=0; j<i; j++) {
         str[j] = buf[j];
@@ -93,15 +99,15 @@ Value* parseList() {
     }
     popchar(); // '('
 
-    List* retlist = parseListLoop();
+    list = parseListLoop();
 
     popchar(); // ')'
-    return newListNode(retlist);
+    return newListNode(list);
 }
 
 Value* parseExpr() {
 space:;
-    char c = curchar();
+    c = curchar();
     if(c == ' ' || c == '\n') {
         popchar();
         goto space;
@@ -112,8 +118,8 @@ space:;
         } while(c != '\n' && c != EOF);
         goto space;
     }
-    Value* retnode = parseAtom();
-    return retnode ? retnode : parseList();
+    node = parseAtom();
+    return node ? node : parseList();
 }
 
 //================================================================================
@@ -138,29 +144,29 @@ typedef struct Lambda {
 
 
 Value* newIntValue(int n){
-    Value* ret = malloc(sizeof(Value));
+    node = malloc(sizeof(Value));
     debug("malloc at newIntValue\n");
-    ret->type = INT;
-    ret->n = n;
-    return ret;
+    node->type = INT;
+    node->n = n;
+    return node;
 }
 
 Value* newLambdaValue(Lambda* l){
-    Value* ret = malloc(sizeof(Value));
+    node = malloc(sizeof(Value));
     debug("malloc at newLambdaValue\n");
-    ret->type = LAMBDA;
-    ret->lambda = l;
-    return ret;
+    node->type = LAMBDA;
+    node->lambda = l;
+    return node;
 }
 
-Value* getVariableValue(char* varname, Env* env) {
-    do {
-        if (eqstr(varname, env->varname)) {
-            return env->value;
-        }
-    } while ((env = env->next));
-    return NULL;
-}
+// Value* getVariableValue(char* varname, Env* env) {
+//     do {
+//         if (eqstr(varname, env->varname)) {
+//             return env->value;
+//         }
+//     } while ((env = env->next));
+//     return NULL;
+// }
 
 Env* newEnv(char* varname, Value* value, Env* next) {
     Env* env = malloc(sizeof(Env));
@@ -214,7 +220,13 @@ Value* eval(Value* node, Env* env) {
         if (('0' <= node->str[0] && node->str[0] <= '9') || node->str[0] == '-') {
             return newIntValue(parseInt(node->str));
         }
-        return getVariableValue(node->str, env);
+        // Get variable value from the environment
+        do {
+            if (eqstr(node->str, env->varname)) {
+                return env->value;
+            }
+        } while ((env = env->next));
+        return NULL;
     }
 
     // Is an int or a lambda
@@ -390,15 +402,27 @@ void printValue(Value* v) {
     }
 }
 
+#ifdef ELVM
+char* init_stdin = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
+#endif
+Env* globalEnv;
+List* initlist;
+List* curlist;
+Value* parsed;
 int main (void) {
-    Env* globalEnv = newEnv("", NULL, NULL);
-    List* list = newList(newAtomNode("progn"), NULL);
-    List* curlist = list;
-    Value* parsed;
+    globalEnv = newEnv("", NULL, NULL);
+    initlist = newList(newAtomNode("progn"), NULL);
+    curlist = initlist;
+    // Value* parsed;
     while((parsed = parseExpr())) {
         curlist->next = newList(parsed, NULL);
         curlist = curlist->next;
     }
-    printValue(newListNode(list));
-    // eval(newListNode(list), globalEnv);
+#ifdef ELVM
+    for (;*init_stdin;init_stdin++) {
+        *init_stdin = 0;
+    }
+#endif
+    // printValue(newListNode(initlist));
+    eval(newListNode(initlist), globalEnv);
 }

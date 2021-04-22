@@ -2,6 +2,7 @@ void placeholder (){
     const char* __header = "\0\0\0\0\0\0\0\0\0\0";
 }
 
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2559
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
