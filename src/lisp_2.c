@@ -28,7 +28,6 @@ typedef struct Value {
     };
 } Value;
 
-
 Value* _value;
 Value* newAtomNode(char* str) {
 #define ret _value
@@ -177,29 +176,51 @@ Lambda* _lambda;
 //     return NULL;
 // }
 
-Env* newEnv(char* varname, Value* value, Env* next) {
+Env* _env;
+#define varname_in _str
+#define v _value
+#define next_in _env
+Env* newEnv() {
     Env* env = malloc(sizeof(Env));
     debug("malloc at newEnv\n");
-    env->varname = varname;
-    env->value = value;
-    env->next = next;
+    env->varname = varname_in;
+    env->value = v;
+    env->next = next_in;
     return env;
 }
+#undef varname
+#undef v
+#undef next_in
 
 Value* eqAtom(Value* n1, Value* n2) {
-    // Integer equality
-    if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
-        return n1;
-    }
-    // Atom equality
-    if (n1->type == ATOM && n2->type == ATOM &&
-        eqstr(n1->str, n2->str)) {
-        return n1;
-    }
-    return NULL;
 }
 
-void printValue(Value* v);
+void printValue() {
+#define v _value
+    if (!v) {
+        printStr("()");
+    } else if (v->type == INT) {
+        printInt(v->n);
+    } else if (v->type == LAMBDA) {
+        printStr(v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>");
+    } else if (v->type == ATOM) {
+        printStr(v->str);
+    } else if (v->type == LIST){
+        putchar('(');
+        List* list = v->list;
+        while(list) {
+            _value = list->value;
+            printValue();
+            list = list->next;
+            if (list) {
+                putchar(' ');
+            }
+        }
+        putchar(')');
+    }
+#undef v
+}
+
 Value* eval(Value* node, Env* env);
 
 int parseInt(char* str) {
@@ -273,9 +294,11 @@ Value* eval(Value* node, Env* env) {
                 }
             } while(env->next && (env = env->next));
             // Append to the global environment
-            env->next = newEnv(arg1->str, ret, NULL);
+            _str = arg1->str;
+            _value = ret;
+            _env = NULL;
+            env->next = newEnv();
             return ret;
-            #undef ret
         }
         if (eqstr(headstr, "if")) {
             #define condition _value
@@ -358,7 +381,21 @@ Value* eval(Value* node, Env* env) {
             return eval(eval(arg1, env), env);
         }
         if (eqstr(headstr, "eq")) {
-            return eqAtom(eval(arg1, env), eval(arg2list->value, env));
+            node = eval(arg1, env);
+            _value = eval(arg2list->value, env);
+            #define n1 node
+            #define n2 _value
+            // Integer equality
+            if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
+                return n1;
+            }
+            // Atom equality
+            if (n1->type == ATOM && n2->type == ATOM && eqstr(n1->str, n2->str)) {
+                return n1;
+            }
+            return NULL;
+            #undef n1
+            #undef n2
         }
         if (eqstr(headstr, "+") || eqstr(headstr, "-") || eqstr(headstr, "*")
             || eqstr(headstr, "/") || eqstr(headstr, "mod")) {
@@ -404,11 +441,10 @@ eval_lambda:;
     while (curargname) {
         char* argname = curargname->value->str;
         // For macros, simply pass the arguments without evaluating them, as nodes
-        curenv = newEnv(
-            curargname->value->str,
-            (_lambda->type == L_LAMBDA) ? eval(curarg->value, env) : curarg->value,
-            curenv
-        );
+        _value = (_lambda->type == L_LAMBDA) ? eval(curarg->value, env) : curarg->value;
+        _str = curargname->value->str;
+        _env = curenv;
+        curenv = newEnv();
         curargname = curargname->next;
         curarg = curarg->next;
     }
@@ -416,29 +452,6 @@ eval_lambda:;
     _value = eval(_lambda->body, curenv);
     return (_lambda->type == L_LAMBDA) ? _value : eval(_value, curenv);
     #undef curargname
-}
-
-void printValue(Value* v) {
-    if (!v) {
-        printStr("()");
-    } else if (v->type == INT) {
-        printInt(v->n);
-    } else if (v->type == LAMBDA) {
-        printStr(v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>");
-    } else if (v->type == ATOM) {
-        printStr(v->str);
-    } else if (v->type == LIST){
-        putchar('(');
-        List* list = v->list;
-        while(list) {
-            printValue(list->value);
-            list = list->next;
-            if (list) {
-                putchar(' ');
-            }
-        }
-        putchar(')');
-    }
 }
 
 #ifdef ELVM
@@ -449,7 +462,10 @@ List* initlist;
 List* curlist;
 Value* parsed;
 int main (void) {
-    globalEnv = newEnv("", NULL, NULL);
+    _str = "";
+    _value = NULL;
+    _env = NULL;
+    globalEnv = newEnv();
     initlist = newList(newAtomNode("progn"), NULL);
     curlist = initlist;
     // Value* parsed;
