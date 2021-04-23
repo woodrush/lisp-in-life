@@ -66,17 +66,20 @@ List* newList(Value* node, List* next) {
 #undef ret
 }
 
-Value* parseAtom();
-Value* parseList();
-Value* parseExpr();
+void parseAtom();
+void parseList();
+void parseExpr();
 
 char c;
 char buf[32];
 int i;
-Value* parseAtom() {
+int j;
+void parseAtom() {
     c = curchar();
     if (c == ')' || c == '(' || !c || c == EOF) {
-        return NULL;
+        // return NULL;
+        _value = NULL;
+        return;
     }
 
     // char buf[32];
@@ -87,35 +90,39 @@ Value* parseAtom() {
         popchar();
         c = curchar();
     }
-    buf[i] = '\0';
+    // buf[i] = '\0';
 
-    _str = malloc(sizeof(char)*(i+1));
+    _str = malloc(i+1);
     debug("malloc at parseAtom\n");
-    for (int j=0; j<i; j++) {
+    for (j=0; j<i; j++) {
         _str[j] = buf[j];
     }
 
-    return newAtomNode();
+    _value = newAtomNode();
+    // return newAtomNode();
 }
 
 List* parseListLoop() {
-    Value* parsednode = parseExpr();
+    parseExpr();
+    Value* parsednode = _value;
     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
 }
 
-Value* parseList() {
+void parseList() {
     if (curchar() != '('){
-        return NULL;
+        _value = NULL;
+        return;
     }
     popchar(); // '('
 
     _list = parseListLoop();
 
     popchar(); // ')'
-    return newListNode();
+    _value = newListNode();
+    // return newListNode();
 }
 
-Value* parseExpr() {
+void parseExpr() {
 space:;
     c = curchar();
     if(c == ' ' || c == '\n') {
@@ -128,8 +135,13 @@ space:;
         } while(c != '\n' && c != EOF);
         goto space;
     }
-    _value = parseAtom();
-    return _value ? _value : parseList();
+    // _value = parseAtom();
+    parseAtom();
+    if (!_value) {
+        parseList();
+    }
+    // return _value;
+    // return _value ? _value : parseList();
 }
 
 //================================================================================
@@ -183,11 +195,13 @@ Lambda* _lambda;
 // }
 
 Env* _env;
+Env* _env2;
 #define varname_in _str
 #define value_in _value
 #define env_in _env
+#define env _env2
 Env* newEnv() {
-    Env* env = malloc(sizeof(Env));
+    env = malloc(sizeof(Env));
     debug("malloc at newEnv\n");
     env->varname = varname_in;
     env->value = value_in;
@@ -197,6 +211,7 @@ Env* newEnv() {
 #undef varname_in
 #undef value_in
 #undef env_in
+#undef env
 
 // Value* eqAtom(Value* n1, Value* n2) {
 //     // Integer equality
@@ -215,44 +230,55 @@ Env* newEnv() {
 void printValue() {
     if (!v) {
         printStr("()");
-    } else if (v->type == INT) {
-        printInt(v->n);
-    } else if (v->type == LAMBDA) {
-        printStr(v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>");
-    } else if (v->type == ATOM) {
-        printStr(v->str);
-    } else if (v->type == LIST){
-        putchar('(');
-        List* list = v->list;
-        while(list) {
-            _value = list->value;
-            printValue();
-            list = list->next;
-            if (list) {
-                putchar(' ');
+    } else {
+        i = v->type;
+        if (i == INT) {
+            printInt(v->n);
+        } else if (i == LAMBDA) {
+            printStr(v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>");
+        } else if (i == ATOM) {
+            printStr(v->str);
+        } else if (i == LIST){
+            putchar('(');
+            List* list = v->list;
+            while(list) {
+                _value = list->value;
+                printValue();
+                list = list->next;
+                if (list) {
+                    putchar(' ');
+                }
             }
+            putchar(')');
         }
-        putchar(')');
     }
 }
 #undef v
 
 
 #define str _str
+#define sign j
+int k;
 int parseInt() {
-    int sign = 1;
+    sign = 1;
     i = 0;
     if (str[0] == '-') {
         sign = 0;
         str++;
     }
     while (*str) {
-        i = 10*i + (*str - '0');
+        // i *= 10
+        i += i;
+        k = i;
+        i += i;
+        i += i + k + (*str - '0');
+        // i = 10*i + (*str - '0');
         str++;
     }
     return sign ? i : -i;
 }
 #undef str
+#undef sign
 
 Value* eval(Value* node, Env* env);
 int evalAsInt(Value* node, Env* env) {
@@ -391,10 +417,10 @@ Value* eval(Value* node, Env* env) {
         if (eqstr(headstr, "lambda") || eqstr(headstr, "macro")) {
             _lambda = malloc(sizeof(Lambda));
             debug("malloc at lambda\n");
-            _lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
             _lambda->argnames = arg1->list;
             _lambda->body = arg2list->value;
             _lambda->env = env;
+            _lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
 
             _value = malloc(sizeof(Value));
             debug("malloc at newLambdaValue\n");
@@ -508,8 +534,8 @@ int main (void) {
     initlist = newList(newAtomNode(), NULL);
     curlist = initlist;
     // Value* parsed;
-    while((parsed = parseExpr())) {
-        curlist->next = newList(parsed, NULL);
+    while((parseExpr(), _value)) {
+        curlist->next = newList(_value, NULL);
         curlist = curlist->next;
     }
     // printValue(newListNode(initlist));
