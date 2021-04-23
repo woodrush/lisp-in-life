@@ -3,7 +3,7 @@ void placeholder (){
     const char* opstr = "define\0if\0quote\0car\0cdr\0cons\0atom\0print\0progn\0while\0lambda\0macro\0eval\0eq\0+\0-\0*\0/\0mod\0<\0>\0t\0";
 }
 
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2169
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2144
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170

@@ -75,18 +75,18 @@ for inst, line in zip(rom, rom_lines):
     if opcode == "MNZ":
         # MOV
         if mode_1 == 0 and d1 == 32768 and mode_3 == 0 and d3 == 0:
-            opcode = "JMP"
+            # opcode = "JMP"
             printinst("{} goto {}".format(opcode, dstr(mode_2, d2)))
             
         elif mode_1 == 0 and d1 == 32768:
-            opcode = "MOV"
+            # opcode = "MOV"
             printinst("{} {}->{}".format(opcode, dstr(mode_2, d2), (mode_3, d3)))
 
         elif mode_3 == 0 and d3 == 0 and mode_2 == 0 and d2 == 0 and mode_1 == 0 and d1 == 0:
             pass
 
         elif mode_3 == 0 and d3 == 0:
-            opcode = "JMP"
+            # opcode = "JMP"
             printinst("{} if {} goto {}".format(opcode, dstr(mode_1, d1), dstr(mode_2, d2)))
         
         else:
@@ -94,7 +94,7 @@ for inst, line in zip(rom, rom_lines):
 
     elif opcode == "MLZ":
         if mode_3 == 0 and d3 == 0:
-            opcode = "MLZJMP"
+            # opcode = "MLZJMP"
             printinst("{} if {} goto {}".format(opcode, dstr(mode_1, d1), dstr(mode_2, d2)))
 
         else:
@@ -102,7 +102,7 @@ for inst, line in zip(rom, rom_lines):
 
     elif opcode == "ADD" or opcode == "SUB":
         if mode_3 == 0 and d3 == 0:
-            opcode = "JMP"
+            # opcode = "JMP"
             printinst("{} goto {} . {}".format(opcode, dstr(mode_1, d1), dstr(mode_2, d2)))
         else:
             printinst(opcode, dstr(mode_1, d1), dstr(mode_2, d2), "->", (mode_3, d3))
@@ -116,15 +116,17 @@ for inst, line in zip(rom, rom_lines):
         # print("Detected jump")
         # print()
 
+    # print(line, end="")
     if mode_1 > 0:
         reg_fresh[d1] = False
     if mode_2 > 0:
         reg_fresh[d2] = False
     if mode_3 > 0:
         reg_fresh[d3] = False
-    elif not (opcode == "MNZ" or opcode == "MLZ"):
+    else:
         if (
-            d3 in reg_fresh.keys()
+            not (opcode == "MNZ" and (mode_1 == 0 and d1 == 0) or (opcode == "MLZ"))
+            and d3 in reg_fresh.keys()
             and reg_fresh[d3] != False
            ):  # `!= False`, since reg_fresh[d3] may be 0
             # print("Unused line: {} (overwriten at {})".format(reg_fresh[d3], lineno))

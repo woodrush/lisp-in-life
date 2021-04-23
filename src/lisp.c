@@ -83,17 +83,25 @@ int i;
 int j;
 
 StringTable* stringTableHead = NULL;
+StringTable* _stringtable;
 
 void appendStringTable() {
-    StringTable* ret = malloc(sizeof(StringTable));
-    ret->varname = _str;
-    ret->next = stringTableHead;
-    stringTableHead = ret;
+    _stringtable = malloc(sizeof(StringTable));
+    _stringtable->varname = _str;
+    _stringtable->next = stringTableHead;
+    stringTableHead = _stringtable;
 }
+
+char* s1;
+char* s2;
 
 void parseAtom() {
     c = curchar();
+#ifdef ELVM
+    if (c == ')' || c == '(' || !c) {
+#else
     if (c == ')' || c == '(' || !c || c == EOF) {
+#endif
         // return NULL;
         _value = NULL;
         return;
@@ -101,7 +109,11 @@ void parseAtom() {
 
     // char buf[32];
     i = 0;
+#ifdef ELVM
+    while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
+#else
     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
+#endif
         buf[i] = c;
         i++;
         popchar();
@@ -111,35 +123,24 @@ void parseAtom() {
 
     // _str = malloc(i+1);
 
-    _str = buf;
-    StringTable* st = stringTableHead;
+    // _str = buf;
+    _stringtable = stringTableHead;
 
-    // for (; st; st = st->next) {
-    //     // printf("%s", st->varname);
-    // if (st) {
 parseatomloop:;
-        char* s1 = _str;
-        char* s2 = st->varname;
-        for(; *s1 || *s2; s1++, s2++) {
-            if (*s1 != *s2) {
-                if (st->next) {
-                    st = st->next;
-                    goto parseatomloop;
-                }
-                goto newstr;
+    s1 = buf;
+    s2 = _stringtable->varname;
+    for(; *s1 || *s2; s1++, s2++) {
+        if (*s1 != *s2) {
+            // There is a string next to this string in the table
+            if ((_stringtable = _stringtable->next)) {
+                goto parseatomloop;
             }
+            // This was the last string in the table
+            goto newstr;
         }
-        _str = st->varname;
-        goto endatom;
-        // return 1;
-
-
-        // if (eqstr(st->varname)) {
-        //     _str = st->varname;
-        //     // printf("string matches! %s\n", st->varname);
-        //     goto endatom;
-        // }
-    // }
+    }
+    _str = _stringtable->varname;
+    goto endatom;
 
 newstr:;
     _str = malloc(i+1);
@@ -147,7 +148,6 @@ newstr:;
         _str[j] = buf[j];
     }
     appendStringTable();
-    // printf("New string: %s\n", _str);
 
 endatom:;
     _value = newAtomNode();
