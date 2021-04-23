@@ -4,6 +4,7 @@
 #include "lisp.h"
 #endif
 
+
 #define debug(x)
 
 //================================================================================
@@ -48,7 +49,7 @@ Value* newAtomNode() {
 }
 #undef str_in
 
-// Value* nil;
+Value* nil;
 List* _list;
 #define list_in _list
 Value* newListNode() {
@@ -112,20 +113,41 @@ void parseAtom() {
 
     _str = buf;
     StringTable* st = stringTableHead;
-    for (; st; st = st->next) {
-        // printf("%s", st->varname);
-        if (eqstr(st->varname)) {
-            _str = st->varname;
-            // printf("string matches! %s\n", st->varname);
-            goto endatom;
-        }
-    }
 
+    // for (; st; st = st->next) {
+    //     // printf("%s", st->varname);
+    // if (st) {
+parseatomloop:;
+        char* s1 = _str;
+        char* s2 = st->varname;
+        for(; *s1 || *s2; s1++, s2++) {
+            if (*s1 != *s2) {
+                if (st->next) {
+                    st = st->next;
+                    goto parseatomloop;
+                }
+                goto newstr;
+            }
+        }
+        _str = st->varname;
+        goto endatom;
+        // return 1;
+
+
+        // if (eqstr(st->varname)) {
+        //     _str = st->varname;
+        //     // printf("string matches! %s\n", st->varname);
+        //     goto endatom;
+        // }
+    // }
+
+newstr:;
     _str = malloc(i+1);
     for (j=0; j<i; j++) {
         _str[j] = buf[j];
     }
     appendStringTable();
+    // printf("New string: %s\n", _str);
 
 endatom:;
     _value = newAtomNode();
@@ -148,8 +170,8 @@ void parseList() {
     _list = parseListLoop();
 
     popchar(); // ')'
-    // _value = _list ? newListNode() : nil;
-    _value = newListNode();
+    _value = _list ? newListNode() : nil;
+    // _value = newListNode();
     // return newListNode();
 }
 
@@ -324,6 +346,7 @@ void evalAsInt(Value* node) {
     // return _value->n;
 }
 
+Valuetype eval_rettype;
 Env* _evalenv;
 Env* _env3;
 
@@ -339,8 +362,12 @@ typedef struct {
     };
 } EvalStack;
 
+// const char* define_str = "define";
+// const char* progn_str = "progn";
+
 void eval(Value* node) {
     EvalStack evalstack;
+
 
 #define _list_eval (evalstack._list_eval_)
 #define arg1 (evalstack.arg1_)
@@ -370,7 +397,10 @@ void eval(Value* node) {
         _env = _evalenv;
         // Get variable value from the environment
         do {
-            if (eqstr(_env->varname)) {
+            if (
+                _str == _env->varname
+                // eqstr(_env->varname)
+                ) {
                 // return env->value;
                 _value = _env->value;
                 return;
@@ -407,13 +437,16 @@ void eval(Value* node) {
         arg1 = node->list->next->value;
         arg2list = node->list->next->next;
 
-        if (eqstr("define")) {
+        if (_str == define_str) {
             #define ret _value
             // ret = eval(arg2list->value, env);
             eval(arg2list->value);
             _env = _evalenv;
             do {
-                if (_str = _env->varname, eqstr(arg1->str)){
+                if (
+                    _env->varname == arg1->str
+                    // _str = _env->varname, eqstr(arg1->str)
+                    ){
                     _env->value = ret;
                     // _value = ret;
                     return;
@@ -431,7 +464,7 @@ void eval(Value* node) {
             return;
             #undef ret
         }
-        if (eqstr("if")) {
+        if (_str == if_str) {
             #define condition _value
             // condition = eval(arg1, env);
             eval(arg1);
@@ -442,12 +475,12 @@ void eval(Value* node) {
             // eval(arg2list->next->value, env));
             #undef condition
         }
-        if (eqstr("quote")) {
+        if (_str == quote_str) {
             _value = arg1;
             return;
             // return arg1;
         }
-        if (eqstr("car")) {
+        if (_str == car_str) {
             // _value = eval(arg1, env);
             eval(arg1);
             // if (!_value) {
@@ -458,7 +491,7 @@ void eval(Value* node) {
             }
             return;
         }
-        if (eqstr("cdr")) {
+        if (_str == cdr_str) {
             // _value = eval(arg1, env);
             eval(arg1);
             // if (!_value) {
@@ -471,19 +504,20 @@ void eval(Value* node) {
             }
             return;
         }
-        if (eqstr("cons")) {
-            #define cdr node
+        if (_str == cons_str) {
+            #define car node
             // cdr = eval(arg2list->value, env);
-            eval(arg2list->value);
-            cdr = _value;
             eval(arg1);
-            _list = newList(_value, cdr ? cdr->list : NULL);
+            car = _value;
+            eval(arg2list->value);
+            // cdr = _value;
+            _list = newList(car, _value ? _value->list : NULL);
             // return newListNode();
             _value = newListNode();
             return;
-            #undef cdr
+            #undef car
         }
-        if (eqstr("atom")) {
+        if (_str == atom_str) {
             // _value = eval(arg1, env);
             eval(arg1);
             _str = "t";
@@ -497,7 +531,7 @@ void eval(Value* node) {
             );
             return;
         }
-        if (eqstr("print")) {
+        if (_str == print_str) {
             // _value = eval(arg1, env);
             eval(arg1);
             node = _value;
@@ -509,7 +543,7 @@ void eval(Value* node) {
             // return _value;
             return;
         }
-        if (eqstr("progn")) {
+        if (_str == progn_str) {
             #define curlist _list_eval
             curlist = node->list->next;
             _value = NULL;
@@ -522,7 +556,7 @@ void eval(Value* node) {
             return;
             #undef curlist
         }
-        if (eqstr("while")) {
+        if (_str == while_str) {
             _value = NULL;
             while (eval(arg1), _value) {
                 // _value = eval(arg2list->value, env);
@@ -531,7 +565,7 @@ void eval(Value* node) {
             // return _value;
             return;
         }
-        if (eqstr("lambda") || eqstr("macro")) {
+        if (_str == lambda_str || _str == macro_str) {
             _lambda = malloc(sizeof(Lambda));
             debug("malloc at lambda\n");
             _lambda->argnames = arg1->list;
@@ -547,13 +581,13 @@ void eval(Value* node) {
             return;
             // return newLambdaValue();
         }
-        if (eqstr("eval")) {
+        if (_str == eval_str) {
             eval(arg1);
             eval(_value);
             return;
             // return eval(_value, env);
         }
-        if (eqstr("eq")) {
+        if (_str == eq_str) {
             // node = eval(arg1, env);
             eval(arg1);
             node = _value;
@@ -567,7 +601,9 @@ void eval(Value* node) {
             }
             // Atom equality
             else if (n1->type == ATOM && n2->type == ATOM &&
-                (_str = n1->str, eqstr(n2->str))) {
+                // (_str = n1->str, eqstr(n2->str))
+                (n1->str == n2->str)
+                ) {
                 // return n1;
                 _value = n1;
             } else {
@@ -579,8 +615,10 @@ void eval(Value* node) {
             #undef n2
             // return eqAtom(eval(arg1, env), eval(arg2list->value, env));
         }
-        if (eqstr("+") || eqstr("-") || eqstr("*")
-            || eqstr("/") || eqstr("mod")) {
+        if (_str == plus_str || _str ==minus_str || _str == ast_str || _str == slash_str || _str == mod_str
+        //  eqstr("+") || eqstr("-") || eqstr("*")
+        //     || eqstr("/") || eqstr("mod")
+            ) {
             c_eval = headstr[0];
         // c = headstr[0];
         // if (((c == '+' || c == '-' || c == '*' || c == '/') && headstr[1] == '\0') || eqstr("mod")) {
@@ -608,7 +646,9 @@ void eval(Value* node) {
             // #undef ret_
             // #undef nextlist
         }
-        if (eqstr("<") || eqstr(">")) {
+        if (_str == lt_str || _str == gt_str
+            // eqstr("<") || eqstr(">")
+            ) {
             c_eval = headstr[0];
             #define ret _value
             evalAsInt(arg2list->value);
@@ -692,17 +732,33 @@ Value* parsed;
 int main (void) {
     // _str = "hey,i'm_nil";
     // _list = newList(newAtomNode(), NULL);
-    // _list = NULL;
-    // nil = newListNode();
+    _list = NULL;
+    nil = newListNode();
 
-    _str = "progn";
-    appendStringTable();
+#ifndef ELVM
+    char* opstr_list_[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
+    for(i=0;i<num_ops;i++){
+        opstr_list[i] = opstr_list_[i];
+    }    
+#endif
+
+    for(i=0;i<num_ops;i++){
+        _str = opstr_list[i];
+        appendStringTable();
+        // printStr("aa");
+        // printStr(_str);
+    }
+
+    // _str = (char*) progn_str;
+    // appendStringTable();
+    // _str = (char*) define_str;
+    // appendStringTable();
 
     _str = "";
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
-    _str = stringTableHead->varname;
+    _str = (char*) progn_str;
     initlist = newList(newAtomNode(), NULL);
     curlist = initlist;
     // Value* parsed;

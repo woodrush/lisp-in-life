@@ -1,8 +1,9 @@
 void placeholder (){
     const char* __header = "\0\0\0\0\0\0\0\0\0\0";
+    const char* opstr = "define\0if\0quote\0car\0cdr\0cons\0atom\0print\0progn\0while\0lambda\0macro\0eval\0eq\0+\0-\0*\0/\0mod\0<\0>\0t\0";
 }
 
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2559
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2169
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
@@ -13,6 +14,40 @@ const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
 
 #define NULL 0
 #define EOF -1
+
+//====================================================================================
+#define num_ops 22
+
+#define define_str 11
+#define if_str 18
+#define quote_str 21
+#define car_str 27
+#define cdr_str 31
+#define cons_str 35
+#define atom_str 40
+#define print_str 45
+#define progn_str 51
+#define while_str 57
+#define lambda_str 63
+#define macro_str 70
+#define eval_str 76
+#define eq_str 81
+#define plus_str 84
+#define minus_str 86
+#define ast_str 88
+#define slash_str 90
+#define mod_str 92
+#define lt_str 96
+#define gt_str 98
+#define t_str 100
+int opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
+
+//====================================================================================
+
+
+
+
+
 
 int getchar(void);
 int putchar(int c);
@@ -47,17 +82,6 @@ void* malloc(int n) {
 //     }
 //     return 1;
 // }
-
-extern char* _str;
-int eqstr(char* s2) {
-    char* s1 = _str;
-    for(; *s1 || *s2; s1++, s2++) {
-        if (*s1 != *s2) {
-            return 0;
-        }
-    }
-    return 1;
-}
 
 void div(int n, int m, int* q, int* r) {
     int sign_n = n > 0;
