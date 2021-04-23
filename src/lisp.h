@@ -28,6 +28,11 @@ void printInt(int n) {
     printf("%d", n);   
 }
 
-int eqstr(char* s1, char* s2) {
-    return !strcmp(s1, s2);
+// int eqstr(char* s1, char* s2) {
+//     return !strcmp(s1, s2);
+// }
+
+extern char* _str;
+int eqstr(char* s2) {
+    return !strcmp(_str, s2);
 }

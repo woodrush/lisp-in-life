@@ -39,7 +39,18 @@ void* malloc(int n) {
     return r;
 }
 
-int eqstr(char* s1, char* s2) {
+// int eqstr(char* s1, char* s2) {
+//     for(; *s1 || *s2; s1++, s2++) {
+//         if (*s1 != *s2) {
+//             return 0;
+//         }
+//     }
+//     return 1;
+// }
+
+extern char* _str;
+int eqstr(char* s2) {
+    char* s1 = _str;
     for(; *s1 || *s2; s1++, s2++) {
         if (*s1 != *s2) {
             return 0;
