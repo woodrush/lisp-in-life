@@ -130,36 +130,36 @@ for i_inst, inst in enumerate(rom):
 reg_fresh = {}
 unused_lines = []
 
-# # Remove dead lines
-# for inst in rom:
-#     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+# Dead code elimination
+for inst in rom:
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
 
-#     if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and mode_2 == 0 and d2 == 0 and opcode == "MNZ"):
-#         reg_fresh = {}
-#         # print("Detected jump")
-#         # print()
+    if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and mode_2 == 0 and d2 == 0 and opcode == "MNZ"):
+        reg_fresh = {}
+        # print("Detected jump")
+        # print()
 
-#     if mode_1 > 0:
-#         reg_fresh[d1] = False
+    if mode_1 > 0:
+        reg_fresh[d1] = False
 
-#     if mode_2 > 0:
-#         reg_fresh[d2] = False
+    if mode_2 > 0:
+        reg_fresh[d2] = False
 
-#     if mode_3 > 0:
-#         reg_fresh[d3] = False
-#     elif not (opcode == "MNZ" and mode_1 == 0 and d1 == 0):
-#         if (
-#             not (opcode == "MLZ")
-#             and d3 in reg_fresh.keys()
-#             and reg_fresh[d3] != False
-#            ):  # `!= False`, since reg_fresh[d3] may be 0
-#             # print("Unused line: {} (overwriten at {})".format(reg_fresh[d3], lineno))
-#             unused_lines.append(reg_fresh[d3])
-#             if "pc ==" in comment:
-#                 print("Error: Unused line with a pc tag!", lineno)
-#                 exit(1)
+    if mode_3 > 0:
+        reg_fresh[d3] = False
+    elif not (opcode == "MNZ" and mode_1 == 0 and d1 == 0):
+        if (
+            not (opcode == "MLZ")
+            and d3 in reg_fresh.keys()
+            and reg_fresh[d3] != False
+           ):  # `!= False`, since reg_fresh[d3] may be 0
+            # print("Unused line: {} (overwriten at {})".format(reg_fresh[d3], lineno))
+            unused_lines.append(reg_fresh[d3])
+            if "pc ==" in comment:
+                print("Error: Unused line with a pc tag!", lineno)
+                exit(1)
 
-#         reg_fresh[d3] = lineno
+        reg_fresh[d3] = lineno
 
 modedict = {
     0 : "",
