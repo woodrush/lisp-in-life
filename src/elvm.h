@@ -45,6 +45,11 @@ int opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons
 
 //====================================================================================
 
+char* _str;
+int q, r;
+int i;
+int j;
+int k;
 
 
 
@@ -59,17 +64,20 @@ void exit(int s);
 extern int* _edata;
 
 
-void printStr(char* p) {
-    for (; *p; p++){
-        putchar(*p);
-    }
-}
+// void printStr(char* p) {
+//     for (; *p; p++){
+//         putchar(*p);
+//     }
+// }
 
 void* malloc(int n) {
     int* r = _edata;
     _edata += n;
     if (r > _edata) {
-        printStr("Memory overflow\n");
+        _str = "Memory overflow\n";
+        for (; *_str; _str++){
+            putchar(*_str);
+        }
         exit(1);
     }
     return r;
@@ -84,25 +92,7 @@ void* malloc(int n) {
 //     return 1;
 // }
 
-void div(int n, int m, int* q, int* r) {
-    int sign_n = n > 0;
-    int sign = 1;
-    if (n < 0) {
-        sign = 1 - sign;
-        n = -n;
-    }
-    if (m < 0) {
-        sign = 1 - sign;
-        m = -m;
-    }
-    *q = 0;
-    while(n >= m){
-        n -= m;
-        (*q)++;
-    }
-    *q = sign ? *q : -(*q);
-    *r = sign_n ? n : -n;
-}
+void _div(int n, int m);
 
 int __builtin_mul(int x, int y) {
     int sign = 1;
@@ -122,32 +112,32 @@ int __builtin_mul(int x, int y) {
 }
 
 int __builtin_div(int a, int b) {
-    int q, r;
-    div(a, b, &q, &r);
+    // int q, r;
+    _div(a, b);
     return q;
 }
 
 int __builtin_mod(int a, int b) {
-    int q, r;
-    div(a, b, &q, &r);
+    // int q, r;
+    _div(a, b);
     return r;
 }
 
-void printInt(int v) {
-    int sign = (v < 0) ? 0 : 1;
-    if (!sign) {
-        putchar('-');
-        v = -v;
-    }
-    char buf[6];
-    char* p = buf + 5;
-    *p = '\0';
-    do {
-        int q, r;
-        div(v, 10, &q, &r);
-        p--;
-        *p = (r + '0');
-        v = q;
-    } while (v);
-    printStr(p);
-}
+// void printInt(int v) {
+//     int sign = (v < 0) ? 0 : 1;
+//     if (!sign) {
+//         putchar('-');
+//         v = -v;
+//     }
+//     char buf[6];
+//     char* p = buf + 5;
+//     *p = '\0';
+//     do {
+//         int q, r;
+//         div(v, 10, &q, &r);
+//         p--;
+//         *p = (r + '0');
+//         v = q;
+//     } while (v);
+//     printStr(p);
+// }

@@ -28,6 +28,15 @@ char* t_str = "t";
 
 char* opstr_list[num_ops];
 
+//====================================
+
+char* _str;
+int q, r;
+int i;
+int j;
+int k;
+
+//====================================
 
 char charbuf = -1;
 
@@ -47,13 +56,13 @@ char curchar() {
     return charbuf;
 }
 
-void printStr(char* p) {
-    printf("%s", p);
-}
+// void printStr(char* p) {
+//     printf("%s", p);
+// }
 
-void printInt(int n) {
-    printf("%d", n);   
-}
+// void printInt(int n) {
+//     printf("%d", n);   
+// }
 
 // int eqstr(char* s1, char* s2) {
 //     return !strcmp(s1, s2);

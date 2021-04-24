@@ -4,8 +4,39 @@
 #include "lisp.h"
 #endif
 
+// char* _str;
+// int q, r;
+// int i;
+// int j;
+// int k;
+
 
 #define debug(x)
+
+
+void _div(int n, int m) {
+    #define sign_n i
+    #define sign j
+    sign_n = n > 0;
+    sign = 1;
+    if (n < 0) {
+        sign = 1 - sign;
+        n = -n;
+    }
+    if (m < 0) {
+        sign = 1 - sign;
+        m = -m;
+    }
+    q = 0;
+    while(n >= m){
+        n -= m;
+        q++;
+    }
+    q = sign ? q : -q;
+    r = sign_n ? n : -n;
+    #undef sign_n
+    #undef sign
+}
 
 //================================================================================
 // Parser
@@ -35,7 +66,6 @@ typedef struct StringTable {
 } StringTable;
 
 
-char* _str;
 Value* _value;
 #define str_in _str
 Value* newAtomNode() {
@@ -79,8 +109,6 @@ void parseExpr();
 
 char c;
 char buf[32];
-int i;
-int j;
 
 StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
@@ -279,38 +307,10 @@ Env* newEnv() {
 //     return NULL;
 // }
 
-#define v _value
-void printValue() {
-    i = v->type;
-    if (i == INT) {
-        printInt(v->n);
-    } else if (i == LAMBDA) {
-        printStr(v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>");
-    } else if (i == ATOM) {
-        printStr(v->str);
-    } else if (i == LIST){
-        putchar('(');
-        List* list = v->list;
-        // if (!list) {
-        //     printStr("Empty list!!!\n");
-        // }
-        while(list) {
-            _value = list->value;
-            printValue();
-            list = list->next;
-            if (list) {
-                putchar(' ');
-            }
-        }
-        putchar(')');
-    }
-}
-#undef v
-
+void printValue();
 
 #define str _str
 #define sign j
-int k;
 void parseInt() {
     sign = 1;
     i = 0;
@@ -718,8 +718,58 @@ eval_lambda:;
 #undef arg1
 #undef arg2list
 #undef c_eval
-#undef m
-#undef n
+// #undef m
+#undef n_
+
+#define v _value
+void printValue() {
+    k = v->type;
+    // char* p;
+    if (k == INT) {
+        #define p _str
+        k = v->n;
+        if (k < 0) {
+            putchar('-');
+            k = -k;
+        }
+        // char buf[6];
+        p = buf + 5;
+        *p = '\0';
+        do {
+            // int q, r;
+            _div(k, 10);
+            p--;
+            *p = (r + '0');
+            k = q;
+        } while (k);
+        #undef p
+        // printStr(p);
+    } else if (k == LAMBDA) {
+        _str = v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>";
+    } else if (k == ATOM) {
+        _str = v->str;
+    } else if (k == LIST){
+        putchar('(');
+        List* list = v->list;
+        // if (!list) {
+        //     printStr("Empty list!!!\n");
+        // }
+        while(list) {
+            _value = list->value;
+            printValue();
+            list = list->next;
+            if (list) {
+                putchar(' ');
+            }
+        }
+        putchar(')');
+        return;
+    }
+    for (; *_str; _str++){
+        putchar(*_str);
+    }
+}
+#undef v
 
 
 #ifdef ELVM
