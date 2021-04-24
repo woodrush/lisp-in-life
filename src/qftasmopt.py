@@ -67,7 +67,7 @@ def readinst (inst):
     return inst    
 
 
-# Constant folding and Mov folding
+# Constant folding and Mov folding (no dereferences)
 reg_value = {}
 reg_value_dstedge = {}
 
@@ -111,13 +111,13 @@ for i_inst, inst in enumerate(rom):
 
 
     if mode_3 == 0 and d3 != 0:
-        if opcode == "MNZ" and mode_1 == 0 and mode_2 <= 1 and not (d1 == 0):
+        if opcode == "MNZ" and mode_1 == 0 and not (d1 == 0):
             reg_value[d3] = lineno, (mode_2, d2)
-            if mode_2 == 1:
+            if mode_2 >= 1:
                 add_dst_to_src(d3, d2)
-        elif opcode == "MLZ" and mode_1 == 0 and mode_2 == 0 and not (type(d2) == int and (0 <= d2 < 32768)):
+        elif opcode == "MLZ" and mode_1 == 0 and not (type(d2) == int and (0 <= d2 < 32768)):
             reg_value[d3] = lineno, (mode_2, d2)
-            if mode_2 == 1:
+            if mode_2 >= 1:
                 add_dst_to_src(d3, d2)
         elif opcode == "ADD" and mode_1 == 0 and mode_2 == 0:
             reg_value[d3] = lineno, (mode_2, d1 + d2)
@@ -131,6 +131,74 @@ for i_inst, inst in enumerate(rom):
     if "pc ==" in comment:
         reg_value = {}
         reg_value_dstedge = {}
+
+
+
+
+
+
+# Mov folding with dereferences
+reg_value = {}
+# reg_value_dstedge = {}
+
+for i_inst, inst in enumerate(rom):
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+
+    if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and opcode == "MNZ"):
+        reg_value = {}
+        # reg_value_dstedge = {}
+        # print("Detected jump")
+        # print()
+
+    if mode_1 > 0:
+        for mode in reversed(range(4)):
+            if (mode, d1) in reg_value.keys():
+                print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d1]))
+                _, (mode_table, dtable) = reg_value[(mode, d1)]
+                rom[i_inst] = lineno, opcode, (mode_1 - 1 + mode_table, dtable), (mode_2, d2), (mode_3, d3), comment
+            break
+
+    if mode_2 > 0:
+        for mode in reversed(range(4)):
+            if (mode, d2) in reg_value.keys():
+                print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d2]))
+                _, (mode_table, dtable) = reg_value[(mode, d2)]
+                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1 + mode_table, dtable), (mode_3, d3), comment
+            break
+
+    if mode_3 > 0:
+        for mode in reversed(range(4)):
+            if (mode, d3) in reg_value.keys():
+                print("Mov folding with dereference is possible at line {}, with a value from {}".format(lineno, reg_value[d3]))
+                _, (mode_table, dtable) = reg_value[(mode, d3)]
+                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1 + mode_table, dtable), comment
+            break
+
+    # Initialize on every line
+    reg_value = {}
+
+    if mode_3 == 0 and d3 != 0:
+        if opcode == "MNZ" and mode_1 == 0 and not (d1 == 0):
+            reg_value[(mode_3, d3)] = lineno, (mode_2, d2)
+            # if mode_2 > 0:
+            #     add_dst_to_src((mode_3, d3), d2)
+        elif opcode == "MLZ" and mode_1 == 0 and not (type(d2) == int and (0 <= d2 < 32768)):
+            reg_value[(mode_3, d3)] = lineno, (mode_2, d2)
+            # if mode_2 == 1:
+            #     add_dst_to_src(d3, d2)
+        elif opcode == "ADD" and mode_1 == 0 and mode_2 == 0:
+            reg_value[(mode_3, d3)] = lineno, (mode_2, d1 + d2)
+        elif opcode == "SUB" and mode_1 == 0 and mode_2 == 0:
+            reg_value[(mode_3, d3)] = lineno, (mode_2, d1 - d2)
+        # else:
+        #     if d3 in reg_value.keys():
+        #         del reg_value[d3]
+        # remove_dependent_reference(d3)
+
+    if "pc ==" in comment:
+        reg_value = {}
+        # reg_value_dstedge = {}
+
 
 
 
