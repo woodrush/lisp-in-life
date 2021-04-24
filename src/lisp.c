@@ -4,15 +4,6 @@
 #include "lisp.h"
 #endif
 
-// char* _str;
-// int q, r;
-// int i;
-// int j;
-// int k;
-
-
-#define debug(x)
-
 
 void _div(int n, int m) {
     #define sign_n i
@@ -252,7 +243,6 @@ void newIntValue(){
 #define ret _value
     malloc_bytes = sizeof(Value);
     ret = malloc_k();
-    debug("malloc_k at newIntValue\n");
     ret->type = INT;
     ret->n = i;
     // return ret;
@@ -260,22 +250,6 @@ void newIntValue(){
 }
 
 Lambda* _lambda;
-// Value* newLambdaValue(){
-//     _value = malloc_k(sizeof(Value));
-//     debug("malloc_k at newLambdaValue\n");
-//     _value->type = LAMBDA;
-//     _value->lambda = _lambda;
-//     return _value;
-// }
-
-// Value* getVariableValue(char* varname, Env* env) {
-//     do {
-//         if (eqstr(varname, env->varname)) {
-//             return env->value;
-//         }
-//     } while ((env = env->next));
-//     return NULL;
-// }
 
 Env* _env;
 Env* _env2;
@@ -286,7 +260,6 @@ Env* _env2;
 Env* newEnv() {
     malloc_bytes = sizeof(Env);
     env = malloc_k();
-    debug("malloc_k at newEnv\n");
     env->varname = varname_in;
     env->value = value_in;
     env->next = env_in;
@@ -358,10 +331,13 @@ Env* _evalenv;
 Env* _env3;
 
 typedef struct {
-    Value* arg1_;
     union {
         char c_eval_;
         List* _list_eval_;
+    };
+    union {
+        Value* arg1_;
+        List* _list_eval_2;
     };
     union {
         List* arg2list_;
@@ -377,6 +353,7 @@ void eval(Value* node) {
 
 
 #define _list_eval (evalstack._list_eval_)
+#define _list_eval_2 (evalstack._list_eval_2)
 #define arg1 (evalstack.arg1_)
 #define arg2list (evalstack.arg2list_)
 #define c_eval (evalstack.c_eval_)
@@ -575,7 +552,6 @@ void eval(Value* node) {
         if (_str == lambda_str || _str == macro_str) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
-            debug("malloc_k at lambda\n");
             _lambda->argnames = arg1->list;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
@@ -583,7 +559,6 @@ void eval(Value* node) {
 
             malloc_bytes = sizeof(Value);
             _value = malloc_k();
-            debug("malloc_k at newLambdaValue\n");
             _value->type = LAMBDA;
             _value->lambda = _lambda;
             // return _value;
@@ -624,21 +599,15 @@ void eval(Value* node) {
             #undef n2
             // return eqAtom(eval(arg1, env), eval(arg2list->value, env));
         }
-        if (_str == plus_str || _str ==minus_str || _str == ast_str || _str == slash_str || _str == mod_str
-        //  eqstr("+") || eqstr("-") || eqstr("*")
-        //     || eqstr("/") || eqstr("mod")
-            ) {
+        if (_str == plus_str || _str ==minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
             c_eval = headstr[0];
-        // c = headstr[0];
-        // if (((c == '+' || c == '-' || c == '*' || c == '/') && headstr[1] == '\0') || eqstr("mod")) {
 
-            // #define nextlist _list_eval
-            // nextlist = node->list->next;
-            evalAsInt(node->list->next->value);
+            #define nextlist _list_eval_2
+            nextlist = node->list->next;
+            evalAsInt(nextlist->value);
             n_ = i;
-            // for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
-                evalAsInt(node->list->next->next->value);
-                // int nextint = i;
+            for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
+                evalAsInt(nextlist->value);
                 n_ = (
                     c_eval == '+' ? (n_ + i) :
                     c_eval == '-' ? (n_ - i) :
@@ -646,32 +615,23 @@ void eval(Value* node) {
                     c_eval == '/' ? (n_ / i) :
                     (n_%i)
                 );
-            // }
-            // #define ret_ _value
+            }
+            #undef nextlist
             i = n_;
             newIntValue();
-            // return ret_;
             return;
-            // #undef ret_
-            // #undef nextlist
         }
-        if (_str == lt_str || _str == gt_str
-            // eqstr("<") || eqstr(">")
-            ) {
+        if (_str == lt_str || _str == gt_str) {
             c_eval = headstr[0];
             #define ret _value
             evalAsInt(arg2list->value);
             n_ = i;
-            // ret = eval(arg1, env);
             eval(arg1);
-            // n_ = ret->n;
             if (c_eval == '<') {
                 _value = ret->n < n_ ? ret : NULL;
-                // return n < m ? ret : NULL;
             } else {
                 _value = ret->n > n_ ? ret : NULL;
             }
-            // return n > m ? ret : NULL;
             return;
             #undef ret
         }
@@ -694,9 +654,6 @@ eval_lambda:;
     Env* curenv = ((int)isMacro) ? _evalenv : lambda->env;
 
     while (curargname) {
-        // char* argname = curargname->value->str;
-        // For macros, simply pass the arguments without evaluating them, as nodes
-        // _value = ((int)isMacro) ? eval(curarg->value, env) : curarg->value;
         if ((int)isMacro) {
             _value = curarg->value;
         } else {
@@ -713,8 +670,6 @@ eval_lambda:;
     Env* e = _evalenv;
     _evalenv = curenv;
     eval(lambda->body);
-    // return ((int)isMacro) ? _value : eval(_value, curenv);
-    // _value = ((int)isMacro) ? _value : eval(_value, curenv);
     if ((int)isMacro) {
         _evalenv = curenv;
         eval(_value);
@@ -724,6 +679,7 @@ eval_lambda:;
     #undef isMacro
 }
 #undef _list_eval
+#undef _list_eval_2
 #undef arg1
 #undef arg2list
 #undef c_eval
@@ -733,7 +689,6 @@ eval_lambda:;
 #define v _value
 void printValue() {
     k = v->type;
-    // char* p;
     if (k == INT) {
         #define p _str
         k = v->n;
@@ -741,18 +696,15 @@ void printValue() {
             putchar('-');
             k = -k;
         }
-        // char buf[6];
         p = buf + 5;
         *p = '\0';
         do {
-            // int q, r;
             _div(k, 10);
             p--;
             *p = (r + '0');
             k = q;
         } while (k);
         #undef p
-        // printStr(p);
     } else if (k == LAMBDA) {
         _str = v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>";
     } else if (k == ATOM) {
@@ -760,9 +712,6 @@ void printValue() {
     } else if (k == LIST){
         putchar('(');
         List* list = v->list;
-        // if (!list) {
-        //     printStr("Empty list!!!\n");
-        // }
         while(list) {
             _value = list->value;
             printValue();
@@ -780,10 +729,6 @@ void printValue() {
 #undef v
 
 
-#ifdef ELVM
-char* init_stdin = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
-#endif
-// Env* globalEnv;
 List* initlist;
 List* curlist;
 Value* parsed;
@@ -820,7 +765,7 @@ int main (void) {
     }
     // printValue(newListNode(initlist));
 #ifdef ELVM
-    *init_stdin = 0;
+    *((char*)QFTASM_RAMSTDIN_BUF_STARTPOSITION) = 0;
 #endif
     _list = initlist;
     // _value = newListNode();
