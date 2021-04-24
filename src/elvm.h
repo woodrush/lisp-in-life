@@ -7,10 +7,14 @@ void placeholder (){
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
-#define QFTASM_NATIVE_ADDR(x) (x - QFTASM_MEM_OFFSET)
+// #define QFTASM_NATIVE_ADDR(x) (x - QFTASM_MEM_OFFSET)
 
-const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
-#define curchar() (*((char*) QFTASM_NATIVE_ADDR(*STDIN_BUF_POINTER_REG)))
+// const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
+// #define curchar() (*((char*) QFTASM_NATIVE_ADDR(*STDIN_BUF_POINTER_REG)))
+
+#define STDIN_BUF_POINTER_REG 1
+#define curchar() (*((char*) *((char*)STDIN_BUF_POINTER_REG)))
+
 
 #define NULL 0
 #define EOF -1
