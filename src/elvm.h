@@ -7,14 +7,9 @@ void placeholder (){
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
-// #define QFTASM_NATIVE_ADDR(x) (x - QFTASM_MEM_OFFSET)
-
-// const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
-// #define curchar() (*((char*) QFTASM_NATIVE_ADDR(*STDIN_BUF_POINTER_REG)))
 
 #define STDIN_BUF_POINTER_REG 1
 #define curchar() (*((char*) *((char*)STDIN_BUF_POINTER_REG)))
-
 
 #define NULL 0
 #define EOF -1
@@ -65,16 +60,10 @@ void exit(int s);
 
 extern int* _edata;
 
-
-// void printStr(char* p) {
-//     for (; *p; p++){
-//         putchar(*p);
-//     }
-// }
-
-void* malloc(int n) {
+int malloc_bytes;
+void* malloc_k() {
     int* r = _edata;
-    _edata += n;
+    _edata += malloc_bytes;
     if (r > _edata) {
         _str = "Memory overflow\n";
         for (; *_str; _str++){
@@ -84,15 +73,6 @@ void* malloc(int n) {
     }
     return r;
 }
-
-// int eqstr(char* s1, char* s2) {
-//     for(; *s1 || *s2; s1++, s2++) {
-//         if (*s1 != *s2) {
-//             return 0;
-//         }
-//     }
-//     return 1;
-// }
 
 void _div(int n, int m);
 
@@ -124,22 +104,3 @@ int __builtin_mod(int a, int b) {
     _div(a, b);
     return r;
 }
-
-// void printInt(int v) {
-//     int sign = (v < 0) ? 0 : 1;
-//     if (!sign) {
-//         putchar('-');
-//         v = -v;
-//     }
-//     char buf[6];
-//     char* p = buf + 5;
-//     *p = '\0';
-//     do {
-//         int q, r;
-//         div(v, 10, &q, &r);
-//         p--;
-//         *p = (r + '0');
-//         v = q;
-//     } while (v);
-//     printStr(p);
-// }

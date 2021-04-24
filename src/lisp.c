@@ -70,8 +70,8 @@ Value* _value;
 #define str_in _str
 Value* newAtomNode() {
 #define ret _value
-    ret = (Value*)malloc(sizeof(Value));
-    debug("malloc at newAtomNode\n");
+    malloc_bytes = sizeof(Value);
+    ret = (Value*)malloc_k();
     ret->type = ATOM;
     ret->str = str_in;
     return ret;
@@ -84,8 +84,8 @@ List* _list;
 #define list_in _list
 Value* newListNode() {
 #define ret _value
-    ret = (Value*)malloc(sizeof(Value));
-    debug("malloc at newListNode\n");
+    malloc_bytes = sizeof(Value);
+    ret = (Value*)malloc_k();
     ret->type = LIST;
     ret->list = list_in;
     return ret;
@@ -95,8 +95,8 @@ Value* newListNode() {
 
 List* newList(Value* node, List* next) {
 #define ret _list
-    ret = (List*)malloc(sizeof(List));
-    debug("malloc at newList\n");
+    malloc_bytes = sizeof(List);
+    ret = (List*)malloc_k();
     ret->value = node;
     ret->next = next;
     return ret;
@@ -114,7 +114,8 @@ StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
 void appendStringTable() {
-    _stringtable = malloc(sizeof(StringTable));
+    malloc_bytes = sizeof(StringTable);
+    _stringtable = malloc_k();
     _stringtable->varname = _str;
     _stringtable->next = stringTableHead;
     stringTableHead = _stringtable;
@@ -149,7 +150,6 @@ void parseAtom() {
     }
     buf[i] = '\0';
 
-    // _str = malloc(i+1);
 
     // _str = buf;
     _stringtable = stringTableHead;
@@ -171,7 +171,8 @@ parseatomloop:;
     goto endatom;
 
 newstr:;
-    _str = malloc(i+1);
+    malloc_bytes = i+1;
+    _str = malloc_k();
     for (j=0; j<i; j++) {
         _str[j] = buf[j];
     }
@@ -249,8 +250,9 @@ typedef struct Lambda {
 // Value* newIntValue(int n){
 void newIntValue(){
 #define ret _value
-    ret = malloc(sizeof(Value));
-    debug("malloc at newIntValue\n");
+    malloc_bytes = sizeof(Value);
+    ret = malloc_k();
+    debug("malloc_k at newIntValue\n");
     ret->type = INT;
     ret->n = i;
     // return ret;
@@ -259,8 +261,8 @@ void newIntValue(){
 
 Lambda* _lambda;
 // Value* newLambdaValue(){
-//     _value = malloc(sizeof(Value));
-//     debug("malloc at newLambdaValue\n");
+//     _value = malloc_k(sizeof(Value));
+//     debug("malloc_k at newLambdaValue\n");
 //     _value->type = LAMBDA;
 //     _value->lambda = _lambda;
 //     return _value;
@@ -282,8 +284,9 @@ Env* _env2;
 #define env_in _env
 #define env _env2
 Env* newEnv() {
-    env = malloc(sizeof(Env));
-    debug("malloc at newEnv\n");
+    malloc_bytes = sizeof(Env);
+    env = malloc_k();
+    debug("malloc_k at newEnv\n");
     env->varname = varname_in;
     env->value = value_in;
     env->next = env_in;
@@ -570,15 +573,17 @@ void eval(Value* node) {
             return;
         }
         if (_str == lambda_str || _str == macro_str) {
-            _lambda = malloc(sizeof(Lambda));
-            debug("malloc at lambda\n");
+            malloc_bytes = sizeof(Lambda);
+            _lambda = malloc_k();
+            debug("malloc_k at lambda\n");
             _lambda->argnames = arg1->list;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
             _lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
 
-            _value = malloc(sizeof(Value));
-            debug("malloc at newLambdaValue\n");
+            malloc_bytes = sizeof(Value);
+            _value = malloc_k();
+            debug("malloc_k at newLambdaValue\n");
             _value->type = LAMBDA;
             _value->lambda = _lambda;
             // return _value;

@@ -53,3 +53,9 @@ char curchar() {
     }
     return charbuf;
 }
+
+int malloc_bytes;
+void* malloc_k() {
+    return malloc(malloc_bytes);
+}
+// #define malloc malloc_
