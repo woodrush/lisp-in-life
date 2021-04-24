@@ -332,10 +332,14 @@ void parseInt() {
 #undef str
 #undef sign
 
+int isNumeric(){
+    return c == '-' || ('0' <= c && c <= '9');
+}
+
 void eval(Value* node);
 void evalAsInt(Value* node) {
     c = node->str[0];
-    if (c == '-' || ('0' <= c && c <= '9')) {
+    if (isNumeric()) {
         _str = node->str;
         // i = parseInt();
         parseInt();
@@ -387,7 +391,7 @@ void eval(Value* node) {
     if (node->type == ATOM) {
         _str = node->str;
         c = node->str[0];
-        if (('0' <= c && c <= '9') || c == '-') {
+        if (isNumeric()) {
             // i = parseInt();
             parseInt();
             newIntValue();
@@ -757,8 +761,7 @@ void printValue() {
         while(list) {
             _value = list->value;
             printValue();
-            list = list->next;
-            if (list) {
+            if ((list = list->next)) {
                 putchar(' ');
             }
         }
@@ -786,18 +789,23 @@ int main (void) {
     nil = newListNode();
 
 #ifndef ELVM
-    char* opstr_list_[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
-    for(i=0;i<num_ops;i++){
-        opstr_list[i] = opstr_list_[i];
-    }    
-#endif
-
-    for(i=0;i<num_ops;i++){
+    char* opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
+    for(i=0; i<num_ops; i++){
         _str = opstr_list[i];
         appendStringTable();
+    }
+#else
+    char* s1 = 10;
+    for(i=0; i<num_ops; i++){
+        _str = s1;
+        // _str = opstr_list[i];
+        appendStringTable();
+        for(; *s1; s1++){}
+        s1++;
         // printStr("aa");
         // printStr(_str);
     }
+#endif
 
     // _str = (char*) progn_str;
     // appendStringTable();

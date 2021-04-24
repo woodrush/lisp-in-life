@@ -26,8 +26,6 @@ char* lt_str = "<";
 char* gt_str = ">";
 char* t_str = "t";
 
-char* opstr_list[num_ops];
-
 //====================================
 
 char* _str;
