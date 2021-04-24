@@ -1,5 +1,5 @@
 opstr = "define if quote car cdr cons atom print progn while lambda macro eval eq + - * / mod < > t "
-offset = 11
+offset = 10
 poslist = [0+offset]
 for i_c, c in enumerate(opstr):
     if c == " ":

@@ -11,9 +11,9 @@ class Parser(object):
             lambda t: int("".join(t))
         )
         ppliteral = (Literal("{") + CharsNotIn("}") + Literal("}")).setParseAction(
-            lambda t: [[0, "".join(t)]]
+            lambda t: ["".join(t)]
         )
-        operand = Group(addressing_mode + integer) | ppliteral
+        operand = Group(addressing_mode + integer) | Group(addressing_mode + ppliteral)
         MNZ = Literal("MNZ")
         MLZ = Literal("MLZ")
         ADD = Literal("ADD")
@@ -53,7 +53,15 @@ def dstr(mode, d):
 
 with open(filepath, "rt") as f:
     rom_lines = f.readlines()
-rom = [parser.parse_string(inst)[0] for inst in rom_lines]
+header = [inst for inst in rom_lines if inst.startswith(";;")]
+
+rom = [parser.parse_string(inst)[0] for inst in rom_lines if not inst.startswith(";;")]
+
+# for inst in rom_lines:
+#     if not inst.startswith(";;"):
+#         print(inst)
+#         print(parser.parse_string(inst))
+#         print(parser.parse_string(inst)[0])
 
 n_registers = 11
 
@@ -91,23 +99,27 @@ for i_inst, inst in enumerate(rom):
         # print("Detected jump")
         # print()
 
+
     if mode_1 > 0:
         if d1 in reg_value.keys():
             # print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d1]))
             _, (mode_table, dtable) = reg_value[d1]
-            rom[i_inst] = lineno, opcode, (mode_1 - 1 + mode_table, dtable), (mode_2, d2), (mode_3, d3), comment
+            if mode_1 - 1 + mode_table <= 3:
+                rom[i_inst] = lineno, opcode, (mode_1 - 1 + mode_table, dtable), (mode_2, d2), (mode_3, d3), comment
 
     if mode_2 > 0:
         if d2 in reg_value.keys():
             # print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d2]))
             _, (mode_table, dtable) = reg_value[d2]
-            rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1 + mode_table, dtable), (mode_3, d3), comment
+            if mode_2 - 1 + mode_table <= 3:
+                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1 + mode_table, dtable), (mode_3, d3), comment
 
     if mode_3 > 0:
         if d3 in reg_value.keys():
             # print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d3]))
             _, (mode_table, dtable) = reg_value[d3]
-            rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1 + mode_table, dtable), comment
+            if mode_3 - 1 + mode_table <= 3:
+                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1 + mode_table, dtable), comment
 
 
     if mode_3 == 0 and d3 != 0:
@@ -153,25 +165,28 @@ for i_inst, inst in enumerate(rom):
     if mode_1 > 0:
         for mode in reversed(range(4)):
             if (mode, d1) in reg_value.keys():
-                print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d1]))
+                # print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d1]))
                 _, (mode_table, dtable) = reg_value[(mode, d1)]
-                rom[i_inst] = lineno, opcode, (mode_1 - 1 + mode_table, dtable), (mode_2, d2), (mode_3, d3), comment
+                if mode_1 - 1 + mode_table <= 3:
+                    rom[i_inst] = lineno, opcode, (mode_1 - 1 + mode_table, dtable), (mode_2, d2), (mode_3, d3), comment
             break
 
     if mode_2 > 0:
         for mode in reversed(range(4)):
             if (mode, d2) in reg_value.keys():
-                print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d2]))
+                # print("Mov folding is possible at line {}, with a value from {}".format(lineno, reg_value[d2]))
                 _, (mode_table, dtable) = reg_value[(mode, d2)]
-                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1 + mode_table, dtable), (mode_3, d3), comment
+                if mode_2 - 1 + mode_table <= 3:
+                    rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1 + mode_table, dtable), (mode_3, d3), comment
             break
 
     if mode_3 > 0:
         for mode in reversed(range(4)):
             if (mode, d3) in reg_value.keys():
-                print("Mov folding with dereference is possible at line {}, with a value from {}".format(lineno, reg_value[d3]))
+                # print("Mov folding with dereference is possible at line {}, with a value from {}".format(lineno, reg_value[d3]))
                 _, (mode_table, dtable) = reg_value[(mode, d3)]
-                rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1 + mode_table, dtable), comment
+                if mode_3 - 1 + mode_table <= 3:
+                    rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1 + mode_table, dtable), comment
             break
 
     # Initialize on every line
@@ -247,6 +262,9 @@ modedict = {
 }
 
 i_effective_line = 0
+
+for inst in header:
+    print(inst, end="")
 
 for i_inst, inst in enumerate(rom):
     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)

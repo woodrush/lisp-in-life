@@ -1,5 +1,5 @@
 void placeholder (){
-    const char* __header = "\0\0\0\0\0\0\0\0\0\0";
+    const char* __header = "\0\0\0\0\0\0\0\0\0";
     const char* opstr = "define\0if\0quote\0car\0cdr\0cons\0atom\0print\0progn\0while\0lambda\0macro\0eval\0eq\0+\0-\0*\0/\0mod\0<\0>\0t\0";
 }
 
@@ -18,28 +18,29 @@ const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
 //====================================================================================
 #define num_ops 22
 
-#define define_str 11
-#define if_str 18
-#define quote_str 21
-#define car_str 27
-#define cdr_str 31
-#define cons_str 35
-#define atom_str 40
-#define print_str 45
-#define progn_str 51
-#define while_str 57
-#define lambda_str 63
-#define macro_str 70
-#define eval_str 76
-#define eq_str 81
-#define plus_str 84
-#define minus_str 86
-#define ast_str 88
-#define slash_str 90
-#define mod_str 92
-#define lt_str 96
-#define gt_str 98
-#define t_str 100
+#define define_str 10
+#define if_str 17
+#define quote_str 20
+#define car_str 26
+#define cdr_str 30
+#define cons_str 34
+#define atom_str 39
+#define print_str 44
+#define progn_str 50
+#define while_str 56
+#define lambda_str 62
+#define macro_str 69
+#define eval_str 75
+#define eq_str 80
+#define plus_str 83
+#define minus_str 85
+#define ast_str 87
+#define slash_str 89
+#define mod_str 91
+#define lt_str 95
+#define gt_str 97
+#define t_str 199
+
 int opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
 
 //====================================================================================
