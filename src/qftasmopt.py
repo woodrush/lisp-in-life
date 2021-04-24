@@ -223,8 +223,12 @@ unused_lines = []
 # Dead code elimination
 reg_fresh = {}
 
+
 for inst in rom:
     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+
+    # if len(unused_lines) > 18:
+        # break
 
     if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and mode_2 == 0 and d2 == 0 and opcode == "MNZ"):
         reg_fresh = {}
@@ -241,7 +245,8 @@ for inst in rom:
         reg_fresh[d3] = False
     elif not (opcode == "MNZ" and mode_1 == 0 and d1 == 0):
         if (
-            not (opcode == "MLZ")
+            not (opcode == "MNZ" and mode_1 > 0)
+            and not (opcode == "MLZ")
             and d3 in reg_fresh.keys()
             and reg_fresh[d3] != False
            ):  # `!= False`, since reg_fresh[d3] may be 0
