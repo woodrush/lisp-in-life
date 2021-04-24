@@ -64,50 +64,10 @@ n_registers = 11
 def readinst (inst):
     if len(inst) == 5:
         return tuple(inst) + ("",)
-    return inst
-
-# # Constant folding
-# reg_fresh = {}
-# for i_inst, inst in enumerate(rom):
-#     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
-
-#     if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and opcode == "MNZ"):
-#         reg_fresh = {}
-#         # print("Detected jump")
-#         # print()
-
-#     if mode_1 > 0:
-#         if d1 in reg_fresh.keys() and reg_fresh[d1][1] == "const":
-#             # print("Constant folding is possible at line {}, with a value from {}".format(lineno, reg_fresh[d1]))
-#             rom[i_inst] = lineno, opcode, (mode_1 - 1, reg_fresh[d1][2]), (mode_2, d2), (mode_3, d3), comment
-
-#     if mode_2 > 0:
-#         if d2 in reg_fresh.keys() and reg_fresh[d2][1] == "const":
-#             # print("Constant folding is possible at line {}, with a value from {}".format(lineno, reg_fresh[d2]))
-#             rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2 - 1, reg_fresh[d2][2]), (mode_3, d3), comment
-#     if mode_3 > 0:
-#         if d3 in reg_fresh.keys() and reg_fresh[d3][1] == "const":
-#             # print("Constant folding is possible at line {}, with a value from {}".format(lineno, reg_fresh[d3]))
-#             rom[i_inst] = lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3 - 1, reg_fresh[d3][2]), comment
-
-#     if mode_3 == 0 and d3 != 0:
-#         if opcode == "MNZ" and mode_1 == 0 and mode_2 == 0 and not (d1 == 0):
-#             reg_fresh[d3] = lineno, "const", d2
-#         elif opcode == "MLZ" and mode_1 == 0 and mode_2 == 0 and not (type(d2) == int and (0 <= d2 < 32768)):
-#             reg_fresh[d3] = lineno, "const", d2
-#         elif opcode == "ADD" and mode_1 == 0 and mode_2 == 0:
-#             reg_fresh[d3] = lineno, "const", (d1 + d2)
-#         elif opcode == "SUB" and mode_1 == 0 and mode_2 == 0:
-#             reg_fresh[d3] = lineno, "const", (d1 - d2)
-#         else:
-#             reg_fresh[d3] = lineno, "uncertain", None
-
-#     if "pc ==" in comment:
-#         reg_fresh = {}
-    
+    return inst    
 
 
-# Mov (register) folding
+# Constant folding and Mov folding
 reg_value = {}
 reg_value_dstedge = {}
 
