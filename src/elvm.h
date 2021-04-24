@@ -1,5 +1,5 @@
 void placeholder (){
-    const char* __header = "\0\0\0\0\0\0\0\0\0";
+    const char* __regarea = "\0\0\0\0\0\0\0\0\0";
     const char* opstr = "define\0if\0quote\0car\0cdr\0cons\0atom\0print\0progn\0while\0lambda\0macro\0eval\0eq\0+\0-\0*\0/\0mod\0<\0>\0t\0";
 }
 
@@ -40,8 +40,6 @@ const char* STDIN_BUF_POINTER_REG = QFTASM_NATIVE_ADDR(1);
 #define lt_str 95
 #define gt_str 97
 #define t_str 199
-
-// int opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
 
 //====================================================================================
 

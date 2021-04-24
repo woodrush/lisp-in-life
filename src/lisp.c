@@ -524,7 +524,7 @@ void eval(Value* node) {
         if (_str == atom_str) {
             // _value = eval(arg1, env);
             eval(arg1);
-            _str = "t";
+            _str = t_str;
             // return (
             //     !_value ? newAtomNode() :
             //     (_value->type == ATOM) || (_value->type == INT) ? _value : NULL
@@ -783,8 +783,6 @@ List* initlist;
 List* curlist;
 Value* parsed;
 int main (void) {
-    // _str = "hey,i'm_nil";
-    // _list = newList(newAtomNode(), NULL);
     _list = NULL;
     nil = newListNode();
 
@@ -795,22 +793,14 @@ int main (void) {
         appendStringTable();
     }
 #else
-    char* s1 = 10;
+    s1 = 10;
     for(i=0; i<num_ops; i++){
         _str = s1;
-        // _str = opstr_list[i];
         appendStringTable();
         for(; *s1; s1++){}
         s1++;
-        // printStr("aa");
-        // printStr(_str);
     }
 #endif
-
-    // _str = (char*) progn_str;
-    // appendStringTable();
-    // _str = (char*) define_str;
-    // appendStringTable();
 
     _str = "";
     _value = NULL;
@@ -819,7 +809,6 @@ int main (void) {
     _str = (char*) progn_str;
     initlist = newList(newAtomNode(), NULL);
     curlist = initlist;
-    // Value* parsed;
     while((parseExpr(), _value)) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
@@ -827,11 +816,7 @@ int main (void) {
     // printValue(newListNode(initlist));
 #ifdef ELVM
     *init_stdin = 0;
-    // for (;*init_stdin;init_stdin++) {
-    //     *init_stdin = 0;
-    // }
 #endif
-    // nil->list->value->str = "hi!";
     _list = initlist;
     // _value = newListNode();
     // printValue();
