@@ -314,6 +314,7 @@ typedef struct {
     union {
         List* arg2list_;
         int n_;
+        Env* e;
     };
 } EvalStack;
 
@@ -329,6 +330,7 @@ void eval(Value* node) {
 #define arg2list (evalstack.arg2list_)
 #define c_eval (evalstack.c_eval_)
 #define n_ (evalstack.n_)
+#define evalstack_env (evalstack.e)
 
     // Is an atom
     if (node->type == ATOM) {
@@ -559,6 +561,7 @@ void eval(Value* node) {
 
 eval_lambda:;
     #define curargname _list_eval
+    #define curarg _list_eval_2
     #define isMacro node
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
@@ -566,7 +569,7 @@ eval_lambda:;
     eval(node->list->value);
     Lambda* lambda = _value->lambda;
     curargname = lambda->argnames;
-    List* curarg = node->list->next;
+    curarg = node->list->next;
     // Macros should be evaluated in the environment they are called in
     isMacro = (Value*) (lambda->type == L_MACRO);
     Env* curenv = ((int)isMacro) ? _evalenv : lambda->env;
@@ -584,15 +587,16 @@ eval_lambda:;
         curarg = curarg->next;
     }
     // For macros, evaluate the result before returning it
-    Env* e = _evalenv;
+    evalstack_env = _evalenv;
     _evalenv = curenv;
     eval(lambda->body);
     if ((int)isMacro) {
         _evalenv = curenv;
         eval(_value);
     }
-    _evalenv = e;
+    _evalenv = evalstack_env;
     #undef curargname
+    #undef curarg
     #undef isMacro
 }
 #undef _list_eval
@@ -601,6 +605,7 @@ eval_lambda:;
 #undef arg2list
 #undef c_eval
 #undef n_
+#undef evalstack_env
 
 #define v _value
 void printValue() {
