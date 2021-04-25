@@ -61,19 +61,21 @@ typedef enum {
     ATOM, LIST, INT, LAMBDA
 } Valuetype;
 
-typedef struct List {
-    struct Value* value;
-    struct List* next;
-} List;
+// typedef struct List {
+//     struct Value* value;
+//     struct Value* next;
+// } List;
 
 typedef struct Value {
     Valuetype type;
     union {
         char* str;
-        struct List* list;
+        // struct Value* list;
+        struct Value* value;
         int n;
         struct Lambda* lambda;
     };
+    struct Value* next;
 } Value;
 
 typedef struct StringTable {
@@ -96,23 +98,24 @@ void newAtomNode() {
 #undef str_in
 
 Value* nil;
-List* _list;
-#define list_in _list
-Value* newListNode() {
-#define ret _value
+Value* _list;
+// #define list_in _list
+// Value* newListNode() {
+// #define ret _value
+//     malloc_bytes = sizeof(Value);
+//     ret = (Value*)malloc_k();
+//     ret->type = LIST;
+//     ret = list_in;
+//     return ret;
+// #undef ret
+// }
+// #undef list_in
+
+Value* newList(Value* node, Value* next) {
+#define ret _list
     malloc_bytes = sizeof(Value);
     ret = (Value*)malloc_k();
     ret->type = LIST;
-    ret->list = list_in;
-    return ret;
-#undef ret
-}
-#undef list_in
-
-List* newList(Value* node, List* next) {
-#define ret _list
-    malloc_bytes = sizeof(List);
-    ret = (List*)malloc_k();
     ret->value = node;
     ret->next = next;
     return ret;
@@ -144,7 +147,7 @@ void appendStringTable() {
 char* s1;
 char* s2;
 
-List* parseListLoop() {
+Value* parseListLoop() {
     parseExpr();
     Value* parsednode = _value;
     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
@@ -209,10 +212,11 @@ space:;
     if (c == '(') {
         popchar(); // '('
 
-        _list = parseListLoop();
+        _value = parseListLoop();
 
         popchar(); // ')'
-        _value = _list ? newListNode() : nil;
+
+        _value = _value ? _value : nil;
         return;
     }
 
@@ -294,7 +298,7 @@ typedef enum {
 } Lambdatype;
 
 typedef struct Lambda {
-    struct List* argnames;
+    struct Value* argnames;
     struct Value* body;
     struct Env* env;
     Lambdatype type;
@@ -345,15 +349,15 @@ void evalAsInt(Value* node) {
 typedef struct {
     union {
         char c_eval_;
-        List* _list_eval_;
+        Value* _list_eval_;
     };
     union {
         Value* arg1_;
-        List* _list_eval_2;
+        Value* _list_eval_2;
         Env* e2;
     };
     union {
-        List* arg2list_;
+        Value* arg2list_;
         int n_;
         Env* e;
     };
@@ -409,15 +413,15 @@ void eval(Value* node) {
     // Is a list
 
     // Is ()
-    if (!(node->list)) {
+    if (!(node->value)) {
         _value = NULL;
         return;
     }
 
     // The head of the list is an atom
-    if (node->list->value->type == ATOM) {
+    if (node->value->type == ATOM) {
         #define headstr _str
-        headstr = node->list->value->str;
+        headstr = node->value->str;
 
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
@@ -429,11 +433,11 @@ void eval(Value* node) {
         //     print_int(headstr);
         // }
 
-        // if (!(node->list->next)) {
+        // if (!(node->next)) {
         //     goto eval_lambda;
         // }
-        arg1 = node->list->next->value;
-        arg2list = node->list->next->next;
+        arg1 = node->next->value;
+        arg2list = node->next->next;
 
         if (_str == define_str) {
             #define ret _value
@@ -465,15 +469,15 @@ void eval(Value* node) {
         if (_str == car_str) {
             eval(arg1);
             if (_value) {
-                _value = _value->list->value;
+                _value = _value->value;
             }
             return;
         }
         if (_str == cdr_str) {
             eval(arg1);
             if (_value) {
-                _list = _value->list->next;
-                _value = _list ? newListNode() : NULL;
+                _value = _value->next;
+                // _value = _list ? newListNode() : NULL;
             }
             return;
         }
@@ -482,8 +486,8 @@ void eval(Value* node) {
             eval(arg1);
             car = _value;
             eval(arg2list->value);
-            _list = newList(car, _value ? _value->list : NULL);
-            _value = newListNode();
+            _value = newList(car, _value);
+            // _value = newListNode();
             return;
             #undef car
         }
@@ -499,7 +503,7 @@ void eval(Value* node) {
         }
         if (_str == progn_str) {
             #define curlist _list_eval
-            curlist = node->list->next;
+            curlist = node->next;
             _value = NULL;
             while (curlist) {
                 eval(curlist->value);
@@ -518,7 +522,7 @@ void eval(Value* node) {
         if (_str == lambda_str || _str == macro_str) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
-            _lambda->argnames = arg1->list;
+            _lambda->argnames = arg1;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
             _lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
@@ -560,7 +564,7 @@ void eval(Value* node) {
             c_eval = headstr[0];
 
             #define nextlist _list_eval_2
-            nextlist = node->list->next;
+            nextlist = node->next;
             evalAsInt(nextlist->value);
             n_ = i;
             if (c_eval == '-' && !(nextlist->next)) {
@@ -620,8 +624,8 @@ eval_lambda:;
     #define curlambda ((Lambda*) node) 
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
-    eval(node->list->value);
-    curarg = node->list->next;
+    eval(node->value);
+    curarg = node->next;
     node = (Value*)(_value->lambda);
     curargname = curlambda->argnames;
 
@@ -667,7 +671,12 @@ eval_lambda:;
 
 #define v _value
 void printValue() {
-    List* list;
+    Value* list;
+    if (!_value) {
+        putchar('(');
+        putchar(')');
+        return;
+    }
 
     k = v->type;
     if (k == INT) {
@@ -692,7 +701,7 @@ void printValue() {
         _str = v->str;
     } else if (k == LIST){
         putchar('(');
-        list = v->list;
+        list = v;
         while(list) {
             _value = list->value;
             printValue();
@@ -709,12 +718,12 @@ void printValue() {
 }
 #undef v
 
-List* initlist;
-List* curlist;
+Value* initlist;
+Value* curlist;
 Value* parsed;
 int main (void) {
-    _list = NULL;
-    nil = newListNode();
+    // _list = NULL;
+    nil = newList(NULL, NULL);
     _str = t_str;
     newAtomNode();
     true_value = _value;
@@ -751,8 +760,8 @@ int main (void) {
 #ifdef ELVM
     *((char*)QFTASM_RAMSTDIN_BUF_STARTPOSITION) = 0;
 #endif
-    _list = initlist;
+    // _list = initlist;
     // _value = newListNode();
     // printValue();
-    eval(newListNode());
+    eval(initlist);
 }
