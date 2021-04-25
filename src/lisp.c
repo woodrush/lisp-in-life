@@ -566,22 +566,16 @@ eval_lambda:;
     #define curargname _list_eval
     #define curarg _list_eval_2
     #define curenv evalstack_env
-    // #define isMacro node
     #define curlambda ((Lambda*) node) 
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
-    // Lambda* lambda = eval(node->list->value, env)->lambda;
-    
     eval(node->list->value);
-    // Lambda* lambda = _value->lambda;
-    // curlambda = _value->lambda;
     curarg = node->list->next;
     node = (Value*)(_value->lambda);
     curargname = curlambda->argnames;
-    // Macros should be evaluated in the environment they are called in
-    // isMacro = (Value*) (_value->lambda->type == L_MACRO);
 
-    // curenv = ((int)isMacro) ? _evalenv : _value->lambda->env;
+    // Macros should be evaluated in the environment they are called in,
+    // instead of the environment they were defined in
     curenv = (curlambda->type == L_MACRO) ? _evalenv : curlambda->env;
 
     while (curargname) {
@@ -596,6 +590,7 @@ eval_lambda:;
         curargname = curargname->next;
         curarg = curarg->next;
     }
+
     // For macros, evaluate the result before returning it
     evalstack_env2 = _evalenv;
     _evalenv = curenv;
@@ -608,8 +603,7 @@ eval_lambda:;
     #undef curargname
     #undef curarg
     #undef curenv
-    // #undef curlambda
-    // #undef isMacro
+    #undef curlambda
 }
 #undef _list_eval
 #undef _list_eval_2
