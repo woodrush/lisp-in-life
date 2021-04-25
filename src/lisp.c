@@ -4,7 +4,7 @@
 #include "lisp.h"
 #endif
 
-#include <stdio.h>
+// #include <stdio.h>
 #define debug(x) //printf(x)
 
 void _div(int n, int m) {
@@ -66,11 +66,6 @@ typedef enum {
     ATOM=1, INT=2, LAMBDA=3, LIST=4
 } Valuetype;
 
-// typedef struct List {
-//     struct Value* value;
-//     struct Value* next;
-// } List;
-
 typedef struct Value {
     union {
         Valuetype type;
@@ -119,8 +114,6 @@ Value* newList(Value* node, Value* next) {
 #undef ret
 }
 
-// void parseAtom();
-// void parseList();
 void parseExpr();
 
 char c;
@@ -281,8 +274,16 @@ parseatomloop:;
 //================================================================================
 // Evaluator
 //================================================================================
+typedef enum {
+    ENV_PERSISTENT=0, ENV_TEMPORARY=1
+} Envtype;
+
 typedef struct Env {
     char* varname;
+    union {
+        Envtype type;
+        struct Env* prev;
+    };
     struct Value* value;
     struct Env* next;
 } Env;
@@ -311,15 +312,34 @@ Env* newEnv() {
     malloc_bytes = sizeof(Env);
     env = malloc_k();
     debug("newEnv\n");
+    env->type = ENV_PERSISTENT;
     env->varname = varname_in;
     env->value = value_in;
     env->next = env_in;
+    env->prev = NULL;
     return env;
 }
 #undef varname_in
 #undef value_in
 #undef env_in
 #undef env
+
+Env* prependTemporaryEnv() {
+    if (_env->prev) {
+        _env2 = _env->prev;
+    } else {
+        malloc_bytes = sizeof(Env);
+        _env2 = malloc_k();
+        debug("newEnv\n");
+        _env->prev = _env2;
+    }
+    _env2->type = ENV_TEMPORARY;
+    _env2->varname = _str;
+    _env2->value = _value;
+    _env2->next = _env;
+    _env2->prev = NULL;
+    return _env2;
+}
 
 void printValue();
 
@@ -638,7 +658,11 @@ eval_lambda:;
         }
         _str = curargname->value->str;
         _env = curenv;
-        curenv = newEnv();
+        if (curlambda->type == L_CLOSURE) {
+            curenv = newEnv();
+        } else {
+            curenv = prependTemporaryEnv();
+        }
         curargname = curargname->next;
         curarg = curarg->next;
     }

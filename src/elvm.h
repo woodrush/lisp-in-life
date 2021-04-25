@@ -3,7 +3,7 @@ void placeholder (){
     const char* opstr = "eval\0closure\0atom\0quote\0macro\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0eq\0if";
 }
 
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 1592
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 6592
 #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
@@ -41,7 +41,7 @@ void placeholder (){
 #define eq_str 103
 #define if_str 106
 
-#define last_op gt_str
+#define last_op if_str
 
 //====================================================================================
 
