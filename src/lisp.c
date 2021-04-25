@@ -147,11 +147,11 @@ char* s2;
 // void parseAtom() {
 // }
 
-List* parseListLoop() {
-    parseExpr();
-    Value* parsednode = _value;
-    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-}
+// List* parseListLoop() {
+//     parseExpr();
+//     Value* parsednode = _value;
+//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
+// }
 
 // void parseList() {
 //     if (curchar() != '('){
@@ -252,9 +252,25 @@ parselist:
     // }
     popchar(); // '('
 
-    _list = parseListLoop();
+    // _list = parseListLoop();
+    List* retlist = NULL;
+    List* curlist = NULL;
+
+parselistloop:
+    parseExpr();
+    if (_value) {
+        if (!curlist) {
+            curlist = newList(_value, NULL);
+            retlist = curlist;
+        } else {
+            curlist->next = newList(_value, NULL);
+            curlist = curlist->next;
+        }
+        goto parselistloop;
+    }
 
     popchar(); // ')'
+    _list = retlist;
     _value = _list ? newListNode() : nil;
 
     // if (!_value) {
