@@ -288,7 +288,7 @@ typedef struct Env {
 } Env;
 
 typedef enum {
-    L_LAMBDA, L_MACRO
+    L_LAMBDA, L_MACRO, L_CLOSURE
 } Lambdatype;
 
 typedef struct Lambda {
@@ -514,14 +514,14 @@ void eval(Value* node) {
             }
             return;
         }
-        if (_str == lambda_str || _str == macro_str) {
+        if (_str == lambda_str || _str == macro_str || _str == closure_str) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
             debug("lambda 1\n");
             _lambda->argnames = arg1;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
-            _lambda->type = headstr[0] == 'l' ? L_LAMBDA : L_MACRO;
+            _lambda->type = headstr[0] == 'l' ? L_LAMBDA : headstr[0] == 'm' ? L_MACRO : L_CLOSURE;
 
             malloc_bytes = sizeof(Value);
             _value = malloc_k();
@@ -696,7 +696,7 @@ void printValue() {
         #undef p
     } else if (k == LAMBDA) {
         debug("<lambda>");
-        _str = v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>";
+        _str = v->lambda->type == L_LAMBDA ? "#<Lambda>" : v->lambda->type == L_MACRO ? "#<Macro>" : "#<Closure>";
     } else if (k == ATOM) {
         debug("<atom>");
         _str = v->str;
