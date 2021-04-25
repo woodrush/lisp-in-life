@@ -38,7 +38,9 @@ void placeholder (){
 #define mod_str 91
 #define lt_str 95
 #define gt_str 97
-#define t_str 199
+#define t_str 99
+
+#define last_op gt_str
 
 //====================================================================================
 
