@@ -84,13 +84,13 @@ typedef struct StringTable {
 
 Value* _value;
 #define str_in _str
-Value* newAtomNode() {
+void newAtomNode() {
 #define ret _value
     malloc_bytes = sizeof(Value);
-    ret = (Value*)malloc_k();
-    ret->type = ATOM;
-    ret->str = str_in;
-    return ret;
+    _value = (Value*)malloc_k();
+    _value->type = ATOM;
+    _value->str = str_in;
+    // return ret;
 #undef ret
 }
 #undef str_in
@@ -144,27 +144,47 @@ void appendStringTable() {
 char* s1;
 char* s2;
 
-// void parseAtom() {
-// }
+List* parseListLoop() {
+    parseExpr();
+    Value* parsednode = _value;
+    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
+}
 
-// List* parseListLoop() {
-//     parseExpr();
-//     Value* parsednode = _value;
-//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-// }
+int isNumeric(){
+    return c == '-' || ('0' <= c && c <= '9');
+}
 
-// void parseList() {
-//     if (curchar() != '('){
-//         _value = NULL;
-//         return;
-//     }
-//     popchar(); // '('
+#define str _str
+#define sign j
 
-//     _list = parseListLoop();
+void parseInt() {
+    sign = 1;
+    i = 0;
+    if (str[0] == '-') {
+        sign = 0;
+        str++;
+    }
+    while (*str) {
+        // i *= 10
+        i += i;
+        k = i;
+        i += i;
+        i += i + k + (*str - '0');
+        str++;
+    }
+    i = sign ? i : -i;
+}
+#undef str
+#undef sign
 
-//     popchar(); // ')'
-//     _value = _list ? newListNode() : nil;
-// }
+void newIntValue(){
+#define ret _value
+    malloc_bytes = sizeof(Value);
+    ret = malloc_k();
+    ret->type = INT;
+    ret->n = i;
+#undef ret
+}
 
 void parseExpr() {
     // Remove whitespace
@@ -177,15 +197,26 @@ space:;
     if (c == ';') {
         do {
             c = popchar();
+#ifdef ELVM
+        } while(c != '\n');
+#else
         } while(c != '\n' && c != EOF);
+#endif
         goto space;
     }
 
+    // Parse as a list
     if (c == '(') {
-        goto parselist;
+        popchar(); // '('
+
+        _list = parseListLoop();
+
+        popchar(); // ')'
+        _value = _list ? newListNode() : nil;
+        return;
     }
 
-    // Parse atom
+    // Parse as an atom
 #ifdef ELVM
     if (c == ')' || !c) {
 #else
@@ -208,6 +239,16 @@ space:;
     }
     buf[i] = '\0';
 
+    // If the expression is an integer literal, evaluate it
+    c = buf[0];
+    if (('0' <= c && c <= '9') || c == '-' && ('0' <= buf[1] && buf[1] <= '9')) {
+        _str = buf;
+        parseInt();
+        newIntValue();
+        return;
+    }
+
+
     _stringtable = stringTableHead;
 
 parseatomloop:;
@@ -219,63 +260,24 @@ parseatomloop:;
             if ((_stringtable = _stringtable->next)) {
                 goto parseatomloop;
             }
-            // This was the last string in the table
-            goto newstr;
+
+            // This was the last string in the table, so create a string
+            malloc_bytes = i+1;
+            _str = malloc_k();
+            s1 = _str;
+            s2 = buf;
+            for(; *s2; s1++, s2++) {
+                *s1 = *s2;
+            }
+            appendStringTable();
+            goto endatom;
         }
     }
     // The strings are equal
     _str = _stringtable->varname;
-    goto endatom;
-
-newstr:;
-    malloc_bytes = i+1;
-    _str = malloc_k();
-    s1 = _str;
-    s2 = buf;
-    // for (j=0; j<i; j++) {
-    //     _str[j] = buf[j];
-    // }
-    for(; *s2; s1++, s2++) {
-        *s1 = *s2;
-    }
-    appendStringTable();
 
 endatom:;
-
-    _value = newAtomNode();
-    return;
-
-parselist:
-    // if (curchar() != '('){
-    //     _value = NULL;
-    //     return;
-    // }
-    popchar(); // '('
-
-    // _list = parseListLoop();
-    List* retlist = NULL;
-    List* curlist = NULL;
-
-parselistloop:
-    parseExpr();
-    if (_value) {
-        if (!curlist) {
-            curlist = newList(_value, NULL);
-            retlist = curlist;
-        } else {
-            curlist->next = newList(_value, NULL);
-            curlist = curlist->next;
-        }
-        goto parselistloop;
-    }
-
-    popchar(); // ')'
-    _list = retlist;
-    _value = _list ? newListNode() : nil;
-
-    // if (!_value) {
-    //     parseList();
-    // }
+    newAtomNode();
 }
 
 //================================================================================
@@ -298,15 +300,6 @@ typedef struct Lambda {
     Lambdatype type;
 } Lambda;
 
-
-void newIntValue(){
-#define ret _value
-    malloc_bytes = sizeof(Value);
-    ret = malloc_k();
-    ret->type = INT;
-    ret->n = i;
-#undef ret
-}
 
 Lambda* _lambda;
 
@@ -331,34 +324,14 @@ Env* newEnv() {
 
 void printValue();
 
-#define str _str
-#define sign j
-void parseInt() {
-    sign = 1;
-    i = 0;
-    if (str[0] == '-') {
-        sign = 0;
-        str++;
-    }
-    while (*str) {
-        // i *= 10
-        i += i;
-        k = i;
-        i += i;
-        i += i + k + (*str - '0');
-        str++;
-    }
-    i = sign ? i : -i;
-}
-#undef str
-#undef sign
 
-int isNumeric(){
-    return c == '-' || ('0' <= c && c <= '9');
-}
 
 void eval(Value* node);
 void evalAsInt(Value* node) {
+    if (node->type == INT) {
+        i = node->n;
+        return;
+    }
     c = node->str[0];
     if (isNumeric()) {
         _str = node->str;
@@ -743,7 +716,8 @@ int main (void) {
     _list = NULL;
     nil = newListNode();
     _str = t_str;
-    true_value = newAtomNode();
+    newAtomNode();
+    true_value = _value;
 
 #ifndef ELVM
     char* opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
@@ -766,7 +740,8 @@ int main (void) {
     _env = NULL;
     _evalenv = newEnv();
     _str = (char*) progn_str;
-    initlist = newList(newAtomNode(), NULL);
+    newAtomNode();
+    initlist = newList(_value, NULL);
     curlist = initlist;
     while((parseExpr(), _value)) {
         curlist->next = newList(_value, NULL);
