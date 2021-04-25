@@ -119,8 +119,8 @@ List* newList(Value* node, List* next) {
 #undef ret
 }
 
-void parseAtom();
-void parseList();
+// void parseAtom();
+// void parseList();
 void parseExpr();
 
 char c;
@@ -144,12 +144,52 @@ void appendStringTable() {
 char* s1;
 char* s2;
 
-void parseAtom() {
+// void parseAtom() {
+// }
+
+List* parseListLoop() {
+    parseExpr();
+    Value* parsednode = _value;
+    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
+}
+
+// void parseList() {
+//     if (curchar() != '('){
+//         _value = NULL;
+//         return;
+//     }
+//     popchar(); // '('
+
+//     _list = parseListLoop();
+
+//     popchar(); // ')'
+//     _value = _list ? newListNode() : nil;
+// }
+
+void parseExpr() {
+    // Remove whitespace
+space:;
     c = curchar();
+    if(c == ' ' || c == '\n') {
+        popchar();
+        goto space;
+    }
+    if (c == ';') {
+        do {
+            c = popchar();
+        } while(c != '\n' && c != EOF);
+        goto space;
+    }
+
+    if (c == '(') {
+        goto parselist;
+    }
+
+    // Parse atom
 #ifdef ELVM
-    if (c == ')' || c == '(' || !c) {
+    if (c == ')' || !c) {
 #else
-    if (c == ')' || c == '(' || !c || c == EOF) {
+    if (c == ')' || !c || c == EOF) {
 #endif
         _value = NULL;
         return;
@@ -201,45 +241,25 @@ newstr:;
     appendStringTable();
 
 endatom:;
+
     _value = newAtomNode();
-}
+    return;
 
-List* parseListLoop() {
-    parseExpr();
-    Value* parsednode = _value;
-    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-}
-
-void parseList() {
-    if (curchar() != '('){
-        _value = NULL;
-        return;
-    }
+parselist:
+    // if (curchar() != '('){
+    //     _value = NULL;
+    //     return;
+    // }
     popchar(); // '('
 
     _list = parseListLoop();
 
     popchar(); // ')'
     _value = _list ? newListNode() : nil;
-}
 
-void parseExpr() {
-space:;
-    c = curchar();
-    if(c == ' ' || c == '\n') {
-        popchar();
-        goto space;
-    }
-    if (c == ';') {
-        do {
-            c = popchar();
-        } while(c != '\n' && c != EOF);
-        goto space;
-    }
-    parseAtom();
-    if (!_value) {
-        parseList();
-    }
+    // if (!_value) {
+    //     parseList();
+    // }
 }
 
 //================================================================================
@@ -741,7 +761,7 @@ int main (void) {
     *((char*)QFTASM_RAMSTDIN_BUF_STARTPOSITION) = 0;
 #endif
     _list = initlist;
-    _value = newListNode();
-    printValue();
-    // eval(newListNode());
+    // _value = newListNode();
+    // printValue();
+    eval(newListNode());
 }
