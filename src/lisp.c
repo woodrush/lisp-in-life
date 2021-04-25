@@ -345,9 +345,8 @@ typedef struct {
     };
 } EvalStack;
 
-// const char* define_str = "define";
-// const char* progn_str = "progn";
 
+Value* true_value;
 void eval(Value* node) {
     EvalStack evalstack;
 
@@ -578,26 +577,26 @@ void eval(Value* node) {
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
+            // Nil equality
+            if (n1 == n2) {
+                _value = true_value;
+            }
+            else if (!n1 || !n2) {
+                _value = NULL;
+            }
             // Integer equality
-            if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
-                // return n1;
-                _value = n1;
+            else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
+                _value = true_value;
             }
             // Atom equality
-            else if (n1->type == ATOM && n2->type == ATOM &&
-                // (_str = n1->str, eqstr(n2->str))
-                (n1->str == n2->str)
-                ) {
-                // return n1;
-                _value = n1;
+            else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
+                _value = true_value;
             } else {
                 _value = NULL;
             }
-            // return NULL;
             return;
             #undef n1
             #undef n2
-            // return eqAtom(eval(arg1, env), eval(arg2list->value, env));
         }
         if (_str == plus_str || _str ==minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
             c_eval = headstr[0];
@@ -606,18 +605,22 @@ void eval(Value* node) {
             nextlist = node->list->next;
             evalAsInt(nextlist->value);
             n_ = i;
-            for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
-                evalAsInt(nextlist->value);
-                n_ = (
-                    c_eval == '+' ? (n_ + i) :
-                    c_eval == '-' ? (n_ - i) :
-                    c_eval == '*' ? (n_ * i) :
-                    c_eval == '/' ? (n_ / i) :
-                    (n_%i)
-                );
+            if (c_eval == '-' && !(nextlist->next)) {
+                i = -n_;
+            } else {
+                for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
+                    evalAsInt(nextlist->value);
+                    n_ = (
+                        c_eval == '+' ? (n_ + i) :
+                        c_eval == '-' ? (n_ - i) :
+                        c_eval == '*' ? (n_ * i) :
+                        c_eval == '/' ? (n_ / i) :
+                        (n_%i)
+                    );
+                }
+                i = n_;
             }
             #undef nextlist
-            i = n_;
             newIntValue();
             return;
         }
@@ -628,9 +631,9 @@ void eval(Value* node) {
             n_ = i;
             eval(arg1);
             if (c_eval == '<') {
-                _value = ret->n < n_ ? ret : NULL;
+                _value = ret->n < n_ ? true_value : NULL;
             } else {
-                _value = ret->n > n_ ? ret : NULL;
+                _value = ret->n > n_ ? true_value : NULL;
             }
             return;
             #undef ret
@@ -728,13 +731,14 @@ void printValue() {
 }
 #undef v
 
-
 List* initlist;
 List* curlist;
 Value* parsed;
 int main (void) {
     _list = NULL;
     nil = newListNode();
+    _str = t_str;
+    true_value = newAtomNode();
 
 #ifndef ELVM
     char* opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
