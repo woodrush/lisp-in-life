@@ -4,6 +4,8 @@
 #include "lisp.h"
 #endif
 
+#define debug(x) //printf(x)
+
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -73,7 +75,6 @@ typedef struct Value {
     };
     union {
         char* str;
-        // struct Value* list;
         struct Value* value;
         int n;
         struct Lambda* lambda;
@@ -81,7 +82,8 @@ typedef struct Value {
 } Value;
 
 typedef struct StringTable {
-    char* varname;
+    // char* varname;
+    Value* value;
     struct StringTable* next;
 } StringTable;
 
@@ -92,6 +94,7 @@ void newAtomNode() {
 #define ret _value
     malloc_bytes = sizeof(Value);
     _value = (Value*)malloc_k();
+    debug("newAtomNode\n");
     _value->type = ATOM;
     _value->str = str_in;
     // return ret;
@@ -101,23 +104,12 @@ void newAtomNode() {
 
 Value* nil;
 Value* _list;
-// #define list_in _list
-// Value* newListNode() {
-// #define ret _value
-//     malloc_bytes = sizeof(Value);
-//     ret = (Value*)malloc_k();
-//     ret->type = LIST;
-//     ret = list_in;
-//     return ret;
-// #undef ret
-// }
-// #undef list_in
 
 Value* newList(Value* node, Value* next) {
 #define ret _list
     malloc_bytes = sizeof(Value);
     ret = (Value*)malloc_k();
-    // ret->type = LIST;
+    debug("newList\n");
     ret->value = node;
     ret->next = next;
     return ret;
@@ -134,16 +126,14 @@ char buf[32];
 StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
-int stringtableaccess = 0;
-
 void appendStringTable() {
     malloc_bytes = sizeof(StringTable);
     _stringtable = malloc_k();
-    _stringtable->varname = _str;
+    debug("appendStringTable\n");
+    newAtomNode();
+    _stringtable->value = _value;
     _stringtable->next = stringTableHead;
     stringTableHead = _stringtable;
-
-    stringtableaccess++;
 }
 
 char* s1;
@@ -186,6 +176,7 @@ void newIntValue(){
 #define ret _value
     malloc_bytes = sizeof(Value);
     ret = malloc_k();
+    debug("newIntValue\n");
     ret->type = INT;
     ret->n = i;
 #undef ret
@@ -259,7 +250,7 @@ space:;
 
 parseatomloop:;
     s1 = buf;
-    s2 = _stringtable->varname;
+    s2 = _stringtable->value->str;
     for(; *s1 || *s2; s1++, s2++) {
         if (*s1 != *s2) {
             // There is a string next to this string in the table
@@ -270,20 +261,18 @@ parseatomloop:;
             // This was the last string in the table, so create a string
             malloc_bytes = i+1;
             _str = malloc_k();
+            debug("parseAtom\n");
             s1 = _str;
             s2 = buf;
             for(; *s2; s1++, s2++) {
                 *s1 = *s2;
             }
             appendStringTable();
-            goto endatom;
+            return;
         }
     }
     // The strings are equal
-    _str = _stringtable->varname;
-
-endatom:;
-    newAtomNode();
+    _value = _stringtable->value;    
 }
 
 //================================================================================
@@ -318,6 +307,7 @@ Env* _env2;
 Env* newEnv() {
     malloc_bytes = sizeof(Env);
     env = malloc_k();
+    debug("newEnv\n");
     env->varname = varname_in;
     env->value = value_in;
     env->next = env_in;
@@ -524,6 +514,7 @@ void eval(Value* node) {
         if (_str == lambda_str || _str == macro_str) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
+            debug("lambda 1\n");
             _lambda->argnames = arg1;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
@@ -531,6 +522,7 @@ void eval(Value* node) {
 
             malloc_bytes = sizeof(Value);
             _value = malloc_k();
+            debug("lambda 2\n");
             _value->type = LAMBDA;
             _value->lambda = _lambda;
             return;
@@ -750,6 +742,7 @@ int main (void) {
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
+    // TODO: get progn_str from the string table
     _str = (char*) progn_str;
     newAtomNode();
     initlist = newList(_value, NULL);
