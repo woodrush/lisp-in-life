@@ -1,6 +1,6 @@
 void placeholder (){
     const char* __regarea = "\0\0\0\0\0\0\0\0\0";
-    const char* opstr = "define\0if\0quote\0car\0cdr\0cons\0atom\0print\0progn\0while\0lambda\0macro\0eval\0eq\0+\0-\0*\0/\0mod\0<\0>\0t\0";
+    const char* opstr = "eval\0closure\0atom\0quote\0macro\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0eq\0if";
 }
 
 #define QFTASM_RAMSTDIN_BUF_STARTPOSITION 1592
@@ -15,30 +15,31 @@ void placeholder (){
 #define EOF -1
 
 //====================================================================================
-#define num_ops 22
+#define num_ops 23
 
-#define define_str 10
-#define if_str 17
-#define quote_str 20
-#define car_str 26
-#define cdr_str 30
-#define cons_str 34
-#define atom_str 39
-#define print_str 44
-#define progn_str 50
-#define while_str 56
-#define lambda_str 62
-#define macro_str 69
-#define eval_str 75
-#define eq_str 80
-#define plus_str 83
-#define minus_str 85
-#define ast_str 87
-#define slash_str 89
-#define mod_str 91
-#define lt_str 95
-#define gt_str 97
-#define t_str 99
+#define eval_str 10
+#define closure_str 15
+#define atom_str 23
+#define quote_str 28
+#define macro_str 34
+#define define_str 40
+#define while_str 47
+#define progn_str 53
+#define lambda_str 59
+#define gt_str 66
+#define lt_str 68
+#define plus_str 70
+#define minus_str 72
+#define ast_str 74
+#define slash_str 76
+#define t_str 78
+#define mod_str 80
+#define print_str 84
+#define cons_str 90
+#define cdr_str 95
+#define car_str 99
+#define eq_str 103
+#define if_str 106
 
 #define last_op gt_str
 

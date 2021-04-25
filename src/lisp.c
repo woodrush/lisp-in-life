@@ -4,6 +4,7 @@
 #include "lisp.h"
 #endif
 
+#include <stdio.h>
 #define debug(x) //printf(x)
 
 void _div(int n, int m) {
@@ -59,8 +60,10 @@ void print_int(int k) {
 //================================================================================
 // Parser
 //================================================================================
+
+// ATOM=1, since .type and .next of Value is a union, and .next is usually set to a null value
 typedef enum {
-    ATOM=0, INT=1, LAMBDA=2, LIST=3
+    ATOM=1, INT=2, LAMBDA=3, LIST=4
 } Valuetype;
 
 // typedef struct List {
@@ -666,7 +669,8 @@ eval_lambda:;
 #define v _value
 void printValue() {
     Value* list;
-    if (!_value) {
+    if (!_value || !(_value->value)) {
+        debug("<nil>");
         putchar('(');
         putchar(')');
         return;
@@ -674,6 +678,7 @@ void printValue() {
 
     k = v->type;
     if (k == INT) {
+        debug("<int>");
         #define p _str
         k = v->n;
         if (k < 0) {
@@ -690,10 +695,13 @@ void printValue() {
         } while (k);
         #undef p
     } else if (k == LAMBDA) {
+        debug("<lambda>");
         _str = v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>";
     } else if (k == ATOM) {
+        debug("<atom>");
         _str = v->str;
     } else {
+        debug("<list>");
         putchar('(');
         list = v;
         while(list) {
@@ -718,12 +726,13 @@ Value* parsed;
 int main (void) {
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
+    // TODO: get this value from the string table
     _str = t_str;
     newAtomNode();
     true_value = _value;
 
 #ifndef ELVM
-    char* opstr_list[num_ops] = {define_str, if_str, quote_str, car_str, cdr_str, cons_str, atom_str, print_str, progn_str, while_str, lambda_str, macro_str, eval_str, eq_str, plus_str, minus_str, ast_str, slash_str, mod_str, gt_str, lt_str, t_str};
+    char* opstr_list[num_ops] = {eval_str, closure_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str};
     for(i=0; i<num_ops; i++){
         _str = opstr_list[i];
         appendStringTable();
@@ -757,6 +766,7 @@ int main (void) {
 #endif
     // _list = initlist;
     // _value = newListNode();
+    // _value = initlist;
     // printValue();
     eval(initlist);
 }
