@@ -7,6 +7,26 @@
 // #include <stdio.h>
 #define debug(x) //printf(x)
 
+char charbuf = -1;
+
+char popchar() {
+    if (charbuf < 0) {
+        return getchar();
+    }
+    char ret = charbuf;
+    charbuf = -1;
+    return ret;
+}
+
+char curchar() {
+    if (charbuf < 0) {
+        charbuf = getchar();
+    }
+    return charbuf;
+}
+
+
+
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -189,11 +209,11 @@ space:;
     if (c == ';') {
         do {
             c = popchar();
-#ifdef ELVM
-        } while(c != '\n');
-#else
+// #ifdef ELVM
+//         } while(c != '\n');
+// #else
         } while(c != '\n' && c != EOF);
-#endif
+// #endif
         goto space;
     }
 
@@ -210,21 +230,21 @@ space:;
     }
 
     // Parse as an atom
-#ifdef ELVM
-    if (c == ')' || !c) {
-#else
+// #ifdef ELVM
+//     if (c == ')' || !c) {
+// #else
     if (c == ')' || !c || c == EOF) {
-#endif
+// #endif
         _value = NULL;
         return;
     }
 
     i = 0;
-#ifdef ELVM
-    while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
-#else
+// #ifdef ELVM
+//     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
+// #else
     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
-#endif
+// #endif
         buf[i] = c;
         i++;
         popchar();
@@ -387,7 +407,6 @@ int printstr_times = 10;
 void eval(Value* node) {
 // #define node evalarg->node
     EvalStack evalstack;
-
 
 #define _list_eval (evalstack._list_eval_)
 #define _list_eval_2 (evalstack._list_eval_2)
@@ -646,6 +665,7 @@ eval_lambda:;
     node = (Value*)(_value->lambda);
     curargname = curlambda->argnames;
 
+
     // Macros should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
     curenv = (curlambda->type == L_MACRO) ? _evalenv : curlambda->env;
@@ -762,7 +782,7 @@ int main (void) {
         appendStringTable();
     }
 #else
-    s1 = 10;
+    s1 = eval_str;
     for(i=0; i<num_ops; i++){
         _str = s1;
         appendStringTable();
@@ -784,13 +804,13 @@ int main (void) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
     }
-    // printValue(newListNode(initlist));
 #ifdef ELVM
-    *((char*)QFTASM_RAMSTDIN_BUF_STARTPOSITION) = 0;
+    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #endif
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
     // printValue();
+    // eval(_value);
     eval(initlist);
 }

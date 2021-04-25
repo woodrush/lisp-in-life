@@ -37,23 +37,6 @@ int k;
 
 //====================================
 
-char charbuf = -1;
-
-char popchar() {
-    if (charbuf < 0) {
-        return getchar();
-    }
-    char ret = charbuf;
-    charbuf = -1;
-    return ret;
-}
-
-char curchar() {
-    if (charbuf < 0) {
-        charbuf = getchar();
-    }
-    return charbuf;
-}
 
 int malloc_bytes;
 void* malloc_k() {

@@ -1,0 +1,1 @@
+echo "Hello, world!" | python ../elvm/tools/qftasm/qftasm_interpreter.py test.qftasm
