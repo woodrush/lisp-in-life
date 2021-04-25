@@ -58,7 +58,7 @@ void print_int(int k) {
 // Parser
 //================================================================================
 typedef enum {
-    ATOM, LIST, INT, LAMBDA
+    ATOM=0, INT=1, LAMBDA=2, LIST=3
 } Valuetype;
 
 // typedef struct List {
@@ -67,7 +67,10 @@ typedef enum {
 // } List;
 
 typedef struct Value {
-    Valuetype type;
+    union {
+        Valuetype type;
+        struct Value* next;
+    };
     union {
         char* str;
         // struct Value* list;
@@ -75,7 +78,6 @@ typedef struct Value {
         int n;
         struct Lambda* lambda;
     };
-    struct Value* next;
 } Value;
 
 typedef struct StringTable {
@@ -115,7 +117,7 @@ Value* newList(Value* node, Value* next) {
 #define ret _list
     malloc_bytes = sizeof(Value);
     ret = (Value*)malloc_k();
-    ret->type = LIST;
+    // ret->type = LIST;
     ret->value = node;
     ret->next = next;
     return ret;
@@ -699,7 +701,7 @@ void printValue() {
         _str = v->lambda->type == L_LAMBDA ? "#<Closure>" : "#<Macro>";
     } else if (k == ATOM) {
         _str = v->str;
-    } else if (k == LIST){
+    } else {
         putchar('(');
         list = v;
         while(list) {
@@ -722,8 +724,8 @@ Value* initlist;
 Value* curlist;
 Value* parsed;
 int main (void) {
-    // _list = NULL;
-    nil = newList(NULL, NULL);
+    // (Value*)LIST, since ->type and ->next are inside the same union
+    nil = newList(NULL, (Value*)LIST);
     _str = t_str;
     newAtomNode();
     true_value = _value;
