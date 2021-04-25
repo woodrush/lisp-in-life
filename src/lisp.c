@@ -316,7 +316,7 @@ Env* newEnv() {
     env->varname = varname_in;
     env->value = value_in;
     env->next = env_in;
-    env->prev = NULL;
+    // env->prev = NULL;
     return env;
 }
 #undef varname_in
@@ -333,11 +333,11 @@ Env* prependTemporaryEnv() {
         debug("newEnv\n");
         _env->prev = _env2;
     }
-    _env2->type = ENV_TEMPORARY;
+    // _env2->type = ENV_TEMPORARY;
     _env2->varname = _str;
     _env2->value = _value;
     _env2->next = _env;
-    _env2->prev = NULL;
+    // _env2->prev = NULL;
     return _env2;
 }
 
