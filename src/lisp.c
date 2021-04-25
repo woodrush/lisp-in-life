@@ -310,6 +310,7 @@ typedef struct {
     union {
         Value* arg1_;
         List* _list_eval_2;
+        Env* e2;
     };
     union {
         List* arg2list_;
@@ -318,9 +319,15 @@ typedef struct {
     };
 } EvalStack;
 
+typedef union {
+    Value* node;
+    Lambda* lambda;
+} EvalArg;
+
 
 Value* true_value;
 void eval(Value* node) {
+// #define node evalarg->node
     EvalStack evalstack;
 
 
@@ -331,6 +338,7 @@ void eval(Value* node) {
 #define c_eval (evalstack.c_eval_)
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
+#define evalstack_env2 (evalstack.e2)
 
     // Is an atom
     if (node->type == ATOM) {
@@ -562,17 +570,21 @@ void eval(Value* node) {
 eval_lambda:;
     #define curargname _list_eval
     #define curarg _list_eval_2
+    #define curenv evalstack_env
     #define isMacro node
+    // #define curlambda node 
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
     // Lambda* lambda = eval(node->list->value, env)->lambda;
+    
     eval(node->list->value);
     Lambda* lambda = _value->lambda;
     curargname = lambda->argnames;
     curarg = node->list->next;
     // Macros should be evaluated in the environment they are called in
     isMacro = (Value*) (lambda->type == L_MACRO);
-    Env* curenv = ((int)isMacro) ? _evalenv : lambda->env;
+
+    curenv = ((int)isMacro) ? _evalenv : lambda->env;
 
     while (curargname) {
         if ((int)isMacro) {
@@ -587,16 +599,18 @@ eval_lambda:;
         curarg = curarg->next;
     }
     // For macros, evaluate the result before returning it
-    evalstack_env = _evalenv;
+    evalstack_env2 = _evalenv;
     _evalenv = curenv;
     eval(lambda->body);
     if ((int)isMacro) {
         _evalenv = curenv;
         eval(_value);
     }
-    _evalenv = evalstack_env;
+    _evalenv = evalstack_env2;
     #undef curargname
     #undef curarg
+    #undef curenv
+    // #undef curlambda
     #undef isMacro
 }
 #undef _list_eval
@@ -606,6 +620,7 @@ eval_lambda:;
 #undef c_eval
 #undef n_
 #undef evalstack_env
+#undef evalstack_env2
 
 #define v _value
 void printValue() {
