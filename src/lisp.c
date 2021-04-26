@@ -802,13 +802,13 @@ int main (void) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
     }
-// #ifdef ELVM
-//     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-// #endif
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
     // printValue();
     // eval(_value);
     eval(initlist);
+#ifdef ELVM
+    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+#endif
 }

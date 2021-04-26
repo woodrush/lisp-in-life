@@ -25,7 +25,9 @@ class Parser(object):
         SL = Literal("SL")
         SRL = Literal("SRL")
         SRA = Literal("SRA")
-        opcode = MNZ | MLZ | ADD | SUB | AND | OR | XOR | ANT | SL | SRL | SRA
+        SRU = Literal("SRU")
+        SRE = Literal("SRE")
+        opcode = MNZ | MLZ | ADD | SUB | AND | OR | XOR | ANT | SL | SRL | SRA | SRU | SRE
         lineno = (integer + Literal(".")).setParseAction(
             lambda t: [int(t[0])]
         )
