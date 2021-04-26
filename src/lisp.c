@@ -366,17 +366,17 @@ void printValue();
 
 
 void eval(Value* node);
-void evalAsInt(Value* node) {
-    if (node->type == INT) {
-        i = node->n;
+void evalAsInt() {
+    if (_value->type == INT) {
+        i = _value->n;
         return;
     }
-    c = node->str[0];
+    c = _value->str[0];
     if (isNumeric()) {
-        _str = node->str;
+        _str = _value->str;
         parseInt();
     } else {
-        eval(node);
+        eval(_value);
         i = _value->n;
     }
 }
@@ -403,7 +403,6 @@ Env* _env3;
 Value* true_value;
 Env* _evalenv;
 
-int printstr_times = 10;
 void eval(Value* node) {
 // #define node evalarg->node
     EvalStack evalstack;
@@ -416,9 +415,11 @@ void eval(Value* node) {
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
 #define evalstack_env2 (evalstack.e2)
+#define nodetype i
 
+    nodetype = node->type;
     // Is an atom
-    if (node->type == ATOM) {
+    if (nodetype == ATOM) {
         _str = node->str;
         c = node->str[0];
         if (isNumeric()) {
@@ -439,7 +440,7 @@ void eval(Value* node) {
     }
 
     // Is an int or a lambda
-    if (node->type == INT || node->type == LAMBDA) {
+    if (nodetype == INT || nodetype == LAMBDA) {
         _value = node;
         return;
     }
@@ -462,14 +463,6 @@ void eval(Value* node) {
             goto eval_lambda;
         }
 #endif
-        // print_int(last_op);
-        // if (printstr_times-- > 0) {
-        //     print_int(headstr);
-        // }
-
-        // if (!(node->next)) {
-        //     goto eval_lambda;
-        // }
         arg1 = node->next->value;
         arg2list = node->next->next;
 
@@ -601,13 +594,15 @@ void eval(Value* node) {
 
             #define nextlist _list_eval_2
             nextlist = node->next;
-            evalAsInt(nextlist->value);
+            _value = nextlist->value;
+            evalAsInt();
             n_ = i;
             if (c_eval == '-' && !(nextlist->next)) {
                 i = -n_;
             } else {
                 for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
-                    evalAsInt(nextlist->value);
+                    _value = nextlist->value;
+                    evalAsInt();
                     n_ = (
                         c_eval == '+' ? (n_ + i) :
                         c_eval == '-' ? (n_ - i) :
@@ -625,7 +620,8 @@ void eval(Value* node) {
         if (_str == lt_str || _str == gt_str) {
             c_eval = headstr[0];
             #define ret _value
-            evalAsInt(arg2list->value);
+            _value = arg2list->value;
+            evalAsInt();
             n_ = i;
             eval(arg1);
             if (c_eval == '<') {
@@ -709,6 +705,7 @@ eval_lambda:;
 #undef n_
 #undef evalstack_env
 #undef evalstack_env2
+#undef nodetype
 
 #define v _value
 void printValue() {
