@@ -75,6 +75,29 @@ def readinst (inst):
     return inst    
 
 
+# Refactor addition of/from 0, subtraction of 0, and constant-condition conditional moves to MOV
+for i_inst, inst in enumerate(rom):
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+
+    if opcode == "ADD":
+        if mode_1 == 0 and d1 == 0:
+            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+        elif mode_2 == 0 and d2 == 0:
+            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_1, d1), (mode_3, d3), comment
+
+    elif opcode == "SUB":
+        if mode_2 == 0 and d2 == 0:
+            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_1, d1), (mode_3, d3), comment
+
+    elif opcode == "MNZ":
+        if mode_1 == 0 and d1 != 0:
+            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+
+    elif opcode == "MLZ":
+        if mode_1 == 0 and ((d1 < 0) or (d1 > (1 << 15))):
+            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+
+
 # Constant folding and Mov folding (no dereferences)
 reg_value = {}
 reg_value_dstedge = {}
@@ -89,6 +112,7 @@ def remove_dependent_reference(reg):
         for dst in reg_value_dstedge[reg]:
             if dst in reg_value.keys():
                 del reg_value[dst]
+
 
 for i_inst, inst in enumerate(rom):
     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
