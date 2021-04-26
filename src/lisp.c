@@ -7,7 +7,80 @@
 // #include <stdio.h>
 #define debug(x) //printf(x)
 
+// ATOM=1, since .type and .next of Value is a union, and .next is usually set to a null value
+typedef enum {
+    ATOM=1, INT=2, LAMBDA=3, LIST=4
+} Valuetype;
+
+typedef struct Value {
+    union {
+        Valuetype type;
+        struct Value* next;
+    };
+    union {
+        char* str;
+        struct Value* value;
+        int n;
+        struct Lambda* lambda;
+    };
+} Value;
+
+typedef struct StringTable {
+    // char* varname;
+    Value* value;
+    struct StringTable* next;
+} StringTable;
+
+typedef enum {
+    ENV_PERSISTENT=0, ENV_TEMPORARY=1
+} Envtype;
+
+typedef struct Env {
+    char* varname;
+    union {
+        Envtype type;
+        struct Env* prev;
+    };
+    struct Value* value;
+    struct Env* next;
+} Env;
+
+typedef enum {
+    L_LAMBDA, L_MACRO, L_CLOSURE
+} Lambdatype;
+
+typedef struct Lambda {
+    struct Value* argnames;
+    struct Value* body;
+    struct Env* env;
+    Lambdatype type;
+} Lambda;
+
+
 char charbuf = -1;
+char c;
+
+char buf[32];
+char* s1;
+char* s2;
+
+StringTable* stringTableHead = NULL;
+StringTable* _stringtable;
+
+Lambda* _lambda;
+
+Env* _env;
+Env* _env2;
+Env* _env3;
+Env* _evalenv;
+
+Value* nil;
+Value* true_value;
+Value* _value;
+Value* _list;
+Value* initlist;
+Value* curlist;
+
 
 char popchar() {
     if (charbuf < 0) {
@@ -81,32 +154,8 @@ void print_int(int k) {
 // Parser
 //================================================================================
 
-// ATOM=1, since .type and .next of Value is a union, and .next is usually set to a null value
-typedef enum {
-    ATOM=1, INT=2, LAMBDA=3, LIST=4
-} Valuetype;
-
-typedef struct Value {
-    union {
-        Valuetype type;
-        struct Value* next;
-    };
-    union {
-        char* str;
-        struct Value* value;
-        int n;
-        struct Lambda* lambda;
-    };
-} Value;
-
-typedef struct StringTable {
-    // char* varname;
-    Value* value;
-    struct StringTable* next;
-} StringTable;
 
 
-Value* _value;
 #define str_in _str
 void newAtomNode() {
 #define ret _value
@@ -119,9 +168,6 @@ void newAtomNode() {
 #undef ret
 }
 #undef str_in
-
-Value* nil;
-Value* _list;
 
 Value* newList(Value* node, Value* next) {
 #define ret _list
@@ -136,11 +182,6 @@ Value* newList(Value* node, Value* next) {
 
 void parseExpr();
 
-char c;
-char buf[32];
-
-StringTable* stringTableHead = NULL;
-StringTable* _stringtable;
 
 void appendStringTable() {
     malloc_bytes = sizeof(StringTable);
@@ -152,8 +193,6 @@ void appendStringTable() {
     stringTableHead = _stringtable;
 }
 
-char* s1;
-char* s2;
 
 Value* parseListLoop() {
     parseExpr();
@@ -225,7 +264,10 @@ space:;
 
         popchar(); // ')'
 
-        _value = _value ? _value : nil;
+        if (!_value) {
+            _value = nil;
+        }
+        // _value = _value ? _value : nil;
         return;
     }
 
@@ -294,36 +336,8 @@ parseatomloop:;
 //================================================================================
 // Evaluator
 //================================================================================
-typedef enum {
-    ENV_PERSISTENT=0, ENV_TEMPORARY=1
-} Envtype;
-
-typedef struct Env {
-    char* varname;
-    union {
-        Envtype type;
-        struct Env* prev;
-    };
-    struct Value* value;
-    struct Env* next;
-} Env;
-
-typedef enum {
-    L_LAMBDA, L_MACRO, L_CLOSURE
-} Lambdatype;
-
-typedef struct Lambda {
-    struct Value* argnames;
-    struct Value* body;
-    struct Env* env;
-    Lambdatype type;
-} Lambda;
 
 
-Lambda* _lambda;
-
-Env* _env;
-Env* _env2;
 #define varname_in _str
 #define value_in _value
 #define env_in _env
@@ -398,11 +412,6 @@ typedef struct {
     };
 } EvalStack;
 
-Env* _env3;
-
-Value* true_value;
-Env* _evalenv;
-
 void eval(Value* node) {
 // #define node evalarg->node
     EvalStack evalstack;
@@ -460,19 +469,18 @@ void eval(Value* node) {
 
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
-            goto eval_lambda;
+            goto eval_lambda_call;
         }
 #endif
         arg1 = node->next->value;
         arg2list = node->next->next;
 
         if (_str == define_str) {
-            #define ret _value
             eval(arg2list->value);
             _env = _evalenv;
             do {
                 if (_env->varname == arg1->str){
-                    _env->value = ret;
+                    _env->value = _value;
                     return;
                 }
             } while(_env->next && (_env = _env->next));
@@ -480,11 +488,9 @@ void eval(Value* node) {
 
             // Append to the global environment
             _str = arg1->str;
-            _value = ret;
             _env = NULL;
             _env3->next = newEnv();
             return;
-            #undef ret
         }
         if (_str == if_str) {
             #define condition _value
@@ -624,11 +630,8 @@ void eval(Value* node) {
             evalAsInt();
             n_ = i;
             eval(arg1);
-            if (c_eval == '<') {
-                _value = ret->n < n_ ? true_value : NULL;
-            } else {
-                _value = ret->n > n_ ? true_value : NULL;
-            }
+            j = ret->n < n_;
+            _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
             #undef ret
         }
@@ -649,7 +652,7 @@ void eval(Value* node) {
         #undef headstr
     }
 
-eval_lambda:;
+eval_lambda_call:;
     #define curargname _list_eval
     #define curarg _list_eval_2
     #define curenv evalstack_env
@@ -737,7 +740,8 @@ void printValue() {
         #undef p
     } else if (k == LAMBDA) {
         debug("<lambda>");
-        _str = v->lambda->type == L_LAMBDA ? "#<Lambda>" : v->lambda->type == L_MACRO ? "#<Macro>" : "#<Closure>";
+        k = v->lambda->type;
+        _str = k == L_LAMBDA ? "#<Lambda>" : k == L_MACRO ? "#<Macro>" : "#<Closure>";
     } else if (k == ATOM) {
         debug("<atom>");
         _str = v->str;
@@ -761,9 +765,6 @@ void printValue() {
 }
 #undef v
 
-Value* initlist;
-Value* curlist;
-Value* parsed;
 int main (void) {
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
@@ -801,9 +802,9 @@ int main (void) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
     }
-#ifdef ELVM
-    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-#endif
+// #ifdef ELVM
+//     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+// #endif
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
