@@ -306,6 +306,8 @@ for i_inst, inst in enumerate(rom):
         and (inst_2[4][0] == 0 and inst_2[4][1] == 0)
         # The previous inst is the beginning of a program counter
         and "pc == " in inst_1[-1]
+        # # The previous inst is a no-op
+        # and inst_1[1:-1] == ("MNZ", (0,0), (0,0), (0,0))
         # The current inst is mov
         and (
             (inst[1] == "MNZ" and inst[2][0] == 0 and inst[2][1] != 0)
@@ -319,8 +321,8 @@ for i_inst, inst in enumerate(rom):
         current_jmp_dest = d2
         pc_rewrite_list.append((current_pc, current_jmp_dest))
 
-        # unused_lines.append(i_inst)
-        # unused_lines.append(i_inst-1)
+        unused_lines.append(i_inst)
+        unused_lines.append(i_inst-1)
 
 
 modedict = {
