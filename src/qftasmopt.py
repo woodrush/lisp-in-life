@@ -75,7 +75,7 @@ def readinst (inst):
     return inst    
 
 
-# Refactor addition of/from 0, subtraction of 0, and constant-condition conditional moves to MOV
+# Fold addition of/from 0, subtraction of 0, and constant-condition conditional moves to MOV
 for i_inst, inst in enumerate(rom):
     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
 
@@ -94,7 +94,7 @@ for i_inst, inst in enumerate(rom):
             rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
 
     elif opcode == "MLZ":
-        if mode_1 == 0 and ((d1 < 0) or (d1 > (1 << 15))):
+        if mode_1 == 0 and ((d1 < 0) or (d1 >= (1 << 15))):
             rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
 
 
@@ -283,6 +283,46 @@ for inst in rom:
 
         reg_fresh[d3] = lineno
 
+
+pc_rewrite_list = []
+
+# Fold program counter regions that immediately jump to another program counter region,
+# and are only reachable by jumping
+for i_inst, inst in enumerate(rom):
+    if i_inst < 2:
+        continue
+    inst_2 = readinst(rom[i_inst-2])
+    inst_1 = readinst(rom[i_inst-1])
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+
+    if (
+        # The prev-prev inst is mov
+        (
+            (inst_2[1] == "MNZ" and inst_2[2][0] == 0 and inst_2[2][1] != 0)
+            or
+            (inst_2[1] == "MLZ" and inst_2[2][0] == 0 and (inst_2[2][1] < 0 or inst_2[2][1] >= (1 << 15)))
+        )
+        # The prev-prev inst is a mov to the program counter
+        and (inst_2[4][0] == 0 and inst_2[4][1] == 0)
+        # The previous inst is the beginning of a program counter
+        and "pc == " in inst_1[-1]
+        # The current inst is mov
+        and (
+            (inst[1] == "MNZ" and inst[2][0] == 0 and inst[2][1] != 0)
+            or
+            (inst[1] == "MLZ" and inst[2][0] == 0 and (inst[2][1] < 0 or inst[2][1] >= (1 << 15)))
+        )
+        # The current inst is a mov to the program counter
+        and (inst[4][0] == 0 and inst[4][1] == 0)
+        ):
+        current_pc = int(re.findall(r'pc == ([0-9]+):', inst_1[-1])[0])
+        current_jmp_dest = d2
+        pc_rewrite_list.append((current_pc, current_jmp_dest))
+
+        # unused_lines.append(i_inst)
+        # unused_lines.append(i_inst-1)
+
+
 modedict = {
     0 : "",
     1 : "A",
@@ -291,6 +331,9 @@ modedict = {
 }
 
 i_effective_line = 0
+
+for pc, dest in pc_rewrite_list:
+    header = header + [";;;; pc{} : {}\n".format(pc, dest)]
 
 for inst in header:
     print(inst, end="")
