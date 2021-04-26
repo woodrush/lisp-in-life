@@ -77,11 +77,11 @@ def readinst (inst):
     return inst    
 
 
-# Fold addition of/from 0, subtraction of 0, and constant-condition conditional moves to MOV
+# Fold addition of/from 0, subtraction of 0, xor with 0, and constant-condition conditional moves to MOV
 for i_inst, inst in enumerate(rom):
     lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
 
-    if opcode == "ADD":
+    if opcode == "ADD" or opcode == "XOR":
         if mode_1 == 0 and d1 == 0:
             rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
         elif mode_2 == 0 and d2 == 0:
@@ -241,12 +241,48 @@ for i_inst, inst in enumerate(rom):
         # reg_value_dstedge = {}
 
 
-
+def compare_inst(inst, l):
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+    return (opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3)) == l
 
 
 unused_lines = []
+# Dead code elimination - eq-jeq with 0 to jne
+for i_inst, inst in enumerate(rom):
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+    if (
+        opcode == "XOR" and i_inst < len(rom) - 1 - 5
+        and (mode_3, d3) == (0, 3)
+        and compare_inst(rom[i_inst+1], ("MNZ", (1,3), (0,1), (0,3)))
+        and compare_inst(rom[i_inst+2], ("XOR", (0,1), (1,3), (0,3)))
+        and compare_inst(rom[i_inst+3], ("MNZ", (0,32768), (0,1), (0,9)))
+        and compare_inst(rom[i_inst+4], ("MNZ", (1,3), (0,0), (0,9)))
+        and tuple(readinst(rom[i_inst+5])[2]) == (1,9) and tuple(readinst(rom[i_inst+5])[4]) == (0,0)
+    ):
+        rom[i_inst]   = lineno, "XOR", (mode_1, d1), (mode_2, d2), (0,3), "; EQ-JEQ with 0 -> JNE"
+        readinst(rom[i_inst+5])[2] = (1,3)
+        # rom[i_inst+1] = rom[i_inst+1][0], "MNZ", (1,3), readinst(rom[i_inst+5])[3], (0,0), ";"
+        unused_lines.append(i_inst+1)
+        unused_lines.append(i_inst+2)
+        unused_lines.append(i_inst+3)
+        unused_lines.append(i_inst+4)
+        # unused_lines.append(i_inst+5)
 
-# Dead code elimination
+# Dead code elimination - self-assignment mov elimination
+for i_inst, inst in enumerate(rom):
+    lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+    # Line is a no-op
+    if opcode == "MNZ" and mode_1 == 0 and d1 != 0 and mode_2 == 1 and mode_3 == 0 and d2 == d3:
+        if i_inst > 0:
+            prev_inst = readinst(rom[i_inst-1])
+            def maybe_jump(inst):
+                lineno, opcode, (mode_1, d1), (mode_2, d2), (mode_3, d3), comment = readinst(inst)
+                return (mode_3 == 0 and d3 == 0) or (mode_3 > 0)
+            if maybe_jump(prev_inst):
+                continue
+        unused_lines.append(i_inst)
+
+# Dead code elimination - unused mov elimination
 reg_fresh = {}
 
 
