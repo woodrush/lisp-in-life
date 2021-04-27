@@ -1,4 +1,4 @@
-(define newcounter (lambda ()
+(define newcounter (lambda (m)
   ((closure (n)
     (lambda (arg)
       (if (eq arg (quote inc))
@@ -9,12 +9,12 @@
         (print n ())
                 n
         ))))
-        ) 0) )
+        ) (if m m 0)) )
         )
 
 (print 0 ())
 (define counter1 (newcounter))
-(define counter2 (newcounter))
+(define counter2 (newcounter 5))
 (counter1 (quote print))
 (counter1 (quote inc))
 (counter1 (quote inc))

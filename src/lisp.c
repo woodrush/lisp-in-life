@@ -686,20 +686,27 @@ eval_lambda_call:;
     curenv = (curlambda->type == L_MACRO) ? _evalenv : curlambda->env;
 
     while (curargname) {
-        if (curlambda->type == L_MACRO) {
-            _value = curarg->value;
+        // Set argument to nil if there are no arguments
+        if (curarg) {
+            if (curlambda->type == L_MACRO) {
+                _value = curarg->value;
+            } else {
+                eval(curarg->value);
+            }
         } else {
-            eval(curarg->value);
+            _value = NULL;
         }
         _str = curargname->value->str;
         _env = curenv;
-        // if (curlambda->type == L_CLOSURE) {
+        if (curlambda->type == L_CLOSURE) {
             curenv = newEnv();
-        // } else {
-            // curenv = prependTemporaryEnv();
-        // }
+        } else {
+            curenv = prependTemporaryEnv();
+        }
         curargname = curargname->next;
-        curarg = curarg->next;
+        if (curarg) {
+            curarg = curarg->next;
+        }
     }
 
     // For macros, evaluate the result before returning it
