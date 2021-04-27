@@ -1,10 +1,9 @@
-(define new (macro (classname) (list classname)))
+(define new (lambda (classname) (classname)))
 (define defclass (macro (classname fieldlist body)
   (list (quote define) classname
     (list (quote class) fieldlist body))))
 (define . (macro (object methodname)
   (list object (list (quote quote) methodname))))
-
 (define defmethod (macro (methodname arglist body)
   (list (quote define) (quote methodlist)
         (list (quote cons)
@@ -14,26 +13,27 @@
               (quote methodlist)))))
 (define class (macro (fieldlist body)
   (list (quote lambda) (quote ())
-        (list (list (quote closure) (list (quote methodlist))
-                    (list (quote progn)
-                          (list (list (quote closure) fieldlist body))
-                          (quote (lambda (callname)
-      
-        ((lambda (methodlist curitem curname ret)
-          (progn
-            (while methodlist
+    (list (list (quote closure) (list (quote methodlist))
+      (list (quote progn)
+        (list (list (quote closure) fieldlist body))
+        (quote
+          (lambda (targetmethod)
+            ((lambda (methodlist curitem curname ret)
               (progn
-                (define curitem (car methodlist))
-                (define curname (car curitem))
-                (if (eq curname callname)
+                (while methodlist
                   (progn
-                    (define methodlist ())
-                    (define ret (car (cdr curitem))))
-                  ())
-                (define methodlist (cdr methodlist))
-                  ))
-            ret)
-        ) methodlist)))))))))
+                    (define curitem (car methodlist))
+                    (define curname (car curitem))
+                    (if (eq curname targetmethod)
+                      (progn
+                        (define methodlist ())
+                        (define ret (car (cdr curitem))))
+                      ())
+                    (define methodlist (cdr methodlist))))
+                ret)
+            ) methodlist) ))
+            
+              ))) )))
 
 (defclass counter (n)
   (progn
@@ -49,12 +49,15 @@
 (define counter2 (new counter))
 
 ((. counter2 set) 12)
+
 (print ((. counter1 get)) ())
 (print ((. counter2 get)) ())
-((. counter1 inc))
-((. counter1 inc))
-((. counter1 inc))
-((. counter2 inc))
-((. counter1 inc))
+
+(while (< ((. counter1 get)) 2)
+  (progn
+    ((. counter1 inc))
+    ((. counter2 inc))
+    ((. counter2 inc))))
+
 (print ((. counter1 get)) ())
 (print ((. counter2 get)) ())

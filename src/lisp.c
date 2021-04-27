@@ -34,7 +34,7 @@ typedef struct StringTable {
 } StringTable;
 
 typedef enum {
-    ENV_PERSISTENT=0, ENV_TEMPORARY=1
+    ENV_PERSISTENT=1, ENV_TEMPORARY=2
 } Envtype;
 
 typedef struct Env {
@@ -361,19 +361,15 @@ Env* newEnv() {
 #undef env
 
 Env* prependTemporaryEnv() {
-    if (_env->prev) {
+    // Caution: Raw pointer comparisons, may not work outside of QFT
+    if (((unsigned int)(_env->prev)) > 1) {
         _env2 = _env->prev;
+        _env2->varname = _str;
+        _env2->value = _value;
+        _env2->next = _env;
     } else {
-        malloc_bytes = sizeof(Env);
-        _env2 = malloc_k();
-        debug("newEnv\n");
-        _env->prev = _env2;
+        _env2 = newEnv();
     }
-    // _env2->type = ENV_TEMPORARY;
-    _env2->varname = _str;
-    _env2->value = _value;
-    _env2->next = _env;
-    // _env2->prev = NULL;
     return _env2;
 }
 
