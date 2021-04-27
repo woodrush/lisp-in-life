@@ -470,6 +470,9 @@ void eval(Value* node) {
         #define headstr _str
         headstr = node->value->str;
 
+        if (!node->next) {
+            goto eval_lambda_call;
+        }
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
             goto eval_lambda_call;
@@ -671,8 +674,8 @@ eval_lambda_call:;
     #define curlambda ((Lambda*) node) 
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
-    eval(node->value);
     curarg = node->next;
+    eval(node->value);
     node = (Value*)(_value->lambda);
     // curlambda = _value->lambda;
     curargname = curlambda->argnames;
@@ -761,7 +764,6 @@ void printValue() {
     } 
     else     if (!(_value->value)) {
         debug("<nil2>");
-        putchar('C');
         putchar('(');
         putchar(')');
         return;
@@ -823,9 +825,6 @@ int main (void) {
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
-    if ((int) _evalenv > QFTASM_HEAP_MEM_MAX) {
-        putchar('h');
-    }
     // TODO: get progn_str from the string table
     _str = (char*) progn_str;
     newAtomNode();
