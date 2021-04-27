@@ -4,7 +4,7 @@
 #include "lisp.h"
 #endif
 
-#define QFTASM_HEAP_MEM_MAX 2846
+// #define QFTASM_HEAP_MEM_MAX 2846
 
 // #include <stdio.h>
 #define debug(x) //printf(x)
@@ -461,7 +461,7 @@ void eval(Value* node) {
 
     // Is ()
     if (!(node->value)) {
-        _value = NULL;
+        _value = nil;
         return;
     }
 
