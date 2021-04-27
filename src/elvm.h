@@ -1,15 +1,9 @@
 void placeholder (){
     const char* __regarea = "\0\0\0\0\0\0\0\0\0\0";
-    const char* opstr = "eval\0closure\0atom\0quote\0macro\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0eq\0if\0list";
+    const char* opstr = "eval\0atom\0quote\0macro\0lambda*\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0list\0eq\0if";
 }
 
 #define QFTASM_RAMSTDIN_BUF_STARTPOSITION 688
-// #define QFTASM_MEM_OFFSET 0
-// #define QFTASM_MEM_OFFSET 1024
-// #define QFTASM_MEM_OFFSET 170
-
-// #define STDIN_BUF_POINTER_REG 1
-// #define curchar() (*((char*) *((char*)STDIN_BUF_POINTER_REG)))
 
 #define NULL 0
 #define EOF -1
@@ -17,12 +11,11 @@ void placeholder (){
 //====================================================================================
 #define num_ops 24
 
-
 #define eval_str 11
-#define closure_str 16
-#define atom_str 24
-#define quote_str 29
-#define macro_str 35
+#define atom_str 16
+#define quote_str 21
+#define macro_str 27
+#define lambdaast_str 33
 #define define_str 41
 #define while_str 48
 #define progn_str 54
@@ -39,10 +32,11 @@ void placeholder (){
 #define cons_str 91
 #define cdr_str 96
 #define car_str 100
-#define eq_str 104
-#define if_str 107
-#define list_str 110
-#define last_op list_str
+#define list_str 104
+#define eq_str 109
+#define if_str 112
+
+#define last_op if_str
 
 //====================================================================================
 
@@ -53,14 +47,9 @@ int j;
 int k;
 
 
-
-
-
 int getchar(void);
 int putchar(int c);
 void exit(int s);
-
-// #define popchar() getchar()
 
 extern int* _edata;
 
@@ -98,13 +87,11 @@ int __builtin_mul(int x, int y) {
 }
 
 int __builtin_div(int a, int b) {
-    // int q, r;
     _div(a, b);
     return q;
 }
 
 int __builtin_mod(int a, int b) {
-    // int q, r;
     _div(a, b);
     return r;
 }

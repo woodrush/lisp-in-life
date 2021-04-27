@@ -1,4 +1,4 @@
-opstr = "eval closure atom quote macro define while progn lambda > < + - * / t mod print cons cdr car eq if "
+opstr = "eval atom quote macro lambda* define while progn lambda > < + - * / t mod print cons cdr car list eq if "
 offset = 11
 poslist = [0+offset]
 for i_c, c in enumerate(opstr):

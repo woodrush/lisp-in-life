@@ -588,14 +588,14 @@ void eval(Value* node) {
             }
             return;
         }
-        if (_str == lambda_str || _str == macro_str || _str == closure_str) {
+        if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
             debug("lambda 1\n");
             _lambda->argnames = arg1->value? arg1 : NULL;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
-            _lambda->type = headstr[0] == 'l' ? L_LAMBDA : headstr[0] == 'm' ? L_MACRO : L_CLOSURE;
+            _lambda->type = headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE;
 
             malloc_bytes = sizeof(Value);
             _value = malloc_k();
@@ -839,7 +839,7 @@ int main (void) {
     true_value = _value;
 
 #ifndef ELVM
-    char* opstr_list[num_ops] = {eval_str, closure_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
+    char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(i=0; i<num_ops; i++){
         _str = opstr_list[i];
         appendStringTable();

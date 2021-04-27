@@ -1,5 +1,5 @@
 (define counter
-  (closure (n)
+  (lambda (n)
     (lambda (methodname)
       (if (eq methodname (quote inc))
         (lambda () (define n (+ n 1)))

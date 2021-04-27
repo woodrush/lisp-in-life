@@ -2,7 +2,7 @@
   (macro (fname varlist body)
     (list
       (quote define) fname
-      (list (quote lambda) varlist body))))
+      (list (quote lambda*) varlist body))))
 
 (defun append (l item)
   (if l
@@ -10,7 +10,7 @@
     (cons item ())))
 
 (defun isprime (n)
-  ((lambda (primelist p ret)
+  ((lambda* (primelist p ret)
      (progn
        (while primelist
          (progn
