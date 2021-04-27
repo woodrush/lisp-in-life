@@ -1,9 +1,9 @@
 void placeholder (){
     const char* __regarea = "\0\0\0\0\0\0\0\0\0\0";
-    const char* opstr = "eval\0closure\0atom\0quote\0macro\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0eq\0if\0";
+    const char* opstr = "eval\0closure\0atom\0quote\0macro\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0eq\0if\0list";
 }
 
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 1310
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 1210
 // #define QFTASM_MEM_OFFSET 0
 // #define QFTASM_MEM_OFFSET 1024
 // #define QFTASM_MEM_OFFSET 170
@@ -15,7 +15,7 @@ void placeholder (){
 #define EOF -1
 
 //====================================================================================
-#define num_ops 24
+#define num_ops 25
 
 #define eval_str 11
 #define closure_str 16
@@ -40,7 +40,8 @@ void placeholder (){
 #define car_str 100
 #define eq_str 104
 #define if_str 107
-#define last_op if_str
+#define list_str 110
+#define last_op list_str
 
 //====================================================================================
 

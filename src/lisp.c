@@ -9,7 +9,7 @@
 // #include <stdio.h>
 #define debug(x) //printf(x)
 
-// ATOM=1, since .type and .next of Value is a union, and .next is usually set to a null value
+// ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 typedef enum {
     ATOM=1, INT=2, LAMBDA=3, LIST=4
 } Valuetype;
@@ -528,6 +528,27 @@ void eval(Value* node) {
             }
             return;
         }
+        if (_str == list_str) {
+            #define initlist _list_eval
+            #define curlist node
+            if (!arg1) {
+                _value = nil;
+            } else {
+                eval(arg1);
+                initlist = newList(_value, NULL);
+                arg1 = node->next;
+                curlist = initlist;
+                while ((arg1 = arg1->next)) {
+                    eval(arg1->value);
+                    curlist->next = newList(_value, NULL);
+                    curlist = curlist->next;
+                }
+                _value = initlist;
+            }
+            return;
+            #undef initlist
+            #undef curlist
+        }
         if (_str == cons_str) {
             #define car node
             eval(arg1);
@@ -687,14 +708,18 @@ eval_lambda_call:;
 
     while (curargname) {
         // Set argument to nil if there are no arguments
-        if (curarg) {
-            if (curlambda->type == L_MACRO) {
+        if (curlambda->type == L_MACRO) {
+            if (curarg) {
                 _value = curarg->value;
             } else {
-                eval(curarg->value);
+                _value = nil;                
             }
         } else {
-            _value = NULL;
+            if (curarg) {
+                eval(curarg->value);
+            } else {
+                _value = NULL;
+            }
         }
         _str = curargname->value->str;
         _env = curenv;
@@ -813,7 +838,7 @@ int main (void) {
     true_value = _value;
 
 #ifndef ELVM
-    char* opstr_list[num_ops] = {eval_str, closure_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str};
+    char* opstr_list[num_ops] = {eval_str, closure_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(i=0; i<num_ops; i++){
         _str = opstr_list[i];
         appendStringTable();

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define num_ops 23
+#define num_ops 24
 char* define_str = "define";
 char* if_str = "if";
 char* quote_str = "quote";
@@ -26,6 +26,7 @@ char* mod_str = "mod";
 char* lt_str = "<";
 char* gt_str = ">";
 char* t_str = "t";
+char* list_str = "list";
 
 //====================================
 
