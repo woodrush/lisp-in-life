@@ -1,9 +1,10 @@
+(define defclass (macro (classname fieldlist body)
+  (list (quote define) classname (list (quote class) fieldlist body))))
 (define class (macro (fieldlist body)
   (list (quote lambda) (quote ())
     (list (quote progn)
       (list (list (quote closure) fieldlist body))
       (quote (lambda (callname)
-      
         ((lambda (methodlist curitem curname ret)
           (progn
             (while methodlist
@@ -15,11 +16,9 @@
                     (define methodlist ())
                     (define ret (car (cdr curitem))))
                   ())
-                (define methodlist (cdr methodlist))
-                  ))
+                (define methodlist (cdr methodlist))))
             ret)
-        ) methodlist))) )
-  )))
+        ) methodlist)))))))
 (define defmethod (macro (methodname arglist body)
   (list (quote define) (quote methodlist)
         (list (quote cons)
@@ -31,52 +30,14 @@
 (define . (macro (object methodname)
   (list object (list (quote quote) methodname))))
 
-(define counter (class (n)
-(progn
-          (defmethod inc ()
-            (define n (+ n 1)))
-          (defmethod set (m)
-            (define n m))
-          (defmethod get ()
-            n)
-        )
-))
-;; (define counter (lambda ()
-;;   ((closure (methodlist)
-  
-;;     (progn
-;;       ((closure (n)
-;;         (progn
-;;           (defmethod inc ()
-;;             (define n (+ n 1)))
-;;           (defmethod set (m)
-;;             (define n m))
-;;           (defmethod get ()
-;;             n)
-;;         ) ))
- 
-;;       (lambda (callname)
-      
-;;         ((lambda (methodlist curitem curname ret)
-;;           (progn
-;;             (while methodlist
-;;               (progn
-;;                 (define curitem (car methodlist))
-;;                 (define curname (car curitem))
-;;                 (if (eq curname callname)
-;;                   (progn
-;;                     (define methodlist ())
-;;                     (define ret (car (cdr curitem))))
-;;                   ())
-;;                 (define methodlist (cdr methodlist))
-;;                   ))
-;;             ret)
-;;         ) methodlist)
-;;       )
-
-;;       )
-;;   )) 
-;; ))
+(defclass counter (n)
+  (progn
+    (defmethod inc ()
+      (define n (+ n 1)))
+    (defmethod set (m)
+      (define n m))
+    (defmethod get ()
+      n)))
 
 (define counter1 (counter))
 (print (. counter1 get) ())
