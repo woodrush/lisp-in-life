@@ -4,7 +4,7 @@
 #include "lisp.h"
 #endif
 
-#define QFTASM_HEAP_MEM_MAX 1822
+#define QFTASM_HEAP_MEM_MAX 2846
 
 // #include <stdio.h>
 #define debug(x) //printf(x)
@@ -417,6 +417,7 @@ typedef struct {
 void eval(Value* node) {
 // #define node evalarg->node
     EvalStack evalstack;
+    debug("entering eval...\n");
 
 #define _list_eval (evalstack._list_eval_)
 #define _list_eval_2 (evalstack._list_eval_2)
@@ -481,23 +482,25 @@ void eval(Value* node) {
             eval(arg2list->value);
             _env = _evalenv;
             do {
-                if ((int) _env > QFTASM_HEAP_MEM_MAX) {
-                    putchar('u');
-                }
+                // if ((int) _env > QFTASM_HEAP_MEM_MAX) {
+                //     putchar('u');
+                // }
                 if (_env->varname == arg1->str){
                     _env->value = _value;
                     return;
                 }
             } while(_env->next && (_env = _env->next));
             _env3 = _env;
-            if ((int) _env > QFTASM_HEAP_MEM_MAX) {
-                putchar('v');
-            }
+            // if ((int) _env > QFTASM_HEAP_MEM_MAX) {
+            //     putchar('v');
+            // }
+            debug("appending to global environment...\n");
 
             // Append to the global environment
             _str = arg1->str;
             _env = NULL;
             _env3->next = newEnv();
+            debug("appended to global environment.\n");
             return;
         }
         if (_str == if_str) {
@@ -564,7 +567,7 @@ void eval(Value* node) {
             malloc_bytes = sizeof(Lambda);
             _lambda = malloc_k();
             debug("lambda 1\n");
-            _lambda->argnames = arg1;
+            _lambda->argnames = arg1->value? arg1 : NULL;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
             _lambda->type = headstr[0] == 'l' ? L_LAMBDA : headstr[0] == 'm' ? L_MACRO : L_CLOSURE;
@@ -661,6 +664,7 @@ void eval(Value* node) {
     }
 
 eval_lambda_call:;
+    debug("calling lambda...\n");
     #define curargname _list_eval
     #define curarg _list_eval_2
     #define curenv evalstack_env
@@ -729,8 +733,8 @@ eval_lambda_call:;
 #define v _value
 void printValue() {
     Value* list;
-    if (!_value || !(_value->value)) {
-        debug("<nil>");
+    if (!_value) {
+        debug("<nil1>");
         putchar('(');
         putchar(')');
         return;
@@ -754,7 +758,17 @@ void printValue() {
             k = q;
         } while (k);
         #undef p
-    } else if (k == LAMBDA) {
+    } 
+    else     if (!(_value->value)) {
+        debug("<nil2>");
+        putchar('C');
+        putchar('(');
+        putchar(')');
+        return;
+    }
+
+    
+    else if (k == LAMBDA) {
         debug("<lambda>");
         k = v->lambda->type;
         _str = k == L_LAMBDA ? "#<Lambda>" : k == L_MACRO ? "#<Macro>" : "#<Closure>";
