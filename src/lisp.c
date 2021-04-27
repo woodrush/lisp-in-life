@@ -696,19 +696,21 @@ eval_lambda_call:;
     }
 
     // For macros, evaluate the result before returning it
-    Env* tempenv = _evalenv;
-    // evalstack_env2 = _evalenv;
-    Env* temp2 = curenv;
-    // _evalenv = curenv;
-    _evalenv = temp2;
+    // Env* tempenv = _evalenv;
+    // Env* temp2 = curenv;
+    // _evalenv = temp2;
+    evalstack_env2 = _evalenv;
+    _evalenv = curenv;
+    
+
     eval(curlambda->body);
     if (curlambda->type == L_MACRO) {
-        // _evalenv = curenv;
-        _evalenv = temp2;
+        _evalenv = curenv;
+        // _evalenv = temp2;
         eval(_value);
     }
-    // _evalenv = evalstack_env2;
-    _evalenv = tempenv;
+    _evalenv = evalstack_env2;
+    // _evalenv = tempenv;
     #undef curargname
     #undef curarg
     #undef curenv
