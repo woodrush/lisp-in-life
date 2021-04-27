@@ -55,22 +55,24 @@ extern int* _edata;
 
 int malloc_bytes;
 void* malloc_k() {
-    int* r = _edata;
+    r = (int)_edata;
     _edata += malloc_bytes;
-    if (r > _edata) {
+    if ((int*)r > _edata) {
         _str = "Memory overflow\n";
         for (; *_str; _str++){
             putchar(*_str);
         }
         exit(1);
     }
-    return r;
+    return (int*)r;
 }
 
 void _div(int n, int m);
 
 int __builtin_mul(int x, int y) {
-    int sign = 1;
+    #define sign q
+    #define ret r
+    sign = 1;
     if (x < 0) {
         sign = 1 - sign;
         x = -x;
@@ -79,11 +81,13 @@ int __builtin_mul(int x, int y) {
         sign = 1 - sign;
         y = -y;
     }
-    int ret = 0;
+    ret = 0;
     while(x--) {
         ret += y;
     }
     return sign ? ret : -ret;
+    #undef sign
+    #undef ret
 }
 
 int __builtin_div(int a, int b) {
