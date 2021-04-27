@@ -4,6 +4,8 @@
 #include "lisp.h"
 #endif
 
+#define QFTASM_HEAP_MEM_MAX 1822
+
 // #include <stdio.h>
 #define debug(x) //printf(x)
 
@@ -479,12 +481,18 @@ void eval(Value* node) {
             eval(arg2list->value);
             _env = _evalenv;
             do {
+                if ((int) _env > QFTASM_HEAP_MEM_MAX) {
+                    putchar('u');
+                }
                 if (_env->varname == arg1->str){
                     _env->value = _value;
                     return;
                 }
             } while(_env->next && (_env = _env->next));
             _env3 = _env;
+            if ((int) _env > QFTASM_HEAP_MEM_MAX) {
+                putchar('v');
+            }
 
             // Append to the global environment
             _str = arg1->str;
@@ -662,6 +670,7 @@ eval_lambda_call:;
     eval(node->value);
     curarg = node->next;
     node = (Value*)(_value->lambda);
+    // curlambda = _value->lambda;
     curargname = curlambda->argnames;
 
 
@@ -677,24 +686,29 @@ eval_lambda_call:;
         }
         _str = curargname->value->str;
         _env = curenv;
-        if (curlambda->type == L_CLOSURE) {
+        // if (curlambda->type == L_CLOSURE) {
             curenv = newEnv();
-        } else {
-            curenv = prependTemporaryEnv();
-        }
+        // } else {
+            // curenv = prependTemporaryEnv();
+        // }
         curargname = curargname->next;
         curarg = curarg->next;
     }
 
     // For macros, evaluate the result before returning it
-    evalstack_env2 = _evalenv;
-    _evalenv = curenv;
+    Env* tempenv = _evalenv;
+    // evalstack_env2 = _evalenv;
+    Env* temp2 = curenv;
+    // _evalenv = curenv;
+    _evalenv = temp2;
     eval(curlambda->body);
     if (curlambda->type == L_MACRO) {
-        _evalenv = curenv;
+        // _evalenv = curenv;
+        _evalenv = temp2;
         eval(_value);
     }
-    _evalenv = evalstack_env2;
+    // _evalenv = evalstack_env2;
+    _evalenv = tempenv;
     #undef curargname
     #undef curarg
     #undef curenv
@@ -793,6 +807,9 @@ int main (void) {
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
+    if ((int) _evalenv > QFTASM_HEAP_MEM_MAX) {
+        putchar('h');
+    }
     // TODO: get progn_str from the string table
     _str = (char*) progn_str;
     newAtomNode();
