@@ -340,35 +340,35 @@ parseatomloop:;
 //================================================================================
 
 
-#define varname_in _str
-#define value_in _value
-#define env_in _env
-#define env _env2
 Env* newEnv() {
     malloc_bytes = sizeof(Env);
-    env = malloc_k();
+    _env2 = malloc_k();
     debug("newEnv\n");
-    env->type = ENV_PERSISTENT;
-    env->varname = varname_in;
-    env->value = value_in;
-    env->next = env_in;
+    _env2->type = i;
+    _env2->varname = _str;
+    _env2->value = _value;
+    _env2->next = _env;
     // env->prev = NULL;
-    return env;
+    return _env2;
 }
-#undef varname_in
-#undef value_in
-#undef env_in
-#undef env
 
 Env* prependTemporaryEnv() {
     // Caution: Raw pointer comparisons, may not work outside of QFT
-    if (((unsigned int)(_env->prev)) > 1) {
+
+    // Is a temporary env that already has a previous env
+    if (((unsigned int)(_env->prev)) > 2) {
         _env2 = _env->prev;
         _env2->varname = _str;
         _env2->value = _value;
         _env2->next = _env;
+
+    // Is either a persistent env or a temporary env without a previous env yet
     } else {
+        i = ENV_TEMPORARY;
         _env2 = newEnv();
+        if (_env->type != ENV_PERSISTENT) {
+            _env->prev = _env2;
+        }
     }
     return _env2;
 }
@@ -498,6 +498,7 @@ void eval(Value* node) {
             // Append to the global environment
             _str = arg1->str;
             _env = NULL;
+            i = ENV_TEMPORARY;
             _env3->next = newEnv();
             debug("appended to global environment.\n");
             return;
@@ -720,6 +721,7 @@ eval_lambda_call:;
         _str = curargname->value->str;
         _env = curenv;
         if (curlambda->type == L_CLOSURE) {
+            i = ENV_PERSISTENT;
             curenv = newEnv();
         } else {
             curenv = prependTemporaryEnv();
@@ -852,6 +854,7 @@ int main (void) {
     _str = "";
     _value = NULL;
     _env = NULL;
+    i = ENV_TEMPORARY;
     _evalenv = newEnv();
     // TODO: get progn_str from the string table
     _str = (char*) progn_str;
