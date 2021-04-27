@@ -31,9 +31,8 @@
                       ())
                     (define methodlist (cdr methodlist))))
                 ret)
-            ) methodlist) ))
-            
-              ))) )))
+            ) methodlist)))
+              ))))))
 
 (defclass counter (n)
   (progn
