@@ -9,12 +9,8 @@
 ;; (define defclass (macro (classname fieldlist body)
 ;;   (list (quote define) classname
 ;;     (list (quote class) fieldlist body))))
-;; (define defmethod (macro (methodname arglist body)
-;;   (list (quote if)
-;;         (list (quote eq) (quote methodname) (list (quote quote) methodname))
-;;         (list (quote define) (quote ret) (list (quote lambda) arglist body)) (quote ()))))
-;; (define . (macro (object methodname)
-;;   (list object (list (quote quote) methodname))))
+(define . (macro (object methodname)
+  (list object (list (quote quote) methodname))))
 
 (define defmethod (macro (methodname arglist body)
   (list (quote define) (quote methodlist)
@@ -23,19 +19,12 @@
                     (list (quote quote) methodname)
                     (list (quote lambda) arglist body))
               (quote methodlist)))))
-(define counter (lambda ()
-  ((closure (methodlist)
-  
-    (progn
-      ((closure (n)
-        (progn
-          (defmethod inc () (define n (+ 1 n)))
-          (defmethod get () n)
-          (defmethod set (m) (define n m))
-
-        )) ())
-
-      (lambda (callname)
+(define class (macro (body)
+  (list (quote lambda) (quote ())
+        (list (list (quote closure) (list (quote methodlist))
+                    (list (quote progn)
+                          body
+                          (quote (lambda (callname)
       
         ((lambda (methodlist curitem curname ret)
           (progn
@@ -53,18 +42,26 @@
             ret)
         ) methodlist)
       )
+      ))))
+  )
+))
+(define counter (class
+((closure (n)
+        (progn
+          (defmethod inc () (define n (+ 1 n)))
+          (defmethod get () n)
+          (defmethod set (m) (define n m))
 
-      )
-  ) () ) 
+        )) ())
 ))
 
 
 (define counter1 (counter))
 (define counter2 (counter))
-((counter1 (quote set)) 0)
-((counter2 (quote set)) 12)
-(print ((counter1 (quote get))) ())
-(print ((counter2 (quote get))) ())
+((. counter1 set) 0)
+((. counter2 set) 12)
+(print ((. counter1 get)) ())
+(print ((. counter2 get)) ())
 ;; ((counter1 (quote inc)))
 ;; ((counter1 (quote inc)))
 ;; ((counter1 (quote inc)))
