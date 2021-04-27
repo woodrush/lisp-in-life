@@ -39,10 +39,7 @@ typedef enum {
 
 typedef struct Env {
     char* varname;
-    union {
-        Envtype type;
-        struct Env* prev;
-    };
+    struct Env* prev;
     struct Value* value;
     struct Env* next;
 } Env;
@@ -344,31 +341,39 @@ Env* newEnv() {
     malloc_bytes = sizeof(Env);
     _env2 = malloc_k();
     debug("newEnv\n");
-    _env2->type = i;
     _env2->varname = _str;
     _env2->value = _value;
     _env2->next = _env;
-    // env->prev = NULL;
+    _env2->prev = (Env*)1;
     return _env2;
 }
 
+
+// Persistent envs:
+// - Can have .next and .prev
+// - Is never a .prev of any env (to avoid overwriting)
+// Temporary envs:
+// - Can have .next and .prev
+// - Can be a .prev of some env (can be overwritten)
 Env* prependTemporaryEnv() {
     // Caution: Raw pointer comparisons, may not work outside of QFT
 
-    // Is a temporary env that already has a previous env
-    if (((unsigned int)(_env->prev)) > 2) {
+    // The current head env is an env that already has a previous env
+    if (!(_env->prev == (Env*)1)) {
+        // Overwrite the contents of the env and return it
         _env2 = _env->prev;
         _env2->varname = _str;
         _env2->value = _value;
-        _env2->next = _env;
+        // _env2->next = _env;
 
-    // Is either a persistent env or a temporary env without a previous env yet
+    // The current head env doesn't have a .prev yet
     } else {
-        i = ENV_TEMPORARY;
+        // _env2->next gets set to _env
         _env2 = newEnv();
-        if (_env->type != ENV_PERSISTENT) {
-            _env->prev = _env2;
-        }
+        // Persistent envs also can have a .prev .
+        // We just have to make sure it doesn't become a .prev of any env,
+        // at the time of its initialization
+        _env->prev = _env2;
     }
     return _env2;
 }
@@ -498,7 +503,6 @@ void eval(Value* node) {
             // Append to the global environment
             _str = arg1->str;
             _env = NULL;
-            i = ENV_TEMPORARY;
             _env3->next = newEnv();
             debug("appended to global environment.\n");
             return;
@@ -721,7 +725,6 @@ eval_lambda_call:;
         _str = curargname->value->str;
         _env = curenv;
         if (curlambda->type == L_CLOSURE) {
-            i = ENV_PERSISTENT;
             curenv = newEnv();
         } else {
             curenv = prependTemporaryEnv();
@@ -854,7 +857,6 @@ int main (void) {
     _str = "";
     _value = NULL;
     _env = NULL;
-    i = ENV_TEMPORARY;
     _evalenv = newEnv();
     // TODO: get progn_str from the string table
     _str = (char*) progn_str;
