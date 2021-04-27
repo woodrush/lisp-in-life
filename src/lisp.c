@@ -461,7 +461,7 @@ void eval(Value* node) {
 
     // Is ()
     if (!(node->value)) {
-        _value = nil;
+        _value = NULL;
         return;
     }
 
@@ -532,7 +532,7 @@ void eval(Value* node) {
             #define initlist _list_eval
             #define curlist node
             if (!arg1) {
-                _value = nil;
+                _value = NULL;
             } else {
                 eval(arg1);
                 initlist = newList(_value, NULL);
