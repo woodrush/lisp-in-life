@@ -471,16 +471,17 @@ void eval(Value* node) {
         #define headstr _str
         headstr = node->value->str;
 
-        if (!node->next) {
-            goto eval_lambda_call;
-        }
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
             goto eval_lambda_call;
         }
 #endif
-        arg1 = node->next->value;
-        arg2list = node->next->next;
+        if (node->next) {
+            arg1 = node->next->value;
+            if (node->next->next) {
+                arg2list = node->next->next;
+            }
+        }
 
         if (_str == define_str) {
             eval(arg2list->value);
@@ -533,7 +534,7 @@ void eval(Value* node) {
             #define initlist _list_eval
             #define curlist node
             if (!arg1) {
-                _value = NULL;
+                _value = nil;
             } else {
                 eval(arg1);
                 initlist = newList(_value, NULL);
@@ -661,15 +662,13 @@ void eval(Value* node) {
         }
         if (_str == lt_str || _str == gt_str) {
             c_eval = headstr[0];
-            #define ret _value
             _value = arg2list->value;
             evalAsInt();
             n_ = i;
             eval(arg1);
-            j = ret->n < n_;
+            j = _value->n < n_;
             _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
-            #undef ret
         }
         if (_str == quote_str) {
             _value = arg1;
@@ -867,6 +866,7 @@ int main (void) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
     }
+    
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
