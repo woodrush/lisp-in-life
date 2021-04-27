@@ -1,21 +1,46 @@
+;; (define defmethod (macro (methodname body nextmethod)
+;;   (list (quote if) (list (quote eq) (quote methodname) (list (quote quote) methodname)) body nextmethod)))
+;; (define callmethod (macro (object methodname arg)
+;;   (list object (list (quote quote) methodname) arg)))
+
+;; (define newcounter (lambda (m)
+;;   ((closure (n)
+;;     (lambda (methodname arg)
+;;       (if (eq methodname (quote inc))
+;;         (define n (+ n 1))
+;;       (if (eq methodname (quote dec))
+;;         (define n (- n 1))
+;;       (if (eq methodname (quote print))
+;;         (print n ())
+;;       (if (eq methodname (quote set))
+;;         (define n arg)
+;;       (if (eq methodname (quote get))
+;;         n
+;;         n)))))))
+;;     (if m m 0))))
+
+(define defmethod (macro (methodname body nextmethod)
+  (list (quote if)
+        (list (quote eq) (quote methodname) (list (quote quote) methodname))
+        body nextmethod)))
+(define callmethod (macro (object methodname arg)
+  (list object (list (quote quote) methodname) arg)))
+
 (define newcounter (lambda (m)
   ((closure (n)
     (lambda (methodname arg)
-      (if (eq methodname (quote inc))
+      (defmethod inc
         (define n (+ n 1))
-      (if (eq methodname (quote dec))
+      (defmethod dec
         (define n (- n 1))
-      (if (eq methodname (quote print))
+      (defmethod print
         (print n ())
-      (if (eq methodname (quote set))
+      (defmethod set
         (define n arg)
-      (if (eq methodname (quote get))
+      (defmethod get
         n
         n)))))))
     (if m m 0))))
-
-(define callmethod (macro (object methodname arg)
-  (list object (list (quote quote) methodname) arg)))
 
 (print (list 1 2 3))
 (define counter1 (newcounter))

@@ -743,12 +743,13 @@ eval_lambda_call:;
     
 
     eval(curlambda->body);
+    _evalenv = evalstack_env2;
     if (curlambda->type == L_MACRO) {
-        _evalenv = curenv;
+        // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
+        _evalenv = evalstack_env2;
     }
-    _evalenv = evalstack_env2;
     // _evalenv = tempenv;
     #undef curargname
     #undef curarg
