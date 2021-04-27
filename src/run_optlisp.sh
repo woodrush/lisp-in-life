@@ -22,5 +22,4 @@ python ../elvm/tools/qftasm/qftasm_pp.py opt6.qftasmpp > lisp_opt.qftasm
 cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
-cat counters.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
-# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
+cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
