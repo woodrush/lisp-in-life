@@ -702,7 +702,7 @@ eval_lambda_call:;
     curargname = curlambda->argnames;
 
 
-    // Macros should be evaluated in the environment they are called in,
+    // Th body of the macro should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
     curenv = (curlambda->type == L_MACRO) ? _evalenv : curlambda->env;
 
@@ -740,16 +740,15 @@ eval_lambda_call:;
     // _evalenv = temp2;
     evalstack_env2 = _evalenv;
     _evalenv = curenv;
-    
 
     eval(curlambda->body);
-    _evalenv = evalstack_env2;
     if (curlambda->type == L_MACRO) {
+        _evalenv = _evalenv;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
-        _evalenv = evalstack_env2;
     }
+    _evalenv = evalstack_env2;
     // _evalenv = tempenv;
     #undef curargname
     #undef curarg
@@ -806,7 +805,7 @@ void printValue() {
     else if (k == LAMBDA) {
         debug("<lambda>");
         k = v->lambda->type;
-        _str = k == L_LAMBDA ? "#<Lambda>" : k == L_MACRO ? "#<Macro>" : "#<Closure>";
+        _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
     } else if (k == ATOM) {
         debug("<atom>");
         _str = v->str;
