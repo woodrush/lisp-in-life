@@ -19,11 +19,11 @@
                     (list (quote quote) methodname)
                     (list (quote lambda) arglist body))
               (quote methodlist)))))
-(define class (macro (body)
+(define class (macro (fieldlist body)
   (list (quote lambda) (quote ())
         (list (list (quote closure) (list (quote methodlist))
                     (list (quote progn)
-                          body
+                          (list (list (quote closure) fieldlist body))
                           (quote (lambda (callname)
       
         ((lambda (methodlist curitem curname ret)
@@ -40,20 +40,12 @@
                 (define methodlist (cdr methodlist))
                   ))
             ret)
-        ) methodlist)
-      )
-      ))))
-  )
-))
-(define counter (class
-((closure (n)
-        (progn
-          (defmethod inc () (define n (+ 1 n)))
-          (defmethod get () n)
-          (defmethod set (m) (define n m))
-
-        )) ())
-))
+        ) methodlist)))))))))
+(define counter (class (n)
+  (progn
+    (defmethod inc () (define n (+ 1 n)))
+    (defmethod get () n)
+    (defmethod set (m) (define n m)))))
 
 
 (define counter1 (counter))
