@@ -1,7 +1,7 @@
-void placeholder (){
-    const char* __regarea = "\0\0\0\0\0\0\0\0\0\0";
-    const char* opstr = "eval\0atom\0quote\0macro\0lambda*\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0list\0eq\0if";
-}
+// void placeholder (){
+//     const char* __regarea = "\0\0\0\0\0\0\0\0\0\0";
+//     const char* opstr = "eval\0atom\0quote\0macro\0lambda*\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0list\0eq\0if";
+// }
 
 #define QFTASM_RAMSTDIN_BUF_STARTPOSITION 688
 

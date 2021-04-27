@@ -1,4 +1,7 @@
-../elvm/out/8cc -S -DELVM -I. -Ilibc -Iout -Isrc -o tmp.eir src/lisp.c
+../elvm/out/8cc -S -DELVM -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+echo "" > tmp.eir
+cat ./src/memheader.eir >> tmp.eir
+cat tmp_.eir >> tmp.eir
 ../elvm/out/elc -qftasm tmp.eir > tmp.qftasmpp   # elc outputs code that requires post-processing
 
 # wc -l tmp.qftasmpp
