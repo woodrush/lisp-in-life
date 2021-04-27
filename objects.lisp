@@ -14,14 +14,6 @@
         n)))))))
     (if m m 0))))
 
-;; (define defmethod (macro (methodname body)
-;;   (cons (quote if)
-;;   (cons (cons (quote eq) (cons (quote methodname) (cons ())))))
-;; ))
-;; (define callmethod (macro (object methodname arg)
-;;   (cons object
-;;   (cons (cons (quote quote) (cons methodname ()))
-;;   (cons arg ())))))
 (define callmethod (macro (object methodname arg)
   (list object (list (quote quote) methodname) arg)))
 

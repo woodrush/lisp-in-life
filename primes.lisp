@@ -1,10 +1,8 @@
 (define defun
   (macro (fname varlist body)
-    (cons (quote define)
-    (cons fname
-    (cons (cons (quote lambda)
-          (cons varlist
-          (cons body ()))) ())))))
+    (list
+      (quote define) fname
+      (list (quote lambda) varlist body))))
 
 (defun append (l item)
   (if l
