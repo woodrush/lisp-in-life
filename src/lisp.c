@@ -38,7 +38,8 @@ typedef struct Value {
 typedef struct StringTable {
     // char* varname;
     Value* value;
-    struct StringTable* next;
+    struct StringTable* lesser;
+    // struct StringTable* greater;
 } StringTable;
 
 typedef enum {
@@ -70,6 +71,7 @@ char c;
 char buf[32];
 char* s1;
 char* s2;
+char* s3;
 
 StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
@@ -155,14 +157,76 @@ Value* newList(Value* node, Value* next) {
 void parseExpr();
 
 
-#define appendStringTable() {                             \
-    malloc_k(sizeof(StringTable), _stringtable);          \
-    debug("appendStringTable\n");                         \
-    newAtomNode();                                        \
-    _stringtable->value = _value;                         \
-    _stringtable->next = stringTableHead;                 \
-    stringTableHead = _stringtable;                       \
+#define newStringTable(__stringtable, __value) {    \
+    newAtomNode();                                  \
+    malloc_k(sizeof(StringTable), __stringtable);   \
+    debug("newStringTable\n");                      \
+    _stringtable->value = __value;                  \
+    _stringtable->lesser = NULL;                    \
+    /*_stringtable->greater = NULL;*/                   \
 }
+
+// TODO: optimize _str[0] to char c
+int getOrSetAtomFromStringTable_newflag = 0;
+Value* getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring) {
+    s1 = stringtable->value->str;
+    s2 = targetstring;
+    // printf("%s v.s. %s (the input)\n", s1, s2);
+    for (; *s1 || *s2; s1++, s2++) {
+        // The strings were not equal
+        if (*s1 != *s2) {
+            _stringtable = stringtable->lesser;
+            // i = _str[0] < stringtable->value->str[0];
+            // _stringtable = i ? stringtable->lesser : stringtable->greater;
+            // There are no more strings that could match in the table
+            if (!_stringtable) {
+                if (getOrSetAtomFromStringTable_newflag) {
+                    debug("Creating new stringtable entry...\n");
+
+                    // This was the last string in the table, so create a string
+                    // _malloc_bytes = i+1;
+                    malloc_k(i+1, _str);
+                    // s2 = _str;
+                    // _str = s1;
+                    // s1 = _value->str;
+                    s1 = _str;
+                    s2 = targetstring;
+                    // s2 = _str;
+                    // _str = (char*) _malloc_result;
+                    debug("parseAtom\n");
+                    for(; *s2; s1++, s2++) {
+                        *s1 = *s2;
+                    }
+                } else {
+                    _str = targetstring;
+                }
+                newAtomNode();
+                newStringTable(_stringtable, _value);
+                // if (i) {
+                    stringtable->lesser = _stringtable;
+                // } else {
+                //     stringtable->greater = _stringtable;
+                // }
+                return _value;
+            }
+            // There is a string table that we could proceed to search
+            debug("Continuing search...\n");
+            return getOrSetAtomFromStringTable(_stringtable, targetstring);
+        }
+    }
+    // The strings were equal
+    debug("The strings have matched!\n");
+    return stringtable->value;
+}
+
+// #define appendStringTable() {                             \
+//     malloc_k(sizeof(StringTable), _stringtable);          \
+//     debug("appendStringTable\n");                         \
+//     newAtomNode();                                        \
+//     _stringtable->value = _value;                         \
+//     _stringtable->next = stringTableHead;                 \
+//     stringTableHead = _stringtable;                       \
+// }
 
 
 Value* parseListLoop() {
@@ -275,35 +339,38 @@ space:;
         return;
     }
 
+    // _str = buf;
+    _value = getOrSetAtomFromStringTable(stringTableHead, buf);
 
-    _stringtable = stringTableHead;
+//     _stringtable = stringTableHead;
 
-parseatomloop:;
-    s1 = buf;
-    s2 = _stringtable->value->str;
-    for(; *s1 || *s2; s1++, s2++) {
-        if (*s1 != *s2) {
-            // There is a string next to this string in the table
-            if ((_stringtable = _stringtable->next)) {
-                goto parseatomloop;
-            }
 
-            // This was the last string in the table, so create a string
-            // _malloc_bytes = i+1;
-            malloc_k(i+1, _str);
-            // _str = (char*) _malloc_result;
-            debug("parseAtom\n");
-            s1 = _str;
-            s2 = buf;
-            for(; *s2; s1++, s2++) {
-                *s1 = *s2;
-            }
-            appendStringTable();
-            return;
-        }
-    }
-    // The strings are equal
-    _value = _stringtable->value;    
+// parseatomloop:;
+//     s1 = buf;
+//     s2 = _stringtable->value->str;
+//     for(; *s1 || *s2; s1++, s2++) {
+//         if (*s1 != *s2) {
+//             // There is a string next to this string in the table
+//             if ((_stringtable = _stringtable->next)) {
+//                 goto parseatomloop;
+//             }
+
+//             // This was the last string in the table, so create a string
+//             // _malloc_bytes = i+1;
+//             malloc_k(i+1, _str);
+//             // _str = (char*) _malloc_result;
+//             debug("parseAtom\n");
+//             s1 = _str;
+//             s2 = buf;
+//             for(; *s2; s1++, s2++) {
+//                 *s1 = *s2;
+//             }
+//             appendStringTable();
+//             return;
+//         }
+//     }
+//     // The strings are equal
+//     _value = _stringtable->value;    
 }
 
 //================================================================================
@@ -796,21 +863,31 @@ int main (void) {
     newAtomNode();
     true_value = _value;
 
+    newStringTable(_stringtable, _value);
+    stringTableHead = _stringtable;
 #  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
-    for(i=0; i<num_ops; i++){
-        _str = opstr_list[i];
-        appendStringTable();
+    for(j=0; j<num_ops; j++){
+        _str = opstr_list[j];
+        s1 = _str;
+        i = 0;
+        for(; *s1; s1++,i++){}
+        getOrSetAtomFromStringTable(stringTableHead, _str);
     }
 #  else
-    s1 = eval_str;
-    for(i=0; i<num_ops; i++){
-        _str = s1;
-        appendStringTable();
-        for(; *s1; s1++){}
-        s1++;
+    s3 = opstring_head;
+    // s1 = eval_str;
+    for(j=0; j<num_ops; j++){
+        _str = s3;
+        // s3 = _str;
+        i = 0;
+        for(; *s3; s3++,i++){}
+        getOrSetAtomFromStringTable(stringTableHead, _str);
+        // for(; *s1; s1++){}
+        s3++;
     }
 #  endif
+    getOrSetAtomFromStringTable_newflag = 1;
 
     _str = "";
     _value = NULL;
