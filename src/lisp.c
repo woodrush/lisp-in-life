@@ -260,18 +260,15 @@ void newIntValue(){
 void parseExpr() {
     // Remove whitespace
 space:;
-    // curchar();
     if (!c) {
         c = getchar();
     }
-    // c = (charbuf ? charbuf : (charbuf = getchar()));
     while (c == ' ' || c == '\n') {
         c = getchar();
     }
     if (c == ';') {
         do {
             c = getchar();
-            // c = popchar();
 // #ifdef ELVM
 //         } while(c != '\n');
 // #else
@@ -356,7 +353,15 @@ parseatomloop:;
             for(; *s2; s1++, s2++) {
                 *s1 = *s2;
             }
-            appendStringTable();
+            // _malloc_bytes = sizeof(StringTable);
+            malloc_k(sizeof(StringTable), _stringtable);
+            // _stringtable = (StringTable*) _malloc_result;
+            debug("appendStringTable\n");
+            newAtomNode();
+            _stringtable->value = _value;
+            _stringtable->next = stringTableHead;
+            stringTableHead = _stringtable;
+            // appendStringTable();
             return;
         }
     }
