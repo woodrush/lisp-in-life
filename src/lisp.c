@@ -172,19 +172,12 @@ void _div(int n, int m) {
 
 
 
-#define str_in _str
-void newAtomNode() {
-#define ret _value
-    // _malloc_bytes = sizeof(Value);
-    malloc_k(sizeof(Value), _value);
-    // _value = (Value*) _malloc_result;
-    debug("newAtomNode\n");
-    _value->type = ATOM;
-    _value->str = str_in;
-    // return ret;
-#undef ret
+#define newAtomNode() {              \
+    malloc_k(sizeof(Value), _value); \
+    debug("newAtomNode\n");          \
+    _value->type = ATOM;             \
+    _value->str = _str;              \
 }
-#undef str_in
 
 Value* newList(Value* node, Value* next) {
 #define ret _list
@@ -201,15 +194,13 @@ Value* newList(Value* node, Value* next) {
 void parseExpr();
 
 
-void appendStringTable() {
-    // _malloc_bytes = sizeof(StringTable);
-    malloc_k(sizeof(StringTable), _stringtable);
-    // _stringtable = (StringTable*) _malloc_result;
-    debug("appendStringTable\n");
-    newAtomNode();
-    _stringtable->value = _value;
-    _stringtable->next = stringTableHead;
-    stringTableHead = _stringtable;
+#define appendStringTable() {                             \
+    malloc_k(sizeof(StringTable), _stringtable);          \
+    debug("appendStringTable\n");                         \
+    newAtomNode();                                        \
+    _stringtable->value = _value;                         \
+    _stringtable->next = stringTableHead;                 \
+    stringTableHead = _stringtable;                       \
 }
 
 
@@ -277,22 +268,18 @@ space:;
         charbuf = 0;
         goto space;
     }
-    // charbuf = 0;
 
     // Parse as a list
     if (c == '(') {
-        // charbuf = 0; // '('
-        c = 0;
+        c = 0; // '('
 
         _value = parseListLoop();
 
-        // charbuf = 0; // ')'
-        c = 0;
+        c = 0; // ')'
 
         if (!_value) {
             _value = nil;
         }
-        // _value = _value ? _value : nil;
         return;
     }
 
@@ -315,10 +302,7 @@ space:;
         buf[i] = c;
         i++;
         c = getchar();
-        // charbuf ? (charbuf = 0) : getchar();
-        // c = (charbuf ? charbuf : (charbuf = getchar()))
     }
-    // charbuf = c;
     buf[i] = '\0';
 
     // If the expression is an integer literal, evaluate it
@@ -353,15 +337,7 @@ parseatomloop:;
             for(; *s2; s1++, s2++) {
                 *s1 = *s2;
             }
-            // _malloc_bytes = sizeof(StringTable);
-            malloc_k(sizeof(StringTable), _stringtable);
-            // _stringtable = (StringTable*) _malloc_result;
-            debug("appendStringTable\n");
-            newAtomNode();
-            _stringtable->value = _value;
-            _stringtable->next = stringTableHead;
-            stringTableHead = _stringtable;
-            // appendStringTable();
+            appendStringTable();
             return;
         }
     }
