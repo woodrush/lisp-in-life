@@ -124,6 +124,22 @@ void _div(int n, int m) {
     _value->str = _str;              \
 }
 
+#define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
+    malloc_k(sizeof(Lambda), __target);                                \
+    debug("lambda 1\n");                                               \
+    _lambda->argnames = __argnames;                                    \
+    _lambda->body = __body;                                            \
+    _lambda->env = __env;                                              \
+    _lambda->type = __type;                                            \
+}
+
+#define newLambdaNode() {            \
+    malloc_k(sizeof(Value), _value); \
+    debug("lambda 2\n");             \
+    _value->type = LAMBDA;           \
+    _value->lambda = _lambda;        \
+}
+
 Value* newList(Value* node, Value* next) {
 #define ret _list
     // _malloc_bytes = sizeof(Value);
@@ -541,21 +557,14 @@ void eval(Value* node) {
             return;
         }
         if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
-            // _malloc_bytes = sizeof(Lambda);
-            malloc_k(sizeof(Lambda), _lambda);
-            // _lambda = (Lambda*) _malloc_result;
-            debug("lambda 1\n");
-            _lambda->argnames = arg1->value? arg1 : NULL;
-            _lambda->body = arg2list->value;
-            _lambda->env = _evalenv;
-            _lambda->type = headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE;
-
-            // _malloc_bytes = sizeof(Value);
-            malloc_k(sizeof(Value), _value);
-            // _value = (Value*) _malloc_result;
-            debug("lambda 2\n");
-            _value->type = LAMBDA;
-            _value->lambda = _lambda;
+            newLambdaValue(
+                _lambda,
+                (arg1->value ? arg1 : NULL),
+                (arg2list->value),
+                _evalenv,
+                (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
+            );
+            newLambdaNode();
             return;
         }
         if (_str == eq_str) {
