@@ -169,7 +169,9 @@ void parseExpr();
 
 // TODO: optimize _str[0] to char c
 int getOrSetAtomFromStringTable_newflag = 0;
-Value* getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring) {
+void getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring) {
+
+getOrSetAtomFromStringTableHead:;
     s1 = stringtable->value->str;
     s2 = targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
@@ -209,16 +211,22 @@ Value* getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring
                 } else {
                     stringtable->greater = _stringtable;
                 }
-                return _value;
+                return;
+                // return _value;
             }
             // There is a string table that we could proceed to search
             debug("Continuing search...\n");
-            return getOrSetAtomFromStringTable(_stringtable, targetstring);
+            stringtable = _stringtable;
+            // getOrSetAtomFromStringTable(_stringtable, targetstring);
+            goto getOrSetAtomFromStringTableHead;
+            // return;
+            // return _value;
         }
     }
     // The strings were equal
     debug("The strings have matched!\n");
-    return stringtable->value;
+    _value = stringtable->value;
+    // return _value;
 }
 
 // #define appendStringTable() {                             \
@@ -342,7 +350,7 @@ space:;
     }
 
     // _str = buf;
-    _value = getOrSetAtomFromStringTable(stringTableHead, buf);
+    getOrSetAtomFromStringTable(stringTableHead, buf);
 
 //     _stringtable = stringTableHead;
 
