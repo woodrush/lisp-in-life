@@ -261,7 +261,10 @@ void parseExpr() {
     // Remove whitespace
 space:;
     // curchar();
-    c = (charbuf ? charbuf : (charbuf = getchar()));
+    if (!c) {
+        c = getchar();
+    }
+    // c = (charbuf ? charbuf : (charbuf = getchar()));
     while (c == ' ' || c == '\n') {
         c = getchar();
     }
@@ -281,18 +284,13 @@ space:;
 
     // Parse as a list
     if (c == '(') {
-        // getchar();
-        charbuf = 0;
-// #define popchar() (charbuf ? (charbuf = 0) : getchar())
-// #define curchar() (c = (charbuf ? charbuf : (charbuf = getchar())))
-
-        // popchar(); // '('
+        // charbuf = 0; // '('
+        c = 0;
 
         _value = parseListLoop();
 
-        // popchar(); // ')'
-        // getchar();
-        charbuf = 0;
+        // charbuf = 0; // ')'
+        c = 0;
 
         if (!_value) {
             _value = nil;
@@ -323,12 +321,12 @@ space:;
         // charbuf ? (charbuf = 0) : getchar();
         // c = (charbuf ? charbuf : (charbuf = getchar()))
     }
-    charbuf = c;
+    // charbuf = c;
     buf[i] = '\0';
 
     // If the expression is an integer literal, evaluate it
-    c = buf[0];
-    if (('0' <= c && c <= '9') || c == '-' && ('0' <= buf[1] && buf[1] <= '9')) {
+    charbuf = buf[0];
+    if (('0' <= charbuf && charbuf <= '9') || charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9')) {
         _str = buf;
         parseInt();
         newIntValue();
