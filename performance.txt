@@ -1,5 +1,10 @@
+Full run:
 Linear search:         8955    74707   451068  239627  
 Binary search v1:      18705   86044   448457  250697
 Binary search v2:      16709   81885   441279  236820
 Binary search v3:      16528   81530   440588  236045
 
+
+Parse-only run:
+Linear search:         7516    48807   169825  187306
+Binary search v3:      15089   55630   159345  183724
