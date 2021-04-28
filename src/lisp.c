@@ -137,31 +137,33 @@ void _div(int n, int m) {
 //     }
 //     putchar('\n');
 // }
-char popchar() {
-    if (!charbuf) {
-        // c = getchar();
-        // putchar(c);
-        // return c;
-        return getchar();
-    }
-    // char ret = charbuf;
-    // putchar(charbuf);
-    // charbuf = 0;
-    // return ret;
-    // char ret = charbuf;
-    // putchar(charbuf);
-    return (charbuf = 0);
-}
 
-char curchar() {
-    if (!charbuf) {
-        charbuf = getchar();
-    }
-    // putchar(charbuf);
-    return charbuf;
-}
+// char popchar() {
+//     if (!charbuf) {
+//         // c = getchar();
+//         // putchar(c);
+//         // return c;
+//         return getchar();
+//     }
+//     // char ret = charbuf;
+//     // putchar(charbuf);
+//     // charbuf = 0;
+//     // return ret;
+//     // char ret = charbuf;
+//     // putchar(charbuf);
+//     return (charbuf = 0);
+// }
 
+// char curchar() {
+//     if (!charbuf) {
+//         charbuf = getchar();
+//     }
+//     // putchar(charbuf);
+//     return charbuf;
+// }
 
+#define popchar() (charbuf ? (charbuf = 0) : getchar())
+#define curchar() (c = (charbuf ? charbuf : (charbuf = getchar())))
 
 
 //================================================================================
@@ -173,9 +175,9 @@ char curchar() {
 #define str_in _str
 void newAtomNode() {
 #define ret _value
-    _malloc_bytes = sizeof(Value);
-    malloc_k();
-    _value = (Value*) _malloc_result;
+    // _malloc_bytes = sizeof(Value);
+    malloc_k(sizeof(Value), _value);
+    // _value = (Value*) _malloc_result;
     debug("newAtomNode\n");
     _value->type = ATOM;
     _value->str = str_in;
@@ -186,9 +188,9 @@ void newAtomNode() {
 
 Value* newList(Value* node, Value* next) {
 #define ret _list
-    _malloc_bytes = sizeof(Value);
-    malloc_k();
-    ret = (Value*) _malloc_result;
+    // _malloc_bytes = sizeof(Value);
+    malloc_k(sizeof(Value), ret);
+    // ret = (Value*) _malloc_result;
     debug("newList\n");
     ret->value = node;
     ret->next = next;
@@ -200,9 +202,9 @@ void parseExpr();
 
 
 void appendStringTable() {
-    _malloc_bytes = sizeof(StringTable);
-    malloc_k();
-    _stringtable = (StringTable*) _malloc_result;
+    // _malloc_bytes = sizeof(StringTable);
+    malloc_k(sizeof(StringTable), _stringtable);
+    // _stringtable = (StringTable*) _malloc_result;
     debug("appendStringTable\n");
     newAtomNode();
     _stringtable->value = _value;
@@ -246,9 +248,9 @@ void parseInt() {
 
 void newIntValue(){
 #define ret _value
-    _malloc_bytes = sizeof(Value);
-    malloc_k();
-    ret = (Value*) _malloc_result;    
+    // _malloc_bytes = sizeof(Value);
+    malloc_k(sizeof(Value), ret);
+    // ret = (Value*) _malloc_result;    
     debug("newIntValue\n");
     ret->type = INT;
     ret->n = i;
@@ -258,29 +260,39 @@ void newIntValue(){
 void parseExpr() {
     // Remove whitespace
 space:;
-    c = curchar();
-    if(c == ' ' || c == '\n') {
-        popchar();
-        goto space;
+    // curchar();
+    c = (charbuf ? charbuf : (charbuf = getchar()));
+    while (c == ' ' || c == '\n') {
+        c = getchar();
     }
     if (c == ';') {
         do {
-            c = popchar();
+            c = getchar();
+            // c = popchar();
 // #ifdef ELVM
 //         } while(c != '\n');
 // #else
         } while(c != '\n' && c != EOF);
 // #endif
+        charbuf = 0;
         goto space;
     }
+    // charbuf = 0;
 
     // Parse as a list
     if (c == '(') {
-        popchar(); // '('
+        // getchar();
+        charbuf = 0;
+// #define popchar() (charbuf ? (charbuf = 0) : getchar())
+// #define curchar() (c = (charbuf ? charbuf : (charbuf = getchar())))
+
+        // popchar(); // '('
 
         _value = parseListLoop();
 
-        popchar(); // ')'
+        // popchar(); // ')'
+        // getchar();
+        charbuf = 0;
 
         if (!_value) {
             _value = nil;
@@ -307,9 +319,11 @@ space:;
 // #endif
         buf[i] = c;
         i++;
-        popchar();
-        c = curchar();
+        c = getchar();
+        // charbuf ? (charbuf = 0) : getchar();
+        // c = (charbuf ? charbuf : (charbuf = getchar()))
     }
+    charbuf = c;
     buf[i] = '\0';
 
     // If the expression is an integer literal, evaluate it
@@ -335,9 +349,9 @@ parseatomloop:;
             }
 
             // This was the last string in the table, so create a string
-            _malloc_bytes = i+1;
-            malloc_k();
-            _str = (char*) _malloc_result;
+            // _malloc_bytes = i+1;
+            malloc_k(i+1, _str);
+            // _str = (char*) _malloc_result;
             debug("parseAtom\n");
             s1 = _str;
             s2 = buf;
@@ -358,9 +372,9 @@ parseatomloop:;
 
 
 Env* newEnv() {
-    _malloc_bytes = sizeof(Env);
-    malloc_k();
-    _env2 = (Env*) _malloc_result;
+    // _malloc_bytes = sizeof(Env);
+    malloc_k(sizeof(Env), _env2);
+    // _env2 = (Env*) _malloc_result;
     debug("newEnv\n");
     _env2->varname = _str;
     _env2->value = _value;
@@ -611,18 +625,18 @@ void eval(Value* node) {
             return;
         }
         if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
-            _malloc_bytes = sizeof(Lambda);
-            malloc_k();
-            _lambda = (Lambda*) _malloc_result;
+            // _malloc_bytes = sizeof(Lambda);
+            malloc_k(sizeof(Lambda), _lambda);
+            // _lambda = (Lambda*) _malloc_result;
             debug("lambda 1\n");
             _lambda->argnames = arg1->value? arg1 : NULL;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
             _lambda->type = headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE;
 
-            _malloc_bytes = sizeof(Value);
-            malloc_k();
-            _value = (Value*) _malloc_result;
+            // _malloc_bytes = sizeof(Value);
+            malloc_k(sizeof(Value), _value);
+            // _value = (Value*) _malloc_result;
             debug("lambda 2\n");
             _value->type = LAMBDA;
             _value->lambda = _lambda;

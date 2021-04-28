@@ -29,6 +29,7 @@ char* t_str = "t";
 char* list_str = "list";
 
 
-void malloc_k() {
-    _malloc_result = malloc(_malloc_bytes);
-}
+// void malloc_k() {
+//     _malloc_result = malloc(_malloc_bytes);
+// }
+#define malloc_k(_malloc_bytes, _malloc_result) { _malloc_result = malloc(_malloc_bytes); }

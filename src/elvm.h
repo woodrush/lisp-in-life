@@ -55,18 +55,20 @@ extern int* _edata;
 
 // int _malloc_bytes;
 // void* _malloc_result;
-void malloc_k() {
-    _malloc_result = (int)_edata;
-    _edata += _malloc_bytes;
-    // if ((int*)r > _edata) {
-    //     _str = "Memory overflow\n";
-    //     for (; *_str; _str++){
-    //         putchar(*_str);
-    //     }
-    //     exit(1);
-    // }
-    // return (int*)r;
-}
+
+// void malloc_k() {
+//     _malloc_result = (int)_edata;
+//     _edata += _malloc_bytes;
+//     // if ((int*)r > _edata) {
+//     //     _str = "Memory overflow\n";
+//     //     for (; *_str; _str++){
+//     //         putchar(*_str);
+//     //     }
+//     //     exit(1);
+//     // }
+//     // return (int*)r;
+// }
+#define malloc_k(_malloc_bytes, _malloc_result) { _malloc_result = (int)_edata; _edata += _malloc_bytes; }
 
 void _div(int n, int m);
 
