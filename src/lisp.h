@@ -28,18 +28,7 @@ char* gt_str = ">";
 char* t_str = "t";
 char* list_str = "list";
 
-//====================================
 
-char* _str;
-int q, r;
-int i;
-int j;
-int k;
-
-//====================================
-
-
-int malloc_bytes;
-void* malloc_k() {
-    return malloc(malloc_bytes);
+void malloc_k() {
+    _malloc_result = malloc(_malloc_bytes);
 }

@@ -1,3 +1,11 @@
+char* _str;
+int q, r;
+int i;
+int j;
+int k;
+int _malloc_bytes;
+void* _malloc_result;
+
 #ifdef ELVM
 #include "elvm.h"
 #else
@@ -56,7 +64,7 @@ typedef struct Lambda {
 } Lambda;
 
 
-char charbuf = -1;
+char charbuf = 0;
 char c;
 
 char buf[32];
@@ -79,25 +87,6 @@ Value* _value;
 Value* _list;
 Value* initlist;
 Value* curlist;
-
-
-char popchar() {
-    if (charbuf < 0) {
-        return getchar();
-    }
-    char ret = charbuf;
-    charbuf = -1;
-    return ret;
-}
-
-char curchar() {
-    if (charbuf < 0) {
-        charbuf = getchar();
-    }
-    return charbuf;
-}
-
-
 
 void _div(int n, int m) {
     #define sign_n i
@@ -123,31 +112,57 @@ void _div(int n, int m) {
     #undef sign
 }
 
-void print_int(int k) {
-    char* p;
-    char buf[10];
-    int i_, j_;
-    if (k < 0) {
-        putchar('-');
-        k = -k;
+// void print_int(int k) {
+//     char* p;
+//     char buf[10];
+//     int i_, j_;
+//     if (k < 0) {
+//         putchar('-');
+//         k = -k;
+//     }
+//     p = buf + 5;
+//     *p = '\0';
+//     do {
+//         i_ = i;
+//         j_ = j;
+//         _div(k, 10);
+//         i = i_;
+//         j = j_;
+//         p--;
+//         *p = (r + '0');
+//         k = q;
+//     } while (k);
+//     for (; *p; p++){
+//         putchar(*p);
+//     }
+//     putchar('\n');
+// }
+char popchar() {
+    if (!charbuf) {
+        // c = getchar();
+        // putchar(c);
+        // return c;
+        return getchar();
     }
-    p = buf + 5;
-    *p = '\0';
-    do {
-        i_ = i;
-        j_ = j;
-        _div(k, 10);
-        i = i_;
-        j = j_;
-        p--;
-        *p = (r + '0');
-        k = q;
-    } while (k);
-    for (; *p; p++){
-        putchar(*p);
-    }
-    putchar('\n');
+    // char ret = charbuf;
+    // putchar(charbuf);
+    // charbuf = 0;
+    // return ret;
+    // char ret = charbuf;
+    // putchar(charbuf);
+    return (charbuf = 0);
 }
+
+char curchar() {
+    if (!charbuf) {
+        charbuf = getchar();
+    }
+    // putchar(charbuf);
+    return charbuf;
+}
+
+
+
 
 //================================================================================
 // Parser
@@ -158,8 +173,9 @@ void print_int(int k) {
 #define str_in _str
 void newAtomNode() {
 #define ret _value
-    malloc_bytes = sizeof(Value);
-    _value = (Value*)malloc_k();
+    _malloc_bytes = sizeof(Value);
+    malloc_k();
+    _value = (Value*) _malloc_result;
     debug("newAtomNode\n");
     _value->type = ATOM;
     _value->str = str_in;
@@ -170,8 +186,9 @@ void newAtomNode() {
 
 Value* newList(Value* node, Value* next) {
 #define ret _list
-    malloc_bytes = sizeof(Value);
-    ret = (Value*)malloc_k();
+    _malloc_bytes = sizeof(Value);
+    malloc_k();
+    ret = (Value*) _malloc_result;
     debug("newList\n");
     ret->value = node;
     ret->next = next;
@@ -183,8 +200,9 @@ void parseExpr();
 
 
 void appendStringTable() {
-    malloc_bytes = sizeof(StringTable);
-    _stringtable = malloc_k();
+    _malloc_bytes = sizeof(StringTable);
+    malloc_k();
+    _stringtable = (StringTable*) _malloc_result;
     debug("appendStringTable\n");
     newAtomNode();
     _stringtable->value = _value;
@@ -228,8 +246,9 @@ void parseInt() {
 
 void newIntValue(){
 #define ret _value
-    malloc_bytes = sizeof(Value);
-    ret = malloc_k();
+    _malloc_bytes = sizeof(Value);
+    malloc_k();
+    ret = (Value*) _malloc_result;    
     debug("newIntValue\n");
     ret->type = INT;
     ret->n = i;
@@ -284,7 +303,7 @@ space:;
 // #ifdef ELVM
 //     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
 // #else
-    while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
+    while (c && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
 // #endif
         buf[i] = c;
         i++;
@@ -316,8 +335,9 @@ parseatomloop:;
             }
 
             // This was the last string in the table, so create a string
-            malloc_bytes = i+1;
-            _str = malloc_k();
+            _malloc_bytes = i+1;
+            malloc_k();
+            _str = (char*) _malloc_result;
             debug("parseAtom\n");
             s1 = _str;
             s2 = buf;
@@ -338,8 +358,9 @@ parseatomloop:;
 
 
 Env* newEnv() {
-    malloc_bytes = sizeof(Env);
-    _env2 = malloc_k();
+    _malloc_bytes = sizeof(Env);
+    malloc_k();
+    _env2 = (Env*) _malloc_result;
     debug("newEnv\n");
     _env2->varname = _str;
     _env2->value = _value;
@@ -590,16 +611,18 @@ void eval(Value* node) {
             return;
         }
         if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
-            malloc_bytes = sizeof(Lambda);
-            _lambda = malloc_k();
+            _malloc_bytes = sizeof(Lambda);
+            malloc_k();
+            _lambda = (Lambda*) _malloc_result;
             debug("lambda 1\n");
             _lambda->argnames = arg1->value? arg1 : NULL;
             _lambda->body = arg2list->value;
             _lambda->env = _evalenv;
             _lambda->type = headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE;
 
-            malloc_bytes = sizeof(Value);
-            _value = malloc_k();
+            _malloc_bytes = sizeof(Value);
+            malloc_k();
+            _value = (Value*) _malloc_result;
             debug("lambda 2\n");
             _value->type = LAMBDA;
             _value->lambda = _lambda;
@@ -793,16 +816,12 @@ void printValue() {
             k = q;
         } while (k);
         #undef p
-    } 
-    else     if (!(_value->value)) {
+    } else if (!(_value->value)) {
         debug("<nil2>");
         putchar('(');
         putchar(')');
         return;
-    }
-
-    
-    else if (k == LAMBDA) {
+    } else if (k == LAMBDA) {
         debug("<lambda>");
         k = v->lambda->type;
         _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
@@ -830,6 +849,7 @@ void printValue() {
 #undef v
 
 int main (void) {
+#ifndef memdumpopt2
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
     // TODO: get this value from the string table
@@ -837,13 +857,13 @@ int main (void) {
     newAtomNode();
     true_value = _value;
 
-#ifndef ELVM
+#  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(i=0; i<num_ops; i++){
         _str = opstr_list[i];
         appendStringTable();
     }
-#else
+#  else
     s1 = eval_str;
     for(i=0; i<num_ops; i++){
         _str = s1;
@@ -851,7 +871,7 @@ int main (void) {
         for(; *s1; s1++){}
         s1++;
     }
-#endif
+#  endif
 
     _str = "";
     _value = NULL;
@@ -862,6 +882,9 @@ int main (void) {
     newAtomNode();
     initlist = newList(_value, NULL);
     curlist = initlist;
+
+#endif
+#ifndef memdumpopt1
     while((parseExpr(), _value)) {
         curlist->next = newList(_value, NULL);
         curlist = curlist->next;
@@ -873,7 +896,8 @@ int main (void) {
     // printValue();
     // eval(_value);
     eval(initlist);
-#ifdef ELVM
+#  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+#  endif
 #endif
 }

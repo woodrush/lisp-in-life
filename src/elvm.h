@@ -40,11 +40,11 @@
 
 //====================================================================================
 
-char* _str;
-int q, r;
-int i;
-int j;
-int k;
+// char* _str;
+// int q, r;
+// int i;
+// int j;
+// int k;
 
 
 int getchar(void);
@@ -53,18 +53,19 @@ void exit(int s);
 
 extern int* _edata;
 
-int malloc_bytes;
-void* malloc_k() {
-    r = (int)_edata;
-    _edata += malloc_bytes;
-    if ((int*)r > _edata) {
-        _str = "Memory overflow\n";
-        for (; *_str; _str++){
-            putchar(*_str);
-        }
-        exit(1);
-    }
-    return (int*)r;
+// int _malloc_bytes;
+// void* _malloc_result;
+void malloc_k() {
+    _malloc_result = (int)_edata;
+    _edata += _malloc_bytes;
+    // if ((int*)r > _edata) {
+    //     _str = "Memory overflow\n";
+    //     for (; *_str; _str++){
+    //         putchar(*_str);
+    //     }
+    //     exit(1);
+    // }
+    // return (int*)r;
 }
 
 void _div(int n, int m);
