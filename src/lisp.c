@@ -169,8 +169,11 @@ void parseExpr();
 
 // TODO: optimize _str[0] to char c
 int getOrSetAtomFromStringTable_newflag = 0;
-void getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring) {
-
+StringTable* stringtable;
+char* targetstring;
+void getOrSetAtomFromStringTable (StringTable* __stringtable, char* __targetstring) {
+    stringtable = __stringtable;
+    targetstring = __targetstring;
 getOrSetAtomFromStringTableHead:;
     s1 = stringtable->value->str;
     s2 = targetstring;
