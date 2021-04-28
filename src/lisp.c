@@ -445,18 +445,12 @@ void eval(Value* node) {
             eval(arg2list->value);
             _env = _evalenv;
             do {
-                // if ((int) _env > QFTASM_HEAP_MEM_MAX) {
-                //     putchar('u');
-                // }
                 if (_env->varname == arg1->str){
                     _env->value = _value;
                     return;
                 }
             } while(_env->next && (_env = _env->next));
             _env3 = _env;
-            // if ((int) _env > QFTASM_HEAP_MEM_MAX) {
-            //     putchar('v');
-            // }
             debug("appending to global environment...\n");
 
             // Append to the global environment
@@ -484,7 +478,6 @@ void eval(Value* node) {
             eval(arg1);
             if (_value) {
                 _value = _value->next;
-                // _value = _list ? newListNode() : NULL;
             }
             return;
         }
@@ -521,12 +514,12 @@ void eval(Value* node) {
         }
         if (_str == print_str) {
             eval(arg1);
-            node = _value;
+            _list_eval = _value;
             printValue();
-            if(arg2list) {
+            if(node->next->next) {
                 putchar('\n');
             }
-            _value = node;
+            _value = _list_eval;
             return;
         }
         if (_str == progn_str) {
