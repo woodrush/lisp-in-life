@@ -16,6 +16,7 @@ void* _malloc_result;
 
 // #include <stdio.h>
 #define debug(x) //printf(x)
+#define debug2(x,y,z) //printf(x,y,z)
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 typedef enum {
@@ -39,7 +40,7 @@ typedef struct StringTable {
     // char* varname;
     Value* value;
     struct StringTable* lesser;
-    // struct StringTable* greater;
+    struct StringTable* greater;
 } StringTable;
 
 typedef enum {
@@ -163,7 +164,7 @@ void parseExpr();
     debug("newStringTable\n");                      \
     _stringtable->value = __value;                  \
     _stringtable->lesser = NULL;                    \
-    /*_stringtable->greater = NULL;*/                   \
+    _stringtable->greater = NULL;                   \
 }
 
 // TODO: optimize _str[0] to char c
@@ -171,17 +172,17 @@ int getOrSetAtomFromStringTable_newflag = 0;
 Value* getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring) {
     s1 = stringtable->value->str;
     s2 = targetstring;
-    // printf("%s v.s. %s (the input)\n", s1, s2);
+    debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; s1++, s2++) {
         // The strings were not equal
         if (*s1 != *s2) {
-            _stringtable = stringtable->lesser;
-            // i = _str[0] < stringtable->value->str[0];
-            // _stringtable = i ? stringtable->lesser : stringtable->greater;
+            // _stringtable = stringtable->lesser;
+            k = targetstring[0] < stringtable->value->str[0];
+            _stringtable = k ? stringtable->lesser : stringtable->greater;
             // There are no more strings that could match in the table
             if (!_stringtable) {
                 if (getOrSetAtomFromStringTable_newflag) {
-                    debug("Creating new stringtable entry...\n");
+                    debug("Creating new stringtable entry with a new string pointer...\n");
 
                     // This was the last string in the table, so create a string
                     // _malloc_bytes = i+1;
@@ -198,15 +199,16 @@ Value* getOrSetAtomFromStringTable (StringTable* stringtable, char* targetstring
                         *s1 = *s2;
                     }
                 } else {
+                    debug("Creating new stringtable entry with an existing string pointer...\n");
                     _str = targetstring;
                 }
                 newAtomNode();
                 newStringTable(_stringtable, _value);
-                // if (i) {
+                if (k) {
                     stringtable->lesser = _stringtable;
-                // } else {
-                //     stringtable->greater = _stringtable;
-                // }
+                } else {
+                    stringtable->greater = _stringtable;
+                }
                 return _value;
             }
             // There is a string table that we could proceed to search
