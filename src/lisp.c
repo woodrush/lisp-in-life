@@ -112,64 +112,9 @@ void _div(int n, int m) {
     #undef sign
 }
 
-// void print_int(int k) {
-//     char* p;
-//     char buf[10];
-//     int i_, j_;
-//     if (k < 0) {
-//         putchar('-');
-//         k = -k;
-//     }
-//     p = buf + 5;
-//     *p = '\0';
-//     do {
-//         i_ = i;
-//         j_ = j;
-//         _div(k, 10);
-//         i = i_;
-//         j = j_;
-//         p--;
-//         *p = (r + '0');
-//         k = q;
-//     } while (k);
-//     for (; *p; p++){
-//         putchar(*p);
-//     }
-//     putchar('\n');
-// }
-
-// char popchar() {
-//     if (!charbuf) {
-//         // c = getchar();
-//         // putchar(c);
-//         // return c;
-//         return getchar();
-//     }
-//     // char ret = charbuf;
-//     // putchar(charbuf);
-//     // charbuf = 0;
-//     // return ret;
-//     // char ret = charbuf;
-//     // putchar(charbuf);
-//     return (charbuf = 0);
-// }
-
-// char curchar() {
-//     if (!charbuf) {
-//         charbuf = getchar();
-//     }
-//     // putchar(charbuf);
-//     return charbuf;
-// }
-
-#define popchar() (charbuf ? (charbuf = 0) : getchar())
-#define curchar() (c = (charbuf ? charbuf : (charbuf = getchar())))
-
-
 //================================================================================
 // Parser
 //================================================================================
-
 
 
 #define newAtomNode() {              \
@@ -369,27 +314,26 @@ Env* newEnv() {
 // Temporary envs:
 // - Can have .next and .prev
 // - Can be a .prev of some env (can be overwritten)
-Env* prependTemporaryEnv() {
-    // Caution: Raw pointer comparisons, may not work outside of QFT
 
-    // The current head env is an env that already has a previous env
-    if (!(_env->prev == (Env*)1)) {
-        // Overwrite the contents of the env and return it
-        _env2 = _env->prev;
-        _env2->varname = _str;
-        _env2->value = _value;
-        // _env2->next = _env;
-
-    // The current head env doesn't have a .prev yet
-    } else {
-        // _env2->next gets set to _env
-        _env2 = newEnv();
-        // Persistent envs also can have a .prev .
-        // We just have to make sure it doesn't become a .prev of any env,
-        // at the time of its initialization
-        _env->prev = _env2;
-    }
-    return _env2;
+#define prependTemporaryEnv(_env2) {                                              \
+    /* Caution: Raw pointer comparisons, may not work outside of QFT*/            \
+                                                                                  \
+    /* The current head env is an env that already has a previous env*/           \
+    if (!(_env->prev == (Env*)1)) {                                               \
+        /* Overwrite the contents of the env and return it */                     \
+        _env2 = _env->prev;                                                       \
+        _env2->varname = _str;                                                    \
+        _env2->value = _value;                                                    \
+                                                                                  \
+    /* The current head env doesn't have a .prev yet */                           \
+    } else {                                                                      \
+        /* _env2->next gets set to _env */                                        \
+        _env2 = newEnv();                                                         \
+        /* Persistent envs also can have a .prev . */                             \
+        /* We just have to make sure it doesn't become a .prev of any env, */     \
+        /* at the time of its initialization */                                   \
+        _env->prev = _env2;                                                       \
+    }                                                                             \
 }
 
 void printValue();
@@ -742,7 +686,7 @@ eval_lambda_call:;
         if (curlambda->type == L_CLOSURE) {
             curenv = newEnv();
         } else {
-            curenv = prependTemporaryEnv();
+            prependTemporaryEnv(curenv);
         }
         curargname = curargname->next;
         if (curarg) {
