@@ -120,11 +120,11 @@ void _div(int n, int m) {
 //================================================================================
 
 
-#define newAtomNode() {              \
+#define newAtomNode(__str) {         \
     malloc_k(sizeof(Value), _value); \
     debug("newAtomNode\n");          \
     _value->type = ATOM;             \
-    _value->str = _str;              \
+    _value->str = __str;             \
 }
 
 #define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
@@ -159,7 +159,7 @@ void parseExpr();
 
 
 #define newStringTable(__stringtable, __value) {    \
-    newAtomNode();                                  \
+    newAtomNode(_str);                              \
     malloc_k(sizeof(StringTable), __stringtable);   \
     debug("newStringTable\n");                      \
     _stringtable->value = __value;                  \
@@ -170,19 +170,23 @@ void parseExpr();
 // TODO: optimize _str[0] to char c
 int getOrSetAtomFromStringTable_newflag = 0;
 StringTable* stringtable;
-char* targetstring;
-void getOrSetAtomFromStringTable (StringTable* __stringtable, char* __targetstring) {
-    stringtable = __stringtable;
-    targetstring = __targetstring;
+char* __targetstring;
+
+// Caution: always is __stringtable = stringTableHead when called
+void getOrSetAtomFromStringTable () {
+    // stringtable = __stringtable;
+    // targetstring = __targetstring;
+    stringtable = stringTableHead;
 getOrSetAtomFromStringTableHead:;
     s1 = stringtable->value->str;
-    s2 = targetstring;
+    s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; s1++, s2++) {
         // The strings were not equal
         if (*s1 != *s2) {
             // _stringtable = stringtable->lesser;
-            k = targetstring[0] < stringtable->value->str[0];
+            // k = targetstring[0] < stringtable->value->str[0];
+            k = *s1 < *s2;
             _stringtable = k ? stringtable->lesser : stringtable->greater;
             // There are no more strings that could match in the table
             if (!_stringtable) {
@@ -196,18 +200,19 @@ getOrSetAtomFromStringTableHead:;
                     // _str = s1;
                     // s1 = _value->str;
                     s1 = _str;
-                    s2 = targetstring;
+                    s2 = __targetstring;
                     // s2 = _str;
                     // _str = (char*) _malloc_result;
                     debug("parseAtom\n");
                     for(; *s2; s1++, s2++) {
                         *s1 = *s2;
                     }
-                } else {
-                    debug("Creating new stringtable entry with an existing string pointer...\n");
-                    _str = targetstring;
                 }
-                newAtomNode();
+                else {
+                    debug("Creating new stringtable entry with an existing string pointer...\n");
+                    _str = __targetstring;
+                }
+                newAtomNode(_str);
                 newStringTable(_stringtable, _value);
                 if (k) {
                     stringtable->lesser = _stringtable;
@@ -353,7 +358,11 @@ space:;
     }
 
     // _str = buf;
-    getOrSetAtomFromStringTable(stringTableHead, buf);
+    // getOrSetAtomFromStringTable(stringTableHead, buf);
+
+    // __stringtable = stringTableHead;
+    __targetstring = buf;
+    getOrSetAtomFromStringTable();
 
 //     _stringtable = stringTableHead;
 
@@ -873,7 +882,7 @@ int main (void) {
     nil = newList(NULL, (Value*)LIST);
     // TODO: get this value from the string table
     _str = t_str;
-    newAtomNode();
+    newAtomNode(t_str);
     true_value = _value;
 
     newStringTable(_stringtable, _value);
@@ -885,7 +894,11 @@ int main (void) {
         s1 = _str;
         i = 0;
         for(; *s1; s1++,i++){}
-        getOrSetAtomFromStringTable(stringTableHead, _str);
+        // getOrSetAtomFromStringTable(stringTableHead, _str);
+        // __stringtable = stringTableHead;
+        __targetstring = _str;
+        getOrSetAtomFromStringTable();
+
     }
 #  else
     s3 = opstring_head;
@@ -895,7 +908,11 @@ int main (void) {
         // s3 = _str;
         i = 0;
         for(; *s3; s3++,i++){}
-        getOrSetAtomFromStringTable(stringTableHead, _str);
+        // getOrSetAtomFromStringTable(stringTableHead, _str);
+        // __stringtable = stringTableHead;
+        __targetstring = _str;
+        getOrSetAtomFromStringTable();
+
         // for(; *s1; s1++){}
         s3++;
     }
@@ -907,8 +924,8 @@ int main (void) {
     _env = NULL;
     _evalenv = newEnv();
     // TODO: get progn_str from the string table
-    _str = (char*) progn_str;
-    newAtomNode();
+    // _str = (char*) progn_str;
+    newAtomNode(progn_str);
     initlist = newList(_value, NULL);
     curlist = initlist;
 
