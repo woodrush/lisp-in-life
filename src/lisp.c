@@ -567,7 +567,28 @@ void eval(Value* node) {
             }
         }
 
-        if (_str == define_str) {
+// #ifdef ELVM
+// #else
+                if (_str == define_str) goto eval_define;
+        else if (_str == if_str) goto eval_if;
+        else if (_str == quote_str) goto eval_quote;
+        else if (_str == car_str) goto eval_car;
+        else if (_str == cdr_str) goto eval_cdr;
+        else if (_str == cons_str) goto eval_cons;
+        else if (_str == atom_str) goto eval_atom;
+        else if (_str == print_str) goto eval_print;
+        else if (_str == progn_str) goto eval_progn;
+        else if (_str == while_str) goto eval_while;
+        else if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) goto eval_createlambda;
+        else if (_str == eval_str) goto eval_eval;
+        else if (_str == eq_str) goto eval_eq;
+        else if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) goto eval_arith;
+        else if (_str == lt_str || _str == gt_str) goto eval_cmp;
+        else if (_str == list_str) goto eval_list;
+        else goto eval_lambda_call;
+// #endif
+        // if (_str == define_str) {
+eval_define:
             eval(arg2list->value);
             _env = _evalenv;
             do {
@@ -585,29 +606,33 @@ void eval(Value* node) {
             _env3->next = newEnv();
             debug("appended to global environment.\n");
             return;
-        }
-        if (_str == if_str) {
+        // }
+        // if (_str == if_str) {
+eval_if:
             #define condition _value
             eval(arg1);
             eval(condition ? arg2list->value : arg2list->next->value);
             return;
             #undef condition
-        }
-        if (_str == car_str) {
+        // }
+        // if (_str == car_str) {
+eval_car:
             eval(arg1);
             if (_value) {
                 _value = _value->value;
             }
             return;
-        }
-        if (_str == cdr_str) {
+        // }
+        // if (_str == cdr_str) {
+eval_cdr:
             eval(arg1);
             if (_value) {
                 _value = _value->next;
             }
             return;
-        }
-        if (_str == list_str) {
+        // }
+        // if (_str == list_str) {
+eval_list:
             #define initlist _list_eval
             #define curlist node
             if (!arg1) {
@@ -627,8 +652,9 @@ void eval(Value* node) {
             return;
             #undef initlist
             #undef curlist
-        }
-        if (_str == cons_str) {
+        // }
+        // if (_str == cons_str) {
+eval_cons:
             #define car node
             eval(arg1);
             car = _value;
@@ -637,8 +663,9 @@ void eval(Value* node) {
             // _value = newListNode();
             return;
             #undef car
-        }
-        if (_str == print_str) {
+        // }
+        // if (_str == print_str) {
+eval_print:
             eval(arg1);
             _list_eval = _value;
             printValue();
@@ -647,8 +674,9 @@ void eval(Value* node) {
             }
             _value = _list_eval;
             return;
-        }
-        if (_str == progn_str) {
+        // }
+        // if (_str == progn_str) {
+eval_progn:
             #define curlist _list_eval
             curlist = node->next;
             _value = NULL;
@@ -658,15 +686,17 @@ void eval(Value* node) {
             }
             return;
             #undef curlist
-        }
-        if (_str == while_str) {
+        // }
+        // if (_str == while_str) {
+eval_while:
             _value = NULL;
             while (eval(arg1), _value) {
                 eval(arg2list->value);
             }
             return;
-        }
-        if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
+        // }
+        // if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
+eval_createlambda:
             newLambdaValue(
                 _lambda,
                 (arg1->value ? arg1 : NULL),
@@ -676,8 +706,9 @@ void eval(Value* node) {
             );
             newLambdaNode();
             return;
-        }
-        if (_str == eq_str) {
+        // }
+        // if (_str == eq_str) {
+eval_eq:
             eval(arg1);
             node = _value;
             eval(arg2list->value);
@@ -703,8 +734,9 @@ void eval(Value* node) {
             return;
             #undef n1
             #undef n2
-        }
-        if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
+        // }
+        // if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
+eval_arith:
             c_eval = headstr[0];
 
             #define nextlist _list_eval_2
@@ -731,8 +763,9 @@ void eval(Value* node) {
             #undef nextlist
             newIntValue();
             return;
-        }
-        if (_str == lt_str || _str == gt_str) {
+        // }
+        // if (_str == lt_str || _str == gt_str) {
+eval_cmp:
             c_eval = headstr[0];
             _value = arg2list->value;
             evalAsInt();
@@ -741,25 +774,28 @@ void eval(Value* node) {
             j = _value->n < n_;
             _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
-        }
-        if (_str == quote_str) {
+        // }
+        // if (_str == quote_str) {
+eval_quote:
             _value = arg1;
             return;
-        }
-        if (_str == atom_str) {
+        // }
+        // if (_str == atom_str) {
+eval_atom:
             eval(arg1);
             _value = !_value || (_value->type == ATOM) || (_value->type == INT) ? true_value : NULL;
             return;
-        }
-        if (_str == eval_str) {
+        // }
+        // if (_str == eval_str) {
+eval_eval:
             eval(arg1);
             eval(_value);
             return;
-        }
+        // }
         #undef headstr
     }
 
-eval_lambda_call:;
+eval_lambda_call:
     debug("calling lambda...\n");
     #define curargname _list_eval
     #define curarg _list_eval_2
