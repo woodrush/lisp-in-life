@@ -540,7 +540,87 @@ typedef struct {
     };
 } EvalStack;
 
+void* evalhash[100];
+
 void eval(Value* node) {
+    if (!evalhash[0]) {
+        evalhash[lambda_str-11] = &&eval_createlambda;
+        evalhash[print_str-11] = &&eval_print;
+        evalhash[define_str-11] = &&eval_define;
+        evalhash[quote_str-11] = &&eval_quote;
+        evalhash[list_str-11] = &&eval_list;
+        evalhash[if_str-11] = &&eval_if;
+        evalhash[car_str-11] = &&eval_car;
+        evalhash[while_str-11] = &&eval_while;
+        evalhash[progn_str-11] = &&eval_progn;
+        evalhash[macro_str-11] = &&eval_createlambda;
+        evalhash[lambdaast_str-11] = &&eval_createlambda;
+        evalhash[eq_str-11] = &&eval_eq;
+        evalhash[cons_str-11] = &&eval_cons;
+        evalhash[plus_str-11] = &&eval_arith;
+        evalhash[mod_str-11] = &&eval_arith;
+        evalhash[eval_str-11] = &&eval_eval;
+        evalhash[cdr_str-11] = &&eval_cdr;
+        evalhash[minus_str -11] = &&eval_arith;
+        evalhash[ast_str -11] = &&eval_arith;
+        evalhash[lt_str -11] = &&eval_cmp;
+        evalhash[gt_str -11] = &&eval_cmp;
+        evalhash[slash_str -11] = &&eval_arith;
+        evalhash[atom_str -11] = &&eval_atom;
+    }
+    // void* evalhash[51] = {
+    //     &&eval_createlambda, 0, 0,
+    //     &&eval_print, 0, 0,
+    //     &&eval_define, 0, 0, 0,
+    //     &&eval_quote, 0, 0,
+    //     &&eval_list, 0,
+    //     &&eval_if, 0,
+    //     &&eval_car, 0,
+    //     &&eval_while, 0, 0,
+    //     &&eval_progn, 0, 0,
+    //     &&eval_createlambda, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0,
+    //     &&eval_eq,
+    //     &&eval_cons, 0, 0,
+    //     &&eval_arith,
+    //     0,
+    //     &&eval_arith, 0,
+    //     &&eval_eval, 0,
+    //     &&eval_cdr, 0,
+    //     &&eval_arith,
+    //     &&eval_arith,
+    //     &&eval_cmp,
+    //     &&eval_cmp,
+    //     &&eval_arith,
+    //     &&eval_atom,
+    // };
+    // void* evalhash[101] = {
+    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0,
+    //     &&eval_print, 0, 0, 0, 0, 0,
+    //     &&eval_define, 0, 0, 0, 0, 0, 0,
+    //     &&eval_quote, 0, 0, 0, 0, 0,
+    //     &&eval_list, 0, 0, 0, 0,
+    //     &&eval_if, 0, 0,
+    //     &&eval_car, 0, 0, 0,
+    //     &&eval_while, 0, 0, 0, 0, 0,
+    //     &&eval_progn, 0, 0, 0, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0, 0,
+    //     &&eval_eq, 0, 0,
+    //     &&eval_cons, 0, 0, 0, 0,
+    //     &&eval_arith, 0,
+    //     0, 0,
+    //     &&eval_arith, 0, 0, 0,
+    //     &&eval_eval, 0, 0, 0, 0,
+    //     &&eval_cdr, 0, 0, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_cmp, 0,
+    //     &&eval_cmp, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_atom,
+    // };
+
 // #define node evalarg->node
     EvalStack evalstack;
     debug("entering eval...\n");
@@ -608,7 +688,12 @@ void eval(Value* node) {
             }
         }
 
-// #ifdef ELVM
+#ifdef ELVM
+    // k = ((int)_str - 11)/2;
+    // k = ((int)_str - 11);
+    // computed_goto = evalhash[k];
+    goto *(evalhash[(int)_str - 11]);
+
 // #define lambda_str 11
 // #define print_str 18
 // #define define_str 24
@@ -634,10 +719,13 @@ void eval(Value* node) {
 // #define slash_str 108
 // #define atom_str 110
 
-// #else
+#else
 
-                if (_str == define_str) goto eval_define;
-        else if (_str == if_str) goto eval_if;
+        void* test__[2] = {&&eval_define, &&eval_if};
+        // test__ = &&eval_define;
+
+             if (_str == define_str) {goto *test__[0];}
+        else if (_str == if_str) {goto *test__[1];}
         else if (_str == quote_str) goto eval_quote;
         else if (_str == car_str) goto eval_car;
         else if (_str == cdr_str) goto eval_cdr;
@@ -653,9 +741,9 @@ void eval(Value* node) {
         else if (_str == lt_str || _str == gt_str) goto eval_cmp;
         else if (_str == list_str) goto eval_list;
         else goto eval_lambda_call;
-// #endif
+#endif
         // if (_str == define_str) {
-eval_define:
+eval_define:;
             eval(arg2list->value);
             _env = _evalenv;
             do {
