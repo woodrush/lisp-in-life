@@ -170,6 +170,7 @@ void parseExpr();
 // TODO: optimize _str[0] to char c
 int getOrSetAtomFromStringTable_newflag = 0;
 StringTable* stringtable;
+StringTable** branch;
 char* __targetstring;
 
 // Caution: always is __stringtable = stringTableHead when called
@@ -186,48 +187,48 @@ getOrSetAtomFromStringTableHead:;
         if (*s1 != *s2) {
             // _stringtable = stringtable->lesser;
             // k = targetstring[0] < stringtable->value->str[0];
-            k = *s1 < *s2;
-            _stringtable = k ? stringtable->lesser : stringtable->greater;
+            branch = *s1 < *s2 ? &(stringtable->lesser) : &(stringtable->greater);
             // There are no more strings that could match in the table
-            if (!_stringtable) {
-                if (getOrSetAtomFromStringTable_newflag) {
-                    debug("Creating new stringtable entry with a new string pointer...\n");
-
-                    // This was the last string in the table, so create a string
-                    // _malloc_bytes = i+1;
-                    malloc_k(i+1, _str);
-                    // s2 = _str;
-                    // _str = s1;
-                    // s1 = _value->str;
-                    s1 = _str;
-                    s2 = __targetstring;
-                    // s2 = _str;
-                    // _str = (char*) _malloc_result;
-                    debug("parseAtom\n");
-                    for(; *s2; s1++, s2++) {
-                        *s1 = *s2;
-                    }
-                }
-                else {
-                    debug("Creating new stringtable entry with an existing string pointer...\n");
-                    _str = __targetstring;
-                }
-                newAtomNode(_str);
-                newStringTable(_stringtable, _value);
-                if (k) {
-                    stringtable->lesser = _stringtable;
-                } else {
-                    stringtable->greater = _stringtable;
-                }
-                return;
+            if (*branch) {
+                // There is a string table that we could proceed to search
+                debug("Continuing search...\n");
+                stringtable = *branch;
+                // getOrSetAtomFromStringTable(_stringtable, targetstring);
+                goto getOrSetAtomFromStringTableHead;
+                // return;
                 // return _value;
             }
-            // There is a string table that we could proceed to search
-            debug("Continuing search...\n");
-            stringtable = _stringtable;
-            // getOrSetAtomFromStringTable(_stringtable, targetstring);
-            goto getOrSetAtomFromStringTableHead;
-            // return;
+            if (getOrSetAtomFromStringTable_newflag) {
+                debug("Creating new stringtable entry with a new string pointer...\n");
+
+                // This was the last string in the table, so create a string
+                // _malloc_bytes = i+1;
+                malloc_k(i+1, _str);
+                // s2 = _str;
+                // _str = s1;
+                // s1 = _value->str;
+                s1 = _str;
+                s2 = __targetstring;
+                // s2 = _str;
+                // _str = (char*) _malloc_result;
+                debug("parseAtom\n");
+                for(; *s2; s1++, s2++) {
+                    *s1 = *s2;
+                }
+            }
+            else {
+                debug("Creating new stringtable entry with an existing string pointer...\n");
+                _str = __targetstring;
+            }
+            newAtomNode(_str);
+            newStringTable(_stringtable, _value);
+            *branch = _stringtable;
+            // if (k) {
+            //     stringtable->lesser = _stringtable;
+            // } else {
+            //     stringtable->greater = _stringtable;
+            // }
+            return;
             // return _value;
         }
     }

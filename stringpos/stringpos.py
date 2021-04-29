@@ -83,9 +83,10 @@ opdata_all = [
     ("x",8),
 ]
 
-def getcost_and_opttree(opdata):
+def getcost_and_opttree(opdata, showFreq=True):
     ops, freq = zip(*opdata)
-    ops = ["{}({})".format(op,f) for op,f in opdata]
+    if showFreq:
+        ops = ["{}({})".format(op,f) for op,f in opdata]
 
     cost = {}
 
@@ -235,28 +236,33 @@ setgraph(tree, dg)
 dg.render("opgraph")
 
 
-offset = 11
-poslist = [0+offset]
-for i_c, c in enumerate(opstr):
-    if c == " ":
-        op = opstr.split(" ")[len(poslist)-1]
-        s = "#define {}_str {}".format(op, poslist[len(poslist)-1])
-        s = s.replace("<", "lt")
-        s = s.replace(">", "gt")
-        s = s.replace("+", "plus")
-        s = s.replace("-", "minus")
-        s = s.replace("*", "ast")
-        s = s.replace("/", "slash")
-        print(s)
-        # print("#define {op}_str \"{op}\"".format(op=op))
-        poslist.append(i_c+1+offset)
-print(opstr.replace(" ", "\\0"))
+def printdefine(opstr):
+    offset = 11
+    poslist = [0+offset]
+    for i_c, c in enumerate(opstr):
+        if c == " ":
+            op = opstr.split(" ")[len(poslist)-1]
+            s = "#define {}_str {}".format(op, poslist[len(poslist)-1])
+            s = s.replace("<", "lt")
+            s = s.replace(">", "gt")
+            s = s.replace("+", "plus")
+            s = s.replace("-", "minus")
+            s = s.replace("*", "ast")
+            s = s.replace("/", "slash")
+            print(s)
+            # print("#define {op}_str \"{op}\"".format(op=op))
+            poslist.append(i_c+1+offset)
 # print(poslist)
 
 
 reconst_str = breadthfirst_str(opttree)
-print(reconst_str)
 reconst_tree = buildtree_from_opstr(reconst_str[:-1])
 dg = Digraph(format="png")
 setgraph(reconst_tree, dg)
 dg.render("optgraph_reconst")
+
+
+optcost, opttree = getcost_and_opttree(opdata, showFreq=False)
+result = breadthfirst_str(opttree)
+printdefine(result)
+print(result[:-1].replace(" ", "\\x00"))

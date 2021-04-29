@@ -11,33 +11,33 @@
 //====================================================================================
 #define num_ops 24
 
-#define eval_str 11
-#define atom_str 16
-#define quote_str 21
-#define macro_str 27
-#define lambdaast_str 33
-#define define_str 41
-#define while_str 48
-#define progn_str 54
-#define lambda_str 60
-#define gt_str 67
-#define lt_str 69
-#define plus_str 71
-#define minus_str 73
-#define ast_str 75
-#define slash_str 77
-#define t_str 79
-#define mod_str 81
-#define print_str 85
-#define cons_str 91
+#define lambda_str 11
+#define print_str 18
+#define define_str 24
+#define quote_str 31
+#define list_str 37
+#define if_str 42
+#define car_str 45
+#define while_str 49
+#define progn_str 55
+#define macro_str 61
+#define lambdaast_str 67
+#define eq_str 75
+#define cons_str 78
+#define plus_str 83
+#define t_str 85
+#define mod_str 87
+#define eval_str 91
 #define cdr_str 96
-#define car_str 100
-#define list_str 104
-#define eq_str 109
-#define if_str 112
+#define minus_str 100
+#define ast_str 102
+#define lt_str 104
+#define gt_str 106
+#define slash_str 108
+#define atom_str 110
 
-#define last_op if_str
-#define opstring_head eval_str
+#define last_op atom_str
+#define opstring_head lambda_str
 
 //====================================================================================
 
