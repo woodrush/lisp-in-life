@@ -3,7 +3,7 @@
 //     const char* opstr = "eval\0atom\0quote\0macro\0lambda*\0define\0while\0progn\0lambda\0>\0<\0+\0-\0*\0/\0t\0mod\0print\0cons\0cdr\0car\0list\0eq\0if";
 // }
 
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 688
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2688
 
 #define NULL 0
 #define EOF -1

@@ -183,16 +183,36 @@ getOrSetAtomFromStringTableHead:;
     s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; s1++, s2++) {
+
+//         if (*s1 != *s2) {
+//             // There is a string next to this string in the table
+//             if ((_stringtable = _stringtable->next)) {
+//                 goto parseatomloop;
+//             }
+
+//             // This was the last string in the table, so create a string
+//             // _malloc_bytes = i+1;
+//             malloc_k(i+1, _str);
+//             // _str = (char*) _malloc_result;
+//             debug("parseAtom\n");
+//             s1 = _str;
+//             s2 = buf;
+//             for(; *s2; s1++, s2++) {
+//                 *s1 = *s2;
+//             }
+//             appendStringTable();
+//             return;
+//         }
+
         // The strings were not equal
         if (*s1 != *s2) {
             // _stringtable = stringtable->lesser;
             // k = targetstring[0] < stringtable->value->str[0];
             branch = *s1 < *s2 ? &(stringtable->lesser) : &(stringtable->greater);
             // There are no more strings that could match in the table
-            if (*branch) {
+            if ((stringtable = *branch)) {
                 // There is a string table that we could proceed to search
                 debug("Continuing search...\n");
-                stringtable = *branch;
                 // getOrSetAtomFromStringTable(_stringtable, targetstring);
                 goto getOrSetAtomFromStringTableHead;
                 // return;
@@ -942,6 +962,7 @@ int main (void) {
     // _value = initlist;
     // printValue();
     // eval(_value);
+
     eval(initlist);
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
