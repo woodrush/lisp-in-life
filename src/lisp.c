@@ -74,6 +74,7 @@ char* s1;
 char* s2;
 char* s3;
 
+StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
@@ -90,6 +91,34 @@ Value* _value;
 Value* _list;
 Value* initlist;
 Value* curlist;
+
+int sthash;
+void sthash_mod16() {
+    if (sthash >= 2048) {
+        sthash -= 2048;
+    }
+    if (sthash >= 1024) {
+        sthash -= 1024;
+    }
+    if (sthash >= 512) {
+        sthash -= 512;
+    }
+    if (sthash >= 256) {
+        sthash -= 256;
+    }
+    if (sthash >= 128) {
+        sthash -= 128;
+    }
+    if (sthash >= 64) {
+        sthash -= 64;
+    }
+    if (sthash >= 32) {
+        sthash -= 32;
+    }
+    if (sthash >= 16) {
+        sthash -= 16;
+    }
+}
 
 void _div(int n, int m) {
     #define sign_n i
@@ -175,10 +204,16 @@ char* __targetstring;
 
 // Caution: always is __stringtable = stringTableHead when called
 void getOrSetAtomFromStringTable () {
+    stringtable = stringTableHeadList[sthash];
+    if (!stringtable) {
+        branch = (stringTableHeadList + sthash);
+        goto getOrSetAtomFromStringTable_setstringtable;
+    }
     // stringtable = __stringtable;
     // targetstring = __targetstring;
-    stringtable = stringTableHead;
-getOrSetAtomFromStringTableHead:;
+
+    // stringtable = stringTableHead;
+getOrSetAtomFromStringTableHead:
     s1 = stringtable->value->str;
     s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
@@ -218,6 +253,7 @@ getOrSetAtomFromStringTableHead:;
                 // return;
                 // return _value;
             }
+getOrSetAtomFromStringTable_setstringtable:
             if (getOrSetAtomFromStringTable_newflag) {
                 debug("Creating new stringtable entry with a new string pointer...\n");
 
@@ -361,9 +397,11 @@ space:;
 // #ifdef ELVM
 //     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
 // #else
+    sthash = 0;
     while (c && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
 // #endif
         buf[i] = c;
+        sthash += c;
         i++;
         c = getchar();
     }
@@ -377,6 +415,9 @@ space:;
         newIntValue();
         return;
     }
+
+
+    sthash_mod16();
 
     // _str = buf;
     // getOrSetAtomFromStringTable(stringTableHead, buf);
@@ -568,7 +609,33 @@ void eval(Value* node) {
         }
 
 // #ifdef ELVM
+// #define lambda_str 11
+// #define print_str 18
+// #define define_str 24
+// #define quote_str 31
+// #define list_str 37
+// #define if_str 42
+// #define car_str 45
+// #define while_str 49
+// #define progn_str 55
+// #define macro_str 61
+// #define lambdaast_str 67
+// #define eq_str 75
+// #define cons_str 78
+// #define plus_str 83
+// #define t_str 85
+// #define mod_str 87
+// #define eval_str 91
+// #define cdr_str 96
+// #define minus_str 100
+// #define ast_str 102
+// #define lt_str 104
+// #define gt_str 106
+// #define slash_str 108
+// #define atom_str 110
+
 // #else
+
                 if (_str == define_str) goto eval_define;
         else if (_str == if_str) goto eval_if;
         else if (_str == quote_str) goto eval_quote;
@@ -950,7 +1017,9 @@ int main (void) {
         _str = opstr_list[j];
         s1 = _str;
         i = 0;
-        for(; *s1; s1++,i++){}
+        sthash = 0;
+        for(; *s1; s1++,i++){sthash += *s1;}
+        sthash_mod16();
         // getOrSetAtomFromStringTable(stringTableHead, _str);
         // __stringtable = stringTableHead;
         __targetstring = _str;
@@ -964,7 +1033,9 @@ int main (void) {
         _str = s3;
         // s3 = _str;
         i = 0;
-        for(; *s3; s3++,i++){}
+        sthash = 0;
+        for(; *s3; s3++,i++){sthash += *s3;}
+        sthash_mod16();
         // getOrSetAtomFromStringTable(stringTableHead, _str);
         // __stringtable = stringTableHead;
         __targetstring = _str;
