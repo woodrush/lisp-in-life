@@ -22,7 +22,7 @@ void* _malloc_result;
 #ifndef ELVM
 // #include <stdio.h>
 #  define debug(x) //printf(x)
-#  define debug1(x,y) printf(x,y)
+#  define debug1(x,y) //printf(x,y)
 #  define debug2(x,y,z) //printf(x,y,z)
 #else
 #  define debug(x)
@@ -178,8 +178,6 @@ Value* newList(Value* node, Value* next) {
 #undef ret
 }
 
-void parseExpr();
-
 
 #define newStringTable(__stringtable, __value) {    \
     newAtomNode(_str);                              \
@@ -288,13 +286,13 @@ getOrSetAtomFromStringTable_setstringtable:
     // return _value;
 }
 
-// #define appendStringTable() {                             \
-//     malloc_k(sizeof(StringTable), _stringtable);          \
-//     debug("appendStringTable\n");                         \
-//     newAtomNode();                                        \
-//     _stringtable->value = _value;                         \
-//     _stringtable->next = stringTableHead;                 \
-//     stringTableHead = _stringtable;                       \
+// #define appendStringTable() {                             
+//     malloc_k(sizeof(StringTable), _stringtable);          
+//     debug("appendStringTable\n");                         
+//     newAtomNode();                                        
+//     _stringtable->value = _value;                         
+//     _stringtable->next = stringTableHead;                 
+//     stringTableHead = _stringtable;                       
 // }
 
 
@@ -337,11 +335,31 @@ getOrSetAtomFromStringTable_setstringtable:
     _value->n = i;                   \
 }
 
+
+Value* listHeadStack[32];
+Value* listTailStack[32];
+Value** listHeadStackptr = listHeadStack;
+Value** listTailStackptr = listTailStack;
+
+#define pushTailList(__value) {             \
+    _list = newList(__value, NULL);         \
+    if (*listTailStackptr) {                \
+        (*listTailStackptr)->next = _list;  \
+    } else {                                \
+        (*listHeadStackptr) = _list;        \
+    }                                       \
+    (*listTailStackptr) = _list;            \
+}
+
 void parseExpr() {
+parseExprHead:;
     // Remove whitespace
 space:;
     if (!c) {
         c = getchar();
+    }
+    if (!c || c == EOF) {
+        return;
     }
     while (c == ' ' || c == '\n') {
         c = getchar();
@@ -349,52 +367,42 @@ space:;
     if (c == ';') {
         do {
             c = getchar();
-// #ifdef ELVM
-//         } while(c != '\n');
-// #else
-        } while(c != '\n' && c != EOF);
-// #endif
+            if (c == EOF) {
+                return;
+            }
+        } while(c != '\n');
         charbuf = 0;
         goto space;
     }
-
     // Parse as a list
     if (c == '(') {
-        c = 0; // '('
-
-        parseExpr();
-        if (!_value) {
-            _value = nil;
+        c = getchar();
+        if (c == ')') {
+            pushTailList(nil);
             c = 0;
-            return;
+            goto parseExprHead;
         }
 
-        Value* initlist = newList(_value, NULL);
-        Value* curlist = initlist;
-
-parseListLoop:
-        parseExpr();
-        if (_value) {
-            _list = newList(_value, NULL);
-            curlist->next = _list;
-            curlist = _list;
-            goto parseListLoop;
-        }
-
-        c = 0; // ')'
-
-        _value = initlist;
-        return;
+        debug("pushing list...\n");
+        ++listHeadStackptr;
+        ++listTailStackptr;
+        *listHeadStackptr = NULL;
+        *listTailStackptr = NULL;
+        goto parseExprHead;
     }
 
     // Parse as an atom
 // #ifdef ELVM
 //     if (c == ')' || !c) {
 // #else
-    if (c == ')' || !c || c == EOF) {
-// #endif
-        _value = NULL;
-        return;
+    if (c == ')') {
+        debug1("popping list...\n%s", "");
+        --listHeadStackptr;
+        --listTailStackptr;
+        pushTailList(*(listHeadStackptr+1));
+        debug1("popped list.\n%s", "");
+        c = 0;
+        goto parseExprHead;
     }
 
     i = 0;
@@ -404,6 +412,7 @@ parseListLoop:
     sthash = 0;
     while (c && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
 // #endif
+        // putchar(c);
         buf[i] = c;
         sthash += c;
         ++i;
@@ -411,13 +420,23 @@ parseListLoop:
     }
     buf[i] = '\0';
 
+
     // If the expression is an integer literal, evaluate it
     charbuf = buf[0];
-    if (('0' <= charbuf && charbuf <= '9') || charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9')) {
+    char aaa = buf[1];
+    int c1 = ('0' <= charbuf && charbuf <= '9');
+    int c2 = (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'));
+    int c3 = c1 || c2;
+    debug1(" c1:%d ", c1);
+    debug1(" c2:%d ", c2);
+    debug1(" c3:%d \n", c3);
+    if (c3) {
+        // putchar('i');
         _str = buf;
         parseInt();
         newIntValue();
-        return;
+        pushTailList(_value);
+        goto parseExprHead;
     }
 
 
@@ -429,6 +448,8 @@ parseListLoop:
     // __stringtable = stringTableHead;
     __targetstring = buf;
     getOrSetAtomFromStringTable();
+    pushTailList(_value);
+    goto parseExprHead;
 
 //     _stringtable = stringTableHead;
 
@@ -1166,22 +1187,26 @@ int main (void) {
     // _str = (char*) progn_str;
     newAtomNode(progn_str);
     initlist = newList(_value, NULL);
-    curlist = initlist;
+    listHeadStack[0] = initlist;
+    listTailStack[0] = initlist;
 
 #endif
 #ifndef memdumpopt1
-    while((parseExpr(), _value)) {
-        curlist->next = newList(_value, NULL);
-        curlist = curlist->next;
-    }
+    parseExpr();
+    // while((parseExpr(), _value)) {
+    //     curlist->next = newList(_value, NULL);
+    //     curlist = curlist->next;
+    // }
     
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
-    // printValue();
+
+    _value = listHeadStack[0];
+    printValue();
     // eval(_value);
 
-    eval(initlist);
+    eval(listHeadStack[0]);
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif
