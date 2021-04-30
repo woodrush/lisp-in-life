@@ -308,38 +308,33 @@ Value* parseListLoop() {
 //     return c == '-' || ('0' <= c && c <= '9');
 // }
 
-#define str _str
-#define sign j
 
-void parseInt() {
-    sign = 1;
-    i = 0;
-    if (str[0] == '-') {
-        sign = 0;
-        ++str;
-    }
-    while (*str) {
-        // i *= 10
-        i += i;
-        k = i;
-        i += i;
-        i += i + k + (*str - '0');
-        ++str;
-    }
-    i = sign ? i : -i;
+// j : sign
+#define parseInt() {                 \
+    j = 1;                           \
+    i = 0;                           \
+    if (_str[0] == '-') {            \
+        j = 0;                       \
+        ++_str;                      \
+    }                                \
+    while (*_str) {                  \
+        /* i *= 10 */                \
+        i += i;                      \
+        k = i;                       \
+        i += i;                      \
+        i += i + k + (*_str - '0');  \
+        ++_str;                      \
+    }                                \
+    i = j ? i : -i;                  \
 }
 #undef str
 #undef sign
 
-void newIntValue(){
-#define ret _value
-    // _malloc_bytes = sizeof(Value);
-    malloc_k(sizeof(Value), ret);
-    // ret = (Value*) _malloc_result;    
-    debug("newIntValue\n");
-    ret->type = INT;
-    ret->n = i;
-#undef ret
+#define newIntValue() {              \
+    malloc_k(sizeof(Value), _value); \
+    debug("newIntValue\n");          \
+    _value->type = INT;              \
+    _value->n = i;                   \
 }
 
 void parseExpr() {
