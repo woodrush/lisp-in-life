@@ -108,6 +108,7 @@ int sthash;
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
+int mlb;
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -121,13 +122,18 @@ void _div(int n, int m) {
         sign = 1 - sign;
         m = -m;
     }
-    q = 0;
-    while(n >= m){
-        n -= m;
-        q++;
+    if (m == 2) {
+        q = n >> 1;
+        r = n &~ 65534;
+    } else {
+        q = 0;
+        while(n >= m){
+            n -= m;
+            ++q;
+        }
+        q = sign ? q : -q;
+        r = sign_n ? n : -n;
     }
-    q = sign ? q : -q;
-    r = sign_n ? n : -n;
     #undef sign_n
     #undef sign
 }
@@ -205,7 +211,7 @@ getOrSetAtomFromStringTableHead:
     s1 = stringtable->value->str;
     s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
-    for (; *s1 || *s2; s1++, s2++) {
+    for (; *s1 || *s2; ++s1, ++s2) {
 
 //         if (*s1 != *s2) {
 //             // There is a string next to this string in the table
@@ -220,7 +226,7 @@ getOrSetAtomFromStringTableHead:
 //             debug("parseAtom\n");
 //             s1 = _str;
 //             s2 = buf;
-//             for(; *s2; s1++, s2++) {
+//             for(; *s2; ++s1, ++s2) {
 //                 *s1 = *s2;
 //             }
 //             appendStringTable();
@@ -256,7 +262,7 @@ getOrSetAtomFromStringTable_setstringtable:
                 // s2 = _str;
                 // _str = (char*) _malloc_result;
                 debug("parseAtom\n");
-                for(; *s2; s1++, s2++) {
+                for(; *s2; ++s1, ++s2) {
                     *s1 = *s2;
                 }
             }
@@ -310,7 +316,7 @@ void parseInt() {
     i = 0;
     if (str[0] == '-') {
         sign = 0;
-        str++;
+        ++str;
     }
     while (*str) {
         // i *= 10
@@ -318,7 +324,7 @@ void parseInt() {
         k = i;
         i += i;
         i += i + k + (*str - '0');
-        str++;
+        ++str;
     }
     i = sign ? i : -i;
 }
@@ -390,7 +396,7 @@ space:;
 // #endif
         buf[i] = c;
         sthash += c;
-        i++;
+        ++i;
         c = getchar();
     }
     buf[i] = '\0';
@@ -420,7 +426,7 @@ space:;
 // parseatomloop:;
 //     s1 = buf;
 //     s2 = _stringtable->value->str;
-//     for(; *s1 || *s2; s1++, s2++) {
+//     for(; *s1 || *s2; ++s1, ++s2) {
 //         if (*s1 != *s2) {
 //             // There is a string next to this string in the table
 //             if ((_stringtable = _stringtable->next)) {
@@ -434,7 +440,7 @@ space:;
 //             debug("parseAtom\n");
 //             s1 = _str;
 //             s2 = buf;
-//             for(; *s2; s1++, s2++) {
+//             for(; *s2; ++s1, ++s2) {
 //                 *s1 = *s2;
 //             }
 //             appendStringTable();
@@ -525,7 +531,7 @@ void* evalhash[62];
 
 int evalcount = 0;
 void eval(Value* node) {
-    evalcount++;
+    ++evalcount;
 #ifdef ELVM
     if (!*evalhash) {
         // evalhash[0] = 0;
@@ -1055,9 +1061,10 @@ void printValue() {
         p = buf + 5;
         *p = '\0';
         do {
-            _div(k, 10);
-            p--;
-            *p = (r + '0');
+            c = k >> 1;
+            _div(c, 5);
+            --p;
+            *p = (r + r + (k &~ 65534 ? 1 : 0) + '0');
             k = q;
         } while (k);
         #undef p
@@ -1087,7 +1094,7 @@ void printValue() {
         putchar(')');
         return;
     }
-    for (; *_str; _str++){
+    for (; *_str; ++_str){
         putchar(*_str);
     }
 }
@@ -1107,12 +1114,12 @@ int main (void) {
     stringTableHead = _stringtable;
 #  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
-    for(j=0; j<num_ops; j++){
+    for(j=0; j<num_ops; ++j){
         _str = opstr_list[j];
         s1 = _str;
         i = 0;
         sthash = 0;
-        for(; *s1; s1++,i++){sthash += *s1;}
+        for(; *s1; ++s1,++i){sthash += *s1;}
         sthash_mod16();
         // getOrSetAtomFromStringTable(stringTableHead, _str);
         // __stringtable = stringTableHead;
@@ -1123,20 +1130,20 @@ int main (void) {
 #  else
     s3 = opstring_head;
     // s1 = eval_str;
-    for(j=0; j<num_ops; j++){
+    for(j=0; j<num_ops; ++j){
         _str = s3;
         // s3 = _str;
         i = 0;
         sthash = 0;
-        for(; *s3; s3++,i++){sthash += *s3;}
+        for(; *s3; ++s3, ++i){sthash += *s3;}
         sthash_mod16();
         // getOrSetAtomFromStringTable(stringTableHead, _str);
         // __stringtable = stringTableHead;
         __targetstring = _str;
         getOrSetAtomFromStringTable();
 
-        // for(; *s1; s1++){}
-        s3++;
+        // for(; *s1; ++s1){}
+        ++s3;
     }
 #  endif
     getOrSetAtomFromStringTable_newflag = 1;
