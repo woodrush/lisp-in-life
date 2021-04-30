@@ -19,9 +19,16 @@ void* _malloc_result;
 
 // #define QFTASM_HEAP_MEM_MAX 2846
 
+#ifndef ELVM
 // #include <stdio.h>
-#define debug(x) //printf(x)
-#define debug2(x,y,z) //printf(x,y,z)
+#  define debug(x) //printf(x)
+#  define debug1(x,y) printf(x,y)
+#  define debug2(x,y,z) //printf(x,y,z)
+#else
+#  define debug(x)
+#  define debug1(x,y)
+#  define debug2(x,y,z)
+#endif
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 typedef enum {
@@ -291,9 +298,9 @@ Value* parseListLoop() {
     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
 }
 
-int isNumeric(){
-    return c == '-' || ('0' <= c && c <= '9');
-}
+// int isNumeric(){
+//     return c == '-' || ('0' <= c && c <= '9');
+// }
 
 #define str _str
 #define sign j
@@ -495,13 +502,13 @@ void evalAsInt() {
         return;
     }
     c = _value->str[0];
-    if (isNumeric()) {
-        _str = _value->str;
-        parseInt();
-    } else {
+    // if (isNumeric()) {
+    //     _str = _value->str;
+    //     parseInt();
+    // } else {
         eval(_value);
         i = _value->n;
-    }
+    // }
 }
 
 typedef struct {
@@ -524,7 +531,9 @@ typedef struct {
 void* evalhash[62];
 
 
+int evalcount = 0;
 void eval(Value* node) {
+    evalcount++;
 #ifdef ELVM
     if (!*evalhash) {
         // evalhash[0] = 0;
@@ -649,12 +658,12 @@ void eval(Value* node) {
     // Is an atom
     if (nodetype == ATOM) {
         _str = node->str;
-        c = node->str[0];
-        if (isNumeric()) {
-            parseInt();
-            newIntValue();
-            return;
-        }
+        // c = node->str[0];
+        // if (isNumeric()) {
+        //     parseInt();
+        //     newIntValue();
+        //     return;
+        // }
         _env = _evalenv;
         // Get the variable's value from the environment
         do {
@@ -1173,5 +1182,6 @@ int main (void) {
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif
+    debug1("\n evalcount: %d\n", evalcount);
 #endif
 }
