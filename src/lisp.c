@@ -521,7 +521,7 @@ typedef struct {
     };
 } EvalStack;
 
-void* evalhash[51];
+void* evalhash[62];
 
 
 void eval(Value* node) {
@@ -551,29 +551,31 @@ void eval(Value* node) {
         // evalhash[gt_str -10] = &&eval_cmp;
         // evalhash[slash_str -10] = &&eval_arith;
         // evalhash[atom_str -10] = &&eval_atom;
-        evalhash[(lambda_str-11)>>1] = &&eval_createlambda;
-        evalhash[(print_str-11)>>1] = &&eval_print;
-        evalhash[(define_str-11)>>1] = &&eval_define;
-        evalhash[(quote_str-11)>>1] = &&eval_quote;
-        evalhash[(list_str-11)>>1] = &&eval_list;
-        evalhash[(if_str-11)>>1] = &&eval_if;
-        evalhash[(car_str-11)>>1] = &&eval_car;
-        evalhash[(while_str-11)>>1] = &&eval_while;
-        evalhash[(progn_str-11)>>1] = &&eval_progn;
-        evalhash[(macro_str-11)>>1] = &&eval_createlambda;
-        evalhash[(lambdaast_str-11)>>1] = &&eval_createlambda;
-        evalhash[(eq_str-11)>>1] = &&eval_eq;
-        evalhash[(cons_str-11)>>1] = &&eval_cons;
-        evalhash[(plus_str-11)>>1] = &&eval_arith;
-        evalhash[(mod_str-11)>>1] = &&eval_arith;
-        evalhash[(eval_str-11)>>1] = &&eval_eval;
-        evalhash[(cdr_str-11)>>1] = &&eval_cdr;
-        evalhash[(minus_str -11)>>1] = &&eval_arith;
-        evalhash[(ast_str -11)>>1] = &&eval_arith;
-        evalhash[(lt_str -11)>>1] = &&eval_cmp;
-        evalhash[(gt_str -11)>>1] = &&eval_cmp;
-        evalhash[(slash_str -11)>>1] = &&eval_arith;
-        evalhash[(atom_str -11)>>1] = &&eval_atom;
+
+        evalhash[0] = 1;
+        evalhash[(lambda_str)>>1] = &&eval_createlambda;
+        evalhash[(print_str)>>1] = &&eval_print;
+        evalhash[(define_str)>>1] = &&eval_define;
+        evalhash[(quote_str)>>1] = &&eval_quote;
+        evalhash[(list_str)>>1] = &&eval_list;
+        evalhash[(if_str)>>1] = &&eval_if;
+        evalhash[(car_str)>>1] = &&eval_car;
+        evalhash[(while_str)>>1] = &&eval_while;
+        evalhash[(progn_str)>>1] = &&eval_progn;
+        evalhash[(macro_str)>>1] = &&eval_createlambda;
+        evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
+        evalhash[(eq_str)>>1] = &&eval_eq;
+        evalhash[(cons_str)>>1] = &&eval_cons;
+        evalhash[(plus_str)>>1] = &&eval_arith;
+        evalhash[(mod_str)>>1] = &&eval_arith;
+        evalhash[(eval_str)>>1] = &&eval_eval;
+        evalhash[(cdr_str)>>1] = &&eval_cdr;
+        evalhash[(minus_str )>>1] = &&eval_arith;
+        evalhash[(ast_str )>>1] = &&eval_arith;
+        evalhash[(lt_str )>>1] = &&eval_cmp;
+        evalhash[(gt_str )>>1] = &&eval_cmp;
+        evalhash[(slash_str )>>1] = &&eval_arith;
+        evalhash[(atom_str )>>1] = &&eval_atom;
     }
 #endif
     // void* evalhash[51] = {
@@ -700,7 +702,7 @@ void eval(Value* node) {
     // k = ((int)_str - 11)/2;
     // k = ((int)_str - 11);
     // computed_goto = evalhash[k];
-    goto *(evalhash[((int)_str - 11) >> 1]);
+    goto *(evalhash[((int)_str) >> 1]);
 
 // #define lambda_str 11
 // #define print_str 18

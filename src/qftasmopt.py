@@ -293,7 +293,12 @@ for inst in rom:
         # break
 
     if mode_3 == 0 and d3 == 0 and not (mode_1 == 0 and d1 == 0 and mode_2 == 0 and d2 == 0 and opcode == "MNZ"):
-        reg_fresh = {}
+        # Keep the values for the C and D registers between program counter blocks
+        reg_fresh_new = {}
+        for k, v in reg_fresh.items():
+            if k == 5 or k == 6:
+                reg_fresh_new[k] = reg_fresh[k]
+        reg_fresh = reg_fresh_new
         # print("Detected jump")
         # print()
 
