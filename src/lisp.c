@@ -298,11 +298,11 @@ getOrSetAtomFromStringTable_setstringtable:
 // }
 
 
-Value* parseListLoop() {
-    parseExpr();
-    Value* parsednode = _value;
-    return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-}
+// Value* parseListLoop() {
+//     parseExpr();
+//     Value* parsednode = _value;
+//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
+// }
 
 // int isNumeric(){
 //     return c == '-' || ('0' <= c && c <= '9');
@@ -362,13 +362,28 @@ space:;
     if (c == '(') {
         c = 0; // '('
 
-        _value = parseListLoop();
+        parseExpr();
+        if (!_value) {
+            _value = nil;
+            c = 0;
+            return;
+        }
+
+        Value* initlist = newList(_value, NULL);
+        Value* curlist = initlist;
+
+parseListLoop:
+        parseExpr();
+        if (_value) {
+            _list = newList(_value, NULL);
+            curlist->next = _list;
+            curlist = _list;
+            goto parseListLoop;
+        }
 
         c = 0; // ')'
 
-        if (!_value) {
-            _value = nil;
-        }
+        _value = initlist;
         return;
     }
 
