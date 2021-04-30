@@ -6,6 +6,11 @@ int k;
 int _malloc_bytes;
 void* _malloc_result;
 
+
+#ifndef GCC
+#define ELVM
+#endif
+
 #ifdef ELVM
 #include "elvm.h"
 #else
@@ -516,7 +521,8 @@ typedef struct {
     };
 } EvalStack;
 
-void* evalhash[100];
+void* evalhash[51];
+
 
 void eval(Value* node) {
 #ifdef ELVM
