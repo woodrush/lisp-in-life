@@ -496,19 +496,11 @@ void printValue();
 
 
 void eval(Value* node);
-void evalAsInt() {
-    if (_value->type == INT) {
-        i = _value->n;
-        return;
-    }
-    c = _value->str[0];
-    // if (isNumeric()) {
-    //     _str = _value->str;
-    //     parseInt();
-    // } else {
-        eval(_value);
-        i = _value->n;
-    // }
+#define evalAsInt() {           \
+    if (_value->type != INT) {  \
+        eval(_value);           \
+    }                           \
+    i = _value->n;              \
 }
 
 typedef struct {
@@ -658,12 +650,6 @@ void eval(Value* node) {
     // Is an atom
     if (nodetype == ATOM) {
         _str = node->str;
-        // c = node->str[0];
-        // if (isNumeric()) {
-        //     parseInt();
-        //     newIntValue();
-        //     return;
-        // }
         _env = _evalenv;
         // Get the variable's value from the environment
         do {
