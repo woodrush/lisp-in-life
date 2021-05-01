@@ -336,14 +336,6 @@ getOrSetAtomFromStringTable_setstringtable:
 }
 
 
-Value* listHeadStack[32];
-Value* listTailStack[32];
-Value** listHeadStackptr = listHeadStack;
-Value** listTailStackptr = listTailStack;
-// int listHeadStackptr = 0;
-// int listTailStackptr = 0;
-int listStackptr = 0;
-
 // #define pushTailList(__value) {             \
 //     _list = newList(__value, NULL);         \
 //     if (*listTailStackptr) {                \
@@ -585,9 +577,9 @@ typedef struct {
 void* evalhash[62];
 
 
-int evalcount = 0;
+// int evalcount = 0;
 void eval(Value* node) {
-    ++evalcount;
+    // ++evalcount;
 #ifdef ELVM
     if (!*evalhash) {
         // evalhash[0] = 0;
@@ -1208,17 +1200,13 @@ int main (void) {
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
-    // TODO: get progn_str from the string table
-    // _str = (char*) progn_str;
-    newAtomNode(progn_str);
-    initlist = newList(_value, NULL);
+    // newAtomNode(progn_str);
+    // initlist = newList(NULL, NULL);
+    initlist = nil;
     curlist = initlist;
-    // listHeadStack[0] = initlist;
-    // listTailStack[0] = initlist;
 
 #endif
 #ifndef memdumpopt1
-    // parseExpr();
 
     c = getchar();
     do {
@@ -1227,16 +1215,17 @@ int main (void) {
         // curlist = curlist->next;
     } while((curlist = curlist->next));
     
-    // _list = initlist;
-    // _value = newListNode();
     // _value = initlist;
     // printValue();
-    // eval(_value);
 
-    eval(initlist);
+    initlist = nil->next;
+    nil->next = NULL;
+    while (initlist) {
+        eval(initlist->value);
+        initlist = initlist->next;
+    }
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif
-    debug1("\n evalcount: %d\n", evalcount);
 #endif
 }
