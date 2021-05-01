@@ -1,7 +1,7 @@
 char* _str;
 int q, r;
-int i;
-int j;
+int i = 777;
+int j = 888;
 int k;
 int _malloc_bytes;
 void* _malloc_result;
@@ -574,65 +574,66 @@ typedef struct {
     };
 } EvalStack;
 
-void* evalhash[62];
-
+// void* evalhash[62];
+extern int evalhash;
 
 // int evalcount = 0;
 void eval(Value* node) {
     // ++evalcount;
-#ifdef ELVM
-    if (!*evalhash) {
-        // evalhash[0] = 0;
-        // evalhash[lambda_str-10] = &&eval_createlambda;
-        // evalhash[print_str-10] = &&eval_print;
-        // evalhash[define_str-10] = &&eval_define;
-        // evalhash[quote_str-10] = &&eval_quote;
-        // evalhash[list_str-10] = &&eval_list;
-        // evalhash[if_str-10] = &&eval_if;
-        // evalhash[car_str-10] = &&eval_car;
-        // evalhash[while_str-10] = &&eval_while;
-        // evalhash[progn_str-10] = &&eval_progn;
-        // evalhash[macro_str-10] = &&eval_createlambda;
-        // evalhash[lambdaast_str-10] = &&eval_createlambda;
-        // evalhash[eq_str-10] = &&eval_eq;
-        // evalhash[cons_str-10] = &&eval_cons;
-        // evalhash[plus_str-10] = &&eval_arith;
-        // evalhash[mod_str-10] = &&eval_arith;
-        // evalhash[eval_str-10] = &&eval_eval;
-        // evalhash[cdr_str-10] = &&eval_cdr;
-        // evalhash[minus_str -10] = &&eval_arith;
-        // evalhash[ast_str -10] = &&eval_arith;
-        // evalhash[lt_str -10] = &&eval_cmp;
-        // evalhash[gt_str -10] = &&eval_cmp;
-        // evalhash[slash_str -10] = &&eval_arith;
-        // evalhash[atom_str -10] = &&eval_atom;
+// #ifdef ELVM
+//     if (!*evalhash) {
+//         // evalhash[0] = 0;
+//         // evalhash[lambda_str-10] = &&eval_createlambda;
+//         // evalhash[print_str-10] = &&eval_print;
+//         // evalhash[define_str-10] = &&eval_define;
+//         // evalhash[quote_str-10] = &&eval_quote;
+//         // evalhash[list_str-10] = &&eval_list;
+//         // evalhash[if_str-10] = &&eval_if;
+//         // evalhash[car_str-10] = &&eval_car;
+//         // evalhash[while_str-10] = &&eval_while;
+//         // evalhash[progn_str-10] = &&eval_progn;
+//         // evalhash[macro_str-10] = &&eval_createlambda;
+//         // evalhash[lambdaast_str-10] = &&eval_createlambda;
+//         // evalhash[eq_str-10] = &&eval_eq;
+//         // evalhash[cons_str-10] = &&eval_cons;
+//         // evalhash[plus_str-10] = &&eval_arith;
+//         // evalhash[mod_str-10] = &&eval_arith;
+//         // evalhash[eval_str-10] = &&eval_eval;
+//         // evalhash[cdr_str-10] = &&eval_cdr;
+//         // evalhash[minus_str -10] = &&eval_arith;
+//         // evalhash[ast_str -10] = &&eval_arith;
+//         // evalhash[lt_str -10] = &&eval_cmp;
+//         // evalhash[gt_str -10] = &&eval_cmp;
+//         // evalhash[slash_str -10] = &&eval_arith;
+//         // evalhash[atom_str -10] = &&eval_atom;
 
-        evalhash[0] = 1;
-        evalhash[(lambda_str)>>1] = &&eval_createlambda;
-        evalhash[(print_str)>>1] = &&eval_print;
-        evalhash[(define_str)>>1] = &&eval_define;
-        evalhash[(quote_str)>>1] = &&eval_quote;
-        evalhash[(list_str)>>1] = &&eval_list;
-        evalhash[(if_str)>>1] = &&eval_if;
-        evalhash[(car_str)>>1] = &&eval_car;
-        evalhash[(while_str)>>1] = &&eval_while;
-        evalhash[(progn_str)>>1] = &&eval_progn;
-        evalhash[(macro_str)>>1] = &&eval_createlambda;
-        evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
-        evalhash[(eq_str)>>1] = &&eval_eq;
-        evalhash[(cons_str)>>1] = &&eval_cons;
-        evalhash[(plus_str)>>1] = &&eval_arith;
-        evalhash[(mod_str)>>1] = &&eval_arith;
-        evalhash[(eval_str)>>1] = &&eval_eval;
-        evalhash[(cdr_str)>>1] = &&eval_cdr;
-        evalhash[(minus_str )>>1] = &&eval_arith;
-        evalhash[(ast_str )>>1] = &&eval_arith;
-        evalhash[(lt_str )>>1] = &&eval_cmp;
-        evalhash[(gt_str )>>1] = &&eval_cmp;
-        evalhash[(slash_str )>>1] = &&eval_arith;
-        evalhash[(atom_str )>>1] = &&eval_atom;
-    }
-#endif
+//         evalhash[0] = 1;
+//         evalhash[(lambda_str)>>1] = &&eval_createlambda;
+//         evalhash[(print_str)>>1] = &&eval_print;
+//         evalhash[(define_str)>>1] = &&eval_define;
+//         evalhash[(quote_str)>>1] = &&eval_quote;
+//         evalhash[(list_str)>>1] = &&eval_list;
+//         evalhash[(if_str)>>1] = &&eval_if;
+//         evalhash[(car_str)>>1] = &&eval_car;
+//         evalhash[(while_str)>>1] = &&eval_while;
+//         evalhash[(progn_str)>>1] = &&eval_progn;
+//         evalhash[(macro_str)>>1] = &&eval_createlambda;
+//         evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
+//         evalhash[(eq_str)>>1] = &&eval_eq;
+//         evalhash[(cons_str)>>1] = &&eval_cons;
+//         evalhash[(plus_str)>>1] = &&eval_arith;
+//         evalhash[(mod_str)>>1] = &&eval_arith;
+//         evalhash[(eval_str)>>1] = &&eval_eval;
+//         evalhash[(cdr_str)>>1] = &&eval_cdr;
+//         evalhash[(minus_str )>>1] = &&eval_arith;
+//         evalhash[(ast_str )>>1] = &&eval_arith;
+//         evalhash[(lt_str )>>1] = &&eval_cmp;
+//         evalhash[(gt_str )>>1] = &&eval_cmp;
+//         evalhash[(slash_str )>>1] = &&eval_arith;
+//         evalhash[(atom_str )>>1] = &&eval_atom;
+//     }
+// #endif
+
     // void* evalhash[51] = {
     //     &&eval_createlambda, 0, 0,
     //     &&eval_print, 0, 0,
@@ -751,7 +752,17 @@ void eval(Value* node) {
     // k = ((int)_str - 11)/2;
     // k = ((int)_str - 11);
     // computed_goto = evalhash[k];
-    goto *(evalhash[((int)_str) >> 1]);
+    int addr_tmp = ((int)&evalhash + (((int)_str - 11) >> 1) );
+    // i = addr_tmp;
+    // newIntValue();
+    // printValue();
+
+    // i = *((int*)addr_tmp);
+    // newIntValue();
+    // printValue();
+
+    // exit(0);
+    goto *((void*)*((int*)addr_tmp));
 
 // #define lambda_str 11
 // #define print_str 18
@@ -1065,7 +1076,7 @@ eval_lambda_call:
 
     eval(curlambda->body);
     if (curlambda->type == L_MACRO) {
-        _evalenv = _evalenv;
+        // _evalenv = _evalenv;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
@@ -1149,7 +1160,29 @@ void printValue() {
 #undef v
 
 int main (void) {
-    // evalhash[0] = 1;
+//     // putchar('0' + testptr);
+//     putchar('0' + testptr2);
+//     goto *testptr2;
+
+// testlabel1:
+//     putchar('a');
+// testlabel2:
+//     putchar('b');
+//     exit(0);
+
+    // // evalhash[0] = 1;
+    // putchar('a');
+    // // int aaaa = *((int*)(&evalhash)) == 3101;
+    // int aaaa = *((int*)(&evalhash + 3)) == 2949;
+
+    // int aaaa = evalhash == 3096;
+    // putchar('0' + aaaa);
+    // aaaa = (102 - 11) >> 1 == 45;
+    // putchar('1' + aaaa);
+    // aaaa = *((int*)(((int)&evalhash) + ((102 - 11) >> 1))) == 3550;
+    // putchar('0' + aaaa);
+    // exit(0);
+
 #ifndef memdumpopt2
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
@@ -1215,9 +1248,6 @@ int main (void) {
         // curlist = curlist->next;
     } while((curlist = curlist->next));
     
-    // _value = initlist;
-    // printValue();
-
     initlist = nil->next;
     nil->next = NULL;
     while (initlist) {

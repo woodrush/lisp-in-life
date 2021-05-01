@@ -1,13 +1,14 @@
 Full run:
-Linear search:         8955    74707   451068  239627  
-Binary search v1:      18705   86044   448457  250697   
-Binary search v2:      16709   81885   441279  236820   Code optimization
-Binary search v3:      16528   81530   440588  236045   Binary search for the string table, random tree
-Binary search v4:      16153   77538   437138  228770   Binary search for the string table, optimized tree
-Binary search v5:      15512   76433   434549  225902   `` + code optimizations
-Atom-centric parse:    10906   62201   351453  179831
-List-centric parse:    10997   62580   352342  181665
-List-centric parse v2: 10598   58983   342057  169339
+Linear search:             8955    74707   451068  239627  
+Binary search v1:          18705   86044   448457  250697   
+Binary search v2:          16709   81885   441279  236820   Code optimization
+Binary search v3:          16528   81530   440588  236045   Binary search for the string table, random tree
+Binary search v4:          16153   77538   437138  228770   Binary search for the string table, optimized tree
+Binary search v5:          15512   76433   434549  225902   `` + code optimizations
+Atom-centric parse:        10906   62201   351453  179831
+List-centric parse:        10997   62580   352342  181665
+List-centric parse v2:     10598   58983   342057  169339
+Jump hashtable in header:  10083   57580   331297  167283
 
 
 Pre-parse run (string table creation overheaad):

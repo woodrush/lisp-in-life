@@ -150,6 +150,20 @@ for item in plist:
         print()
     print("{}, ".format(item), end="")
 print()
+print()
+
+
+# plist = [0 for _ in range((110-11)//2+1)]
+plist = [0 for _ in range((110-11)//2 + 1)]
+
+# string, plist = zip(*strpointers)
+curhead = 11
+for op, p in strpointers:
+    print((p-11)//2)
+    plist[(p-11)//2] = "eval_{}".format(op);
+for item in plist:
+    print("    .long {}".format(item))
+print()
 
 
 exit()
