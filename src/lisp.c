@@ -752,7 +752,7 @@ void eval(Value* node) {
     // k = ((int)_str - 11)/2;
     // k = ((int)_str - 11);
     // computed_goto = evalhash[k];
-    int addr_tmp = ((int)&evalhash + (((int)_str - 11) >> 1) );
+    // int addr_tmp = ;
     // i = addr_tmp;
     // newIntValue();
     // printValue();
@@ -762,7 +762,7 @@ void eval(Value* node) {
     // printValue();
 
     // exit(0);
-    goto *((void*)*((int*)addr_tmp));
+    goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
 
 // #define lambda_str 11
 // #define print_str 18
