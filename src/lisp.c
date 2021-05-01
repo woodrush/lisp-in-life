@@ -338,17 +338,28 @@ getOrSetAtomFromStringTable_setstringtable:
 
 Value* listHeadStack[32];
 Value* listTailStack[32];
-Value** listHeadStackptr = listHeadStack;
-Value** listTailStackptr = listTailStack;
+// Value** listHeadStackptr = listHeadStack;
+// Value** listTailStackptr = listTailStack;
+int listHeadStackptr = 0;
+int listTailStackptr = 0;
 
+// #define pushTailList(__value) {             \
+//     _list = newList(__value, NULL);         \
+//     if (*listTailStackptr) {                \
+//         (*listTailStackptr)->next = _list;  \
+//     } else {                                \
+//         (*listHeadStackptr) = _list;        \
+//     }                                       \
+//     (*listTailStackptr) = _list;            \
+// }
 #define pushTailList(__value) {             \
     _list = newList(__value, NULL);         \
-    if (*listTailStackptr) {                \
-        (*listTailStackptr)->next = _list;  \
+    if (listTailStack[listTailStackptr]) {                \
+        listTailStack[listTailStackptr]->next = _list;  \
     } else {                                \
-        (*listHeadStackptr) = _list;        \
+        listHeadStack[listHeadStackptr] = _list;        \
     }                                       \
-    (*listTailStackptr) = _list;            \
+    listTailStack[listTailStackptr] = _list;            \
 }
 
 void parseExpr() {
@@ -357,9 +368,6 @@ parseExprHead:;
 space:;
     if (!c) {
         c = getchar();
-    }
-    if (!c || c == EOF) {
-        return;
     }
     while (c == ' ' || c == '\n') {
         c = getchar();
@@ -374,6 +382,9 @@ space:;
         charbuf = 0;
         goto space;
     }
+    if (!c || c == EOF) {
+        return;
+    }
     // Parse as a list
     if (c == '(') {
         c = getchar();
@@ -386,8 +397,8 @@ space:;
         debug("pushing list...\n");
         ++listHeadStackptr;
         ++listTailStackptr;
-        *listHeadStackptr = NULL;
-        *listTailStackptr = NULL;
+        listHeadStack[listHeadStackptr] = NULL;
+        listTailStack[listTailStackptr] = NULL;
         goto parseExprHead;
     }
 
@@ -399,7 +410,7 @@ space:;
         debug1("popping list...\n%s", "");
         --listHeadStackptr;
         --listTailStackptr;
-        pushTailList(*(listHeadStackptr+1));
+        pushTailList(listHeadStack[listHeadStackptr+1]);
         debug1("popped list.\n%s", "");
         c = 0;
         goto parseExprHead;
@@ -423,7 +434,6 @@ space:;
 
     // If the expression is an integer literal, evaluate it
     charbuf = buf[0];
-    char aaa = buf[1];
     int c1 = ('0' <= charbuf && charbuf <= '9');
     int c2 = (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'));
     int c3 = c1 || c2;
