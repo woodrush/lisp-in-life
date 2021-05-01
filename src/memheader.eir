@@ -90,38 +90,58 @@ _malloc_result:
     .long eval_quote
 _str:
     .long 0
+charbuf:
     .long 0
     .long eval_list
+c:
     .long 0
+s1:
     .long 0
     .long eval_if
     .long eval_car
+s2:
     .long 0
     .long eval_while
+s3:
     .long 0
+stringTableHead:
     .long 0
     .long eval_progn
+_stringtable:
     .long 0
+_lambda:
     .long 0
     .long eval_createlambda
+_env:
     .long 0
+_env2:
     .long 0
     .long eval_createlambda
+_env3:
     .long 0
+_evalenv:
     .long 0
+nil:
     .long 0
     .long eval_eq
+true_value:
     .long 0
     .long eval_cons
+_value:
     .long 0
     .long eval_arith
+_list:
     .long 0
     .long eval_arith
+initlist:
     .long 0
     .long eval_eval
+curlist:
     .long 0
+sthash:
     .long 0
     .long eval_cdr
+stringtable:
     .long 0
     .long eval_arith
     .long eval_arith

@@ -88,37 +88,47 @@ typedef struct Lambda {
 } Lambda;
 
 
-char charbuf = 0;
-char c;
+DEFLOCATION char charbuf;
+DEFLOCATION char c;
 
 char buf[32];
-char* s1;
-char* s2;
-char* s3;
+
+DEFLOCATION char* s1;
+DEFLOCATION char* s2;
+DEFLOCATION char* s3;
 
 StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-StringTable* stringTableHead = NULL;
-StringTable* _stringtable;
 
-Lambda* _lambda;
+DEFLOCATION StringTable* stringTableHead;
+DEFLOCATION StringTable* _stringtable;
 
-Env* _env;
-Env* _env2;
-Env* _env3;
-Env* _evalenv;
+DEFLOCATION Lambda* _lambda;
 
-Value* nil;
-Value* true_value;
-Value* _value;
-Value* _list;
-Value* initlist;
-Value* curlist;
+DEFLOCATION Env* _env;
+DEFLOCATION Env* _env2;
+DEFLOCATION Env* _env3;
+DEFLOCATION Env* _evalenv;
 
-int sthash;
+DEFLOCATION Value* nil;
+DEFLOCATION Value* true_value;
+DEFLOCATION Value* _value;
+DEFLOCATION Value* _list;
+DEFLOCATION Value* initlist;
+DEFLOCATION Value* curlist;
+
+DEFLOCATION int sthash;
+
+DEFLOCATION StringTable* stringtable;
+
+// No more extern slots left in the header
+
+int getOrSetAtomFromStringTable_newflag; //= 0;
+
+StringTable** branch;
+char* __targetstring;
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
-int mlb;
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -199,10 +209,6 @@ Value* newList(Value* node, Value* next) {
 }
 
 // TODO: optimize _str[0] to char c
-int getOrSetAtomFromStringTable_newflag = 0;
-StringTable* stringtable;
-StringTable** branch;
-char* __targetstring;
 
 // Caution: always is __stringtable = stringTableHead when called
 void getOrSetAtomFromStringTable () {
@@ -1044,7 +1050,7 @@ int main (void) {
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
     // TODO: get this value from the string table
-    _str = t_str;
+    // _str = t_str;
     newAtomNode(t_str);
     true_value = _value;
 
