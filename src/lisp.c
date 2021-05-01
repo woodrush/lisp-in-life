@@ -17,6 +17,8 @@ DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
 DEFLOCATION char* _str;
 
+extern int evalhash;
+
 
 #ifdef ELVM
 #include "elvm.h"
@@ -582,120 +584,8 @@ typedef struct {
     };
 } EvalStack;
 
-// void* evalhash[62];
-extern int evalhash;
 
-// int evalcount = 0;
 void eval(Value* node) {
-    // ++evalcount;
-// #ifdef ELVM
-//     if (!*evalhash) {
-//         // evalhash[0] = 0;
-//         // evalhash[lambda_str-10] = &&eval_createlambda;
-//         // evalhash[print_str-10] = &&eval_print;
-//         // evalhash[define_str-10] = &&eval_define;
-//         // evalhash[quote_str-10] = &&eval_quote;
-//         // evalhash[list_str-10] = &&eval_list;
-//         // evalhash[if_str-10] = &&eval_if;
-//         // evalhash[car_str-10] = &&eval_car;
-//         // evalhash[while_str-10] = &&eval_while;
-//         // evalhash[progn_str-10] = &&eval_progn;
-//         // evalhash[macro_str-10] = &&eval_createlambda;
-//         // evalhash[lambdaast_str-10] = &&eval_createlambda;
-//         // evalhash[eq_str-10] = &&eval_eq;
-//         // evalhash[cons_str-10] = &&eval_cons;
-//         // evalhash[plus_str-10] = &&eval_arith;
-//         // evalhash[mod_str-10] = &&eval_arith;
-//         // evalhash[eval_str-10] = &&eval_eval;
-//         // evalhash[cdr_str-10] = &&eval_cdr;
-//         // evalhash[minus_str -10] = &&eval_arith;
-//         // evalhash[ast_str -10] = &&eval_arith;
-//         // evalhash[lt_str -10] = &&eval_cmp;
-//         // evalhash[gt_str -10] = &&eval_cmp;
-//         // evalhash[slash_str -10] = &&eval_arith;
-//         // evalhash[atom_str -10] = &&eval_atom;
-
-//         evalhash[0] = 1;
-//         evalhash[(lambda_str)>>1] = &&eval_createlambda;
-//         evalhash[(print_str)>>1] = &&eval_print;
-//         evalhash[(define_str)>>1] = &&eval_define;
-//         evalhash[(quote_str)>>1] = &&eval_quote;
-//         evalhash[(list_str)>>1] = &&eval_list;
-//         evalhash[(if_str)>>1] = &&eval_if;
-//         evalhash[(car_str)>>1] = &&eval_car;
-//         evalhash[(while_str)>>1] = &&eval_while;
-//         evalhash[(progn_str)>>1] = &&eval_progn;
-//         evalhash[(macro_str)>>1] = &&eval_createlambda;
-//         evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
-//         evalhash[(eq_str)>>1] = &&eval_eq;
-//         evalhash[(cons_str)>>1] = &&eval_cons;
-//         evalhash[(plus_str)>>1] = &&eval_arith;
-//         evalhash[(mod_str)>>1] = &&eval_arith;
-//         evalhash[(eval_str)>>1] = &&eval_eval;
-//         evalhash[(cdr_str)>>1] = &&eval_cdr;
-//         evalhash[(minus_str )>>1] = &&eval_arith;
-//         evalhash[(ast_str )>>1] = &&eval_arith;
-//         evalhash[(lt_str )>>1] = &&eval_cmp;
-//         evalhash[(gt_str )>>1] = &&eval_cmp;
-//         evalhash[(slash_str )>>1] = &&eval_arith;
-//         evalhash[(atom_str )>>1] = &&eval_atom;
-//     }
-// #endif
-
-    // void* evalhash[51] = {
-    //     &&eval_createlambda, 0, 0,
-    //     &&eval_print, 0, 0,
-    //     &&eval_define, 0, 0, 0,
-    //     &&eval_quote, 0, 0,
-    //     &&eval_list, 0,
-    //     &&eval_if, 0,
-    //     &&eval_car, 0,
-    //     &&eval_while, 0, 0,
-    //     &&eval_progn, 0, 0,
-    //     &&eval_createlambda, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0,
-    //     &&eval_eq,
-    //     &&eval_cons, 0, 0,
-    //     &&eval_arith,
-    //     0,
-    //     &&eval_arith, 0,
-    //     &&eval_eval, 0,
-    //     &&eval_cdr, 0,
-    //     &&eval_arith,
-    //     &&eval_arith,
-    //     &&eval_cmp,
-    //     &&eval_cmp,
-    //     &&eval_arith,
-    //     &&eval_atom,
-    // };
-    // void* evalhash[101] = {
-    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0,
-    //     &&eval_print, 0, 0, 0, 0, 0,
-    //     &&eval_define, 0, 0, 0, 0, 0, 0,
-    //     &&eval_quote, 0, 0, 0, 0, 0,
-    //     &&eval_list, 0, 0, 0, 0,
-    //     &&eval_if, 0, 0,
-    //     &&eval_car, 0, 0, 0,
-    //     &&eval_while, 0, 0, 0, 0, 0,
-    //     &&eval_progn, 0, 0, 0, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0, 0,
-    //     &&eval_eq, 0, 0,
-    //     &&eval_cons, 0, 0, 0, 0,
-    //     &&eval_arith, 0,
-    //     0, 0,
-    //     &&eval_arith, 0, 0, 0,
-    //     &&eval_eval, 0, 0, 0, 0,
-    //     &&eval_cdr, 0, 0, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_cmp, 0,
-    //     &&eval_cmp, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_atom,
-    // };
-
-// #define node evalarg->node
     EvalStack evalstack;
     debug("entering eval...\n");
 
@@ -757,50 +647,9 @@ void eval(Value* node) {
         }
 
 #ifdef ELVM
-    // k = ((int)_str - 11)/2;
-    // k = ((int)_str - 11);
-    // computed_goto = evalhash[k];
-    // int addr_tmp = ;
-    // i = addr_tmp;
-    // newIntValue();
-    // printValue();
-
-    // i = *((int*)addr_tmp);
-    // newIntValue();
-    // printValue();
-
-    // exit(0);
     goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
-
-// #define lambda_str 11
-// #define print_str 18
-// #define define_str 24
-// #define quote_str 31
-// #define list_str 37
-// #define if_str 42
-// #define car_str 45
-// #define while_str 49
-// #define progn_str 55
-// #define macro_str 61
-// #define lambdaast_str 67
-// #define eq_str 75
-// #define cons_str 78
-// #define plus_str 83
-// #define t_str 85
-// #define mod_str 87
-// #define eval_str 91
-// #define cdr_str 96
-// #define minus_str 100
-// #define ast_str 102
-// #define lt_str 104
-// #define gt_str 106
-// #define slash_str 108
-// #define atom_str 110
-
 #else
-
         void* test__[2] = {&&eval_define, &&eval_if};
-        // test__ = &&eval_define;
 
              if (_str == define_str) {goto *test__[0];}
         else if (_str == if_str) {goto *test__[1];}

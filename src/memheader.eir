@@ -1,13 +1,75 @@
+# Registers
 .data
-	.string "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-.data
-	.string "lambda\x00print\x00define\x00quote\x00list\x00if\x00car\x00while\x00progn\x00macro\x00lambda*\x00eq\x00cons\x00+\x00t\x00mod\x00eval\x00cdr\x00-\x00*\x00<\x00>\x00/"
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
+	.long 0
 
+# Special form strings
 .data
+# lambda_str:
+	.string "lambda"
+# print_str:
+	.string "print"
+# define_str:
+	.string "define"
+# quote_str:
+	.string "quote"
+# list_str:
+	.string "list"
+# if_str:
+	.string "if"
+# car_str:
+	.string "car"
+# while_str:
+	.string "while"
+# progn_str:
+	.string "progn"
+# macro_str:
+	.string "macro"
+# lambdaast_str:
+	.string "lambda*"
+# eq_str:
+	.string "eq"
+# cons_str:
+	.string "cons"
+# plus_str:
+	.string "+"
+# t_str:
+	.string "t"
+# mod_str:
+	.string "mod"
+# eval_str:
+	.string "eval"
+# cdr_str:
+	.string "cdr"
+# minus_str:
+	.string "-"
+# ast_str:
+	.string "*"
+# lt_str:
+	.string "<"
+# gt_str:
+	.string ">"
+# slash_str:
+	.string "/"
+
+# evalhash is defined with a negative offset here, to compensate for the offset in the jump hash calculation
+.data
+# atom_str:
 evalhash:
 	.string "atom"
 .data
 
+# The actual evalhash table starts here.
+# Unused regions are allocated as global variables
     .long eval_createlambda
 i:
     .long 0
