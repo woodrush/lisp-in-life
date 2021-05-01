@@ -5,6 +5,7 @@ Binary search v2:      16709   81885   441279  236820   Code optimization
 Binary search v3:      16528   81530   440588  236045   Binary search for the string table, random tree
 Binary search v4:      16153   77538   437138  228770   Binary search for the string table, optimized tree
 Binary search v5:      15512   76433   434549  225902   `` + code optimizations
+Atom-centric parse:    10906   62201   351453  179831
 List-centric parse:    10997   62580   352342  181665
 
 
@@ -13,11 +14,13 @@ Linear search:         3421
 Binary search v3:      3650
 Binary search v5:      10154
 List-centric parse:    5949
+List-centric parse:    5947
 
 Parse-only run:
 Linear search:         7516    48807   169825  187306
 Binary search v3:      15089   55630   159345  183724
 Binary search v5:      14073   50533   153306  173581
+Atom-centric parse:     9335   41759   126314  139615
 List-centric parse:     9426   42138   127203  141449
 
 
