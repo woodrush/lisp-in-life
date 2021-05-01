@@ -354,12 +354,12 @@ int listTailStackptr = 0;
 // }
 #define pushTailList(__value) {             \
     _list = newList(__value, NULL);         \
-    if (listTailStack[listTailStackptr]) {                \
-        listTailStack[listTailStackptr]->next = _list;  \
+    if (*(listTailStack+listTailStackptr)) {                \
+        (*(listTailStack+listTailStackptr))->next = _list;  \
     } else {                                \
         listHeadStack[listHeadStackptr] = _list;        \
     }                                       \
-    listTailStack[listTailStackptr] = _list;            \
+    *(listTailStack+listTailStackptr) = _list;            \
 }
 
 void parseExpr() {
@@ -397,8 +397,8 @@ space:;
         debug("pushing list...\n");
         ++listHeadStackptr;
         ++listTailStackptr;
-        listHeadStack[listHeadStackptr] = NULL;
-        listTailStack[listTailStackptr] = NULL;
+        *(listHeadStack+listHeadStackptr) = NULL;
+        *(listTailStack+listTailStackptr) = NULL;
         goto parseExprHead;
     }
 
@@ -410,7 +410,7 @@ space:;
         debug1("popping list...\n%s", "");
         --listHeadStackptr;
         --listTailStackptr;
-        pushTailList(listHeadStack[listHeadStackptr+1]);
+        pushTailList(*(listHeadStack+listHeadStackptr+1));
         debug1("popped list.\n%s", "");
         c = 0;
         goto parseExprHead;
