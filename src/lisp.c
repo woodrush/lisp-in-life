@@ -364,9 +364,9 @@ void parseExpr(Value* listTail) {
 parseExprHead:;
     // Remove whitespace
 // space:;
-    if (!c) {
-        c = getchar();
-    }
+    // if (!c) {
+    //     c = getchar();
+    // }
     while (c == ' ' || c == '\n') {
         c = getchar();
     }
@@ -378,10 +378,10 @@ parseExprHead:;
                 return;
             }
         } while(c != '\n');
-        charbuf = 0;
+        // charbuf = 0;
         goto parseExprHead;
     }
-    if (!c || c == EOF) {
+    if (c == EOF) {
         // _value = listHead;
         return;
     }
@@ -423,7 +423,9 @@ parseExprHead:;
         // listTailStackptr = listTailStack+listStackptr;
         // pushTailList(*(listHeadStackptr+1));
         // debug1("popped list.\n%s", "");
-        c = 0;
+        
+        // c = 0;
+        c = getchar();
         // goto parseExprHead;
         // _value = listHead;
         return;
@@ -434,7 +436,7 @@ parseExprHead:;
 //     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
 // #else
     sthash = 0;
-    while (c && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
+    while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
 // #endif
         // putchar(c);
         buf[i] = c;
@@ -447,13 +449,13 @@ parseExprHead:;
 
     // If the expression is an integer literal, evaluate it
     charbuf = buf[0];
-    int c1 = ('0' <= charbuf && charbuf <= '9');
-    int c2 = (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'));
-    int c3 = c1 || c2;
-    debug1(" c1:%d ", c1);
-    debug1(" c2:%d ", c2);
-    debug1(" c3:%d \n", c3);
-    if (c3) {
+    // int c1 = ('0' <= charbuf && charbuf <= '9');
+    // int c2 = (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'));
+    // int c3 = c1 || c2;
+    // debug1(" c1:%d ", c1);
+    // debug1(" c2:%d ", c2);
+    // debug1(" c3:%d \n", c3);
+    if (('0' <= charbuf && charbuf <= '9') || (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'))) {
         // putchar('i');
         _str = buf;
         parseInt();
@@ -1218,6 +1220,7 @@ int main (void) {
 #ifndef memdumpopt1
     // parseExpr();
 
+    c = getchar();
     do {
         parseExpr(curlist);
         // curlist->next = newList(curlist->next, NULL);

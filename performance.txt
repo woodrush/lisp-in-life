@@ -7,6 +7,7 @@ Binary search v4:      16153   77538   437138  228770   Binary search for the st
 Binary search v5:      15512   76433   434549  225902   `` + code optimizations
 Atom-centric parse:    10906   62201   351453  179831
 List-centric parse:    10997   62580   352342  181665
+List-centric parse v2: 10598   58983   342057  169339
 
 
 Pre-parse run (string table creation overheaad):
