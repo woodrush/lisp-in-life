@@ -338,10 +338,11 @@ getOrSetAtomFromStringTable_setstringtable:
 
 Value* listHeadStack[32];
 Value* listTailStack[32];
-// Value** listHeadStackptr = listHeadStack;
-// Value** listTailStackptr = listTailStack;
-int listHeadStackptr = 0;
-int listTailStackptr = 0;
+Value** listHeadStackptr = listHeadStack;
+Value** listTailStackptr = listTailStack;
+// int listHeadStackptr = 0;
+// int listTailStackptr = 0;
+int listStackptr = 0;
 
 // #define pushTailList(__value) {             \
 //     _list = newList(__value, NULL);         \
@@ -354,18 +355,15 @@ int listTailStackptr = 0;
 // }
 #define pushTailList(__value) {             \
     _list = newList(__value, NULL);         \
-    if (*(listTailStack+listTailStackptr)) {                \
-        (*(listTailStack+listTailStackptr))->next = _list;  \
-    } else {                                \
-        listHeadStack[listHeadStackptr] = _list;        \
-    }                                       \
-    *(listTailStack+listTailStackptr) = _list;            \
+    listTail->next = _list;  \
+    listTail = _list;            \
 }
 
-void parseExpr() {
+void parseExpr(Value* listTail) {
+    // Value* listHead = listTail;
 parseExprHead:;
     // Remove whitespace
-space:;
+// space:;
     if (!c) {
         c = getchar();
     }
@@ -376,29 +374,39 @@ space:;
         do {
             c = getchar();
             if (c == EOF) {
+                // _value = listHead;
                 return;
             }
         } while(c != '\n');
         charbuf = 0;
-        goto space;
+        goto parseExprHead;
     }
     if (!c || c == EOF) {
+        // _value = listHead;
         return;
     }
     // Parse as a list
     if (c == '(') {
         c = getchar();
-        if (c == ')') {
-            pushTailList(nil);
-            c = 0;
-            goto parseExprHead;
-        }
+        // if (c == ')') {
+        //     parseExprHeadList(nil);
+        //     c = 0;
+        //     goto parseExprHead;
+        // }
 
         debug("pushing list...\n");
-        ++listHeadStackptr;
-        ++listTailStackptr;
-        *(listHeadStack+listHeadStackptr) = NULL;
-        *(listTailStack+listTailStackptr) = NULL;
+        parseExpr(listTail);
+        // listTail->next = newList(listTail->next, NULL);
+        // listTail = listTail->next;
+        // // ++listHeadStackptr;
+        // // ++listTailStackptr;
+        // ++listStackptr;
+        // listHeadStackptr = listHeadStack+listStackptr;
+        // listTailStackptr = listTailStack+listStackptr;
+        // *(listHeadStackptr) = NULL;
+        // *(listTailStackptr) = NULL;
+        _list = listTail->next;
+        pushTailList(_list ? _list : nil);
         goto parseExprHead;
     }
 
@@ -408,12 +416,17 @@ space:;
 // #else
     if (c == ')') {
         debug1("popping list...\n%s", "");
-        --listHeadStackptr;
-        --listTailStackptr;
-        pushTailList(*(listHeadStack+listHeadStackptr+1));
-        debug1("popped list.\n%s", "");
+        // // --listHeadStackptr;
+        // // --listTailStackptr;
+        // --listStackptr;
+        // listHeadStackptr = listHeadStack+listStackptr;
+        // listTailStackptr = listTailStack+listStackptr;
+        // pushTailList(*(listHeadStackptr+1));
+        // debug1("popped list.\n%s", "");
         c = 0;
-        goto parseExprHead;
+        // goto parseExprHead;
+        // _value = listHead;
+        return;
     }
 
     i = 0;
@@ -1197,26 +1210,27 @@ int main (void) {
     // _str = (char*) progn_str;
     newAtomNode(progn_str);
     initlist = newList(_value, NULL);
-    listHeadStack[0] = initlist;
-    listTailStack[0] = initlist;
+    curlist = initlist;
+    // listHeadStack[0] = initlist;
+    // listTailStack[0] = initlist;
 
 #endif
 #ifndef memdumpopt1
-    parseExpr();
-    // while((parseExpr(), _value)) {
-    //     curlist->next = newList(_value, NULL);
-    //     curlist = curlist->next;
-    // }
+    // parseExpr();
+
+    do {
+        parseExpr(curlist);
+        // curlist->next = newList(curlist->next, NULL);
+        // curlist = curlist->next;
+    } while((curlist = curlist->next));
     
     // _list = initlist;
     // _value = newListNode();
     // _value = initlist;
-
-    _value = listHeadStack[0];
-    printValue();
+    // printValue();
     // eval(_value);
 
-    eval(listHeadStack[0]);
+    eval(initlist);
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif
