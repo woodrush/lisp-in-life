@@ -9,16 +9,24 @@ evalhash:
 .data
 
     .long eval_createlambda
+i:
     .long 0
+q:
     .long 0
+r:
     .long 0
     .long eval_print
+j:
     .long 0
+k:
     .long 0
     .long eval_define
+_malloc_bytes:
     .long 0
+_malloc_result:
     .long 0
     .long eval_quote
+_str:
     .long 0
     .long 0
     .long eval_list

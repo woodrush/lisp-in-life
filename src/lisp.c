@@ -1,21 +1,29 @@
-char* _str;
-int q, r;
-int i = 777;
-int j = 888;
-int k;
-int _malloc_bytes;
-void* _malloc_result;
-
-
 #ifndef GCC
 #define ELVM
 #endif
+
+#ifdef ELVM
+#  define DEFLOCATION extern
+#else
+#  define DEFLOCATION
+#endif
+
+// In the ELVM version, these variables are defined in memheader.eir
+DEFLOCATION int i;
+DEFLOCATION int q, r;
+DEFLOCATION int j;
+DEFLOCATION int k;
+DEFLOCATION int _malloc_bytes;
+DEFLOCATION void* _malloc_result;
+DEFLOCATION char* _str;
+
 
 #ifdef ELVM
 #include "elvm.h"
 #else
 #include "lisp.h"
 #endif
+
 
 // #define QFTASM_HEAP_MEM_MAX 2846
 
