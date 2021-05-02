@@ -100,7 +100,6 @@ DEFLOCATION char* s3;
 
 DEFLOCATION StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
-DEFLOCATION StringTable* stringTableHead;
 DEFLOCATION StringTable* _stringtable;
 
 DEFLOCATION Lambda* _lambda;
@@ -110,7 +109,8 @@ DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 DEFLOCATION Env* _evalenv;
 
-DEFLOCATION Value* nil;
+DEFLOCATION Value nil_value;
+#define nil (&nil_value)
 DEFLOCATION Value* true_value;
 DEFLOCATION Value* _value;
 DEFLOCATION Value* _list;
@@ -612,7 +612,7 @@ void eval(Value* node) {
         headstr = node->value->str;
 
 #ifdef ELVM
-        if ((int)last_op < (int)headstr) {
+        if ((int)(&evalhash) < (int)headstr) {
             goto eval_lambda_call;
         }
 #endif
@@ -996,14 +996,14 @@ void printValue() {
 extern Value lambda_value;
 int main (void) {
 #ifndef memdumpopt2
+
+
+#  ifndef ELVM
     // (Value*)LIST, since ->type and ->next are inside the same union
-    nil = newList(NULL, (Value*)LIST);
+    nil_value = *(newList(NULL, (Value*)LIST));
     newAtomNode(t_str);
     true_value = _value;
 
-    newStringTable(_stringtable, _value);
-    stringTableHead = _stringtable;
-#  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(j=0; j<num_ops; ++j){
         _str = opstr_list[j];
@@ -1020,24 +1020,26 @@ int main (void) {
     }
     getOrSetAtomFromStringTable_newflag = 1;
 
-#  else
-    s3 = opstring_head;
-    // s1 = eval_str;
-    for(j=0; j<num_ops; ++j){
-        _str = s3;
-        // s3 = _str;
-        i = 0;
-        sthash = 0;
-        for(; *s3; ++s3, ++i){sthash += *s3;}
-        sthash_mod16();
-        // getOrSetAtomFromStringTable(stringTableHead, _str);
-        // __stringtable = stringTableHead;
-        __targetstring = _str;
-        getOrSetAtomFromStringTable();
+// #  else
+//     getOrSetAtomFromStringTable_newflag = 0;
+//     s3 = opstring_head;
+//     // s1 = eval_str;
+//     for(j=0; j<num_ops; ++j){
+//         _str = s3;
+//         // s3 = _str;
+//         i = 0;
+//         sthash = 0;
+//         for(; *s3; ++s3, ++i){sthash += *s3;}
+//         sthash_mod16();
+//         // getOrSetAtomFromStringTable(stringTableHead, _str);
+//         // __stringtable = stringTableHead;
+//         __targetstring = _str;
+//         getOrSetAtomFromStringTable();
 
-        // for(; *s1; ++s1){}
-        ++s3;
-    }
+//         // for(; *s1; ++s1){}
+//         ++s3;
+//     }
+//     getOrSetAtomFromStringTable_newflag = 1;
 #  endif
 
     _str = NULL;
@@ -1067,13 +1069,17 @@ int main (void) {
     
     
     initlist = nil->next;
-    _value = initlist->value;
-    printValue();
+    // _value = initlist->value;
+    // printValue();
     nil->next = NULL;
-    // while (initlist) {
+    int evalcount = 0;
+    while (initlist) {
         eval(initlist->value);
-        // initlist = initlist->next;
-    // }
+        initlist = initlist->next;
+        if (++evalcount > 10) {
+            break;
+        }
+    }
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif

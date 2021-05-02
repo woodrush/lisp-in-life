@@ -203,7 +203,7 @@ cons_value:
 plus_value:
     .long 1
     .long plus_str
-t_value:
+true_value:
     .long 1
     .long t_str
 mod_value:
@@ -289,7 +289,7 @@ stringtable_cons:
     .long 0
     .long 0
 stringtable_t:
-    .long t_value
+    .long true_value
     .long 0
     .long 0
 stringtable_eq:
@@ -363,4 +363,8 @@ stringtable_if:
 stringtable_slash:
     .long slash_value
     .long 0
+    .long 0
+
+nil_value:
+    .long 4
     .long 0

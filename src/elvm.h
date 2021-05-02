@@ -10,7 +10,7 @@
 //====================================================================================
 #define num_ops 24
 
-extern char* lambda_str;
+extern int lambda_str;
 // extern char* print_str;
 // extern char* define_str;
 // extern char* quote_str;
@@ -24,7 +24,7 @@ extern char* lambda_str;
 // extern char* eq_str;
 // extern char* cons_str;
 // extern char* plus_str;
-extern char* t_str;
+// extern int t_str;
 // extern char* mod_str;
 // extern char* eval_str;
 // extern char* cdr_str;
@@ -35,8 +35,9 @@ extern char* t_str;
 // extern char* slash_str;
 // extern char* atom_str;
 
-#define last_op evalhash
-#define opstring_head lambda_str
+
+#define last_op &evalhash
+#define opstring_head &lambda_str
 
 //====================================================================================
 
