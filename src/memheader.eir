@@ -1,147 +1,155 @@
 # Registers
 .data
+QFTASM_PC:
 	.long 0
+QFTASM_STDIN:
 	.long 0
+QFTASM_STDOUT:
 	.long 0
+QFTASM_A:
 	.long 0
+QFTASM_B:
 	.long 0
+QFTASM_C:
 	.long 0
+QFTASM_D:
 	.long 0
+QFTASM_BP:
 	.long 0
+QFTASM_SP:
 	.long 0
+QFTASM_TEMP:
 	.long 0
+QFTASM_TEMP_2:
 	.long 0
 
 # Special form strings
-.data
-# lambda_str:
+lambda_str:
 	.string "lambda"
-# print_str:
+print_str:
 	.string "print"
-# define_str:
+define_str:
 	.string "define"
-# quote_str:
+quote_str:
 	.string "quote"
-# list_str:
+list_str:
 	.string "list"
-# if_str:
+if_str:
 	.string "if"
-# car_str:
+car_str:
 	.string "car"
-# while_str:
+while_str:
 	.string "while"
-# progn_str:
+progn_str:
 	.string "progn"
-# macro_str:
+macro_str:
 	.string "macro"
-# lambdaast_str:
+lambdaast_str:
 	.string "lambda*"
-# eq_str:
+eq_str:
 	.string "eq"
-# cons_str:
+cons_str:
 	.string "cons"
-# plus_str:
+plus_str:
 	.string "+"
-# t_str:
+t_str:
 	.string "t"
-# mod_str:
+mod_str:
 	.string "mod"
-# eval_str:
+eval_str:
 	.string "eval"
-# cdr_str:
+cdr_str:
 	.string "cdr"
-# minus_str:
+minus_str:
 	.string "-"
-# ast_str:
+ast_str:
 	.string "*"
-# lt_str:
+lt_str:
 	.string "<"
-# gt_str:
+gt_str:
 	.string ">"
-# slash_str:
+slash_str:
 	.string "/"
 
 # evalhash is defined with a negative offset here, to compensate for the offset in the jump hash calculation
-.data
 # atom_str:
 evalhash:
 	.string "atom"
-.data
 
 # The actual evalhash table starts here.
 # Unused regions are allocated as global variables
     .long eval_createlambda
-i:
+# i: # extern
     .long 0
-q:
+# q: # extern
     .long 0
-r:
+# r: # extern
     .long 0
     .long eval_print
-j:
+# j: # extern
     .long 0
-k:
+# k: # extern
     .long 0
     .long eval_define
-_malloc_bytes:
+# _malloc_bytes: # extern
     .long 0
-_malloc_result:
+# _malloc_result: # extern
     .long 0
     .long eval_quote
-_str:
+# _str: # extern
     .long 0
-charbuf:
+# charbuf: # extern
     .long 0
     .long eval_list
-c:
+# c: # extern
     .long 0
-s1:
+# s1: # extern
     .long 0
     .long eval_if
     .long eval_car
-s2:
+# s2: # extern
     .long 0
     .long eval_while
-s3:
+# s3: # extern
     .long 0
-stringTableHead:
-    .long 0
+# stringTableHead: # extern
+    .long 254
     .long eval_progn
-_stringtable:
-    .long 0
-_lambda:
-    .long 0
-    .long eval_createlambda
-_env:
-    .long 0
-_env2:
+# _stringtable: # extern
+    .long 526
+# _lambda: # extern
     .long 0
     .long eval_createlambda
-_env3:
+# _env: # extern
     .long 0
-_evalenv:
+# _env2: # extern
+    .long 529
+    .long eval_createlambda
+# _env3: # extern
     .long 0
-nil:
-    .long 0
+# _evalenv: # extern
+    .long 529
+# nil: #146 # extern
+    .long 248
     .long eval_eq
-true_value:
-    .long 0
+# true_value: # extern
+    .long 250
     .long eval_cons
-_value:
+# _value: # extern
     .long 0
     .long eval_arith
-_list:
-    .long 0
+# _list: # extern
+    .long 248
     .long eval_arith
-initlist:
-    .long 0
+# initlist: # extern
+    .long 248
     .long eval_eval
-curlist:
-    .long 0
-sthash:
-    .long 0
+# curlist: # extern
+    .long 248
+# sthash: # extern
+    .long 1
     .long eval_cdr
-stringtable:
+# stringtable: # extern
     .long 0
     .long eval_arith
     .long eval_arith
@@ -149,4 +157,73 @@ stringtable:
     .long eval_cmp
     .long eval_arith
     .long eval_atom
+lambda_value:
+    .long 1
+    .long lambda_str
+print_value:
+    .long 1
+    .long print_str
+define_value:
+    .long 1
+    .long define_str
+quote_value:
+    .long 1
+    .long quote_str
+list_value:
+    .long 1
+    .long list_str
+if_value:
+    .long 1
+    .long if_str
+car_value:
+    .long 1
+    .long car_str
+while_value:
+    .long 1
+    .long while_str
+progn_value:
+    .long 1
+    .long progn_str
+macro_value:
+    .long 1
+    .long macro_str
+lambdaast_value:
+    .long 1
+    .long lambdaast_str
+eq_value:
+    .long 1
+    .long eq_str
+cons_value:
+    .long 1
+    .long cons_str
+plus_value:
+    .long 1
+    .long plus_str
+t_value:
+    .long 1
+    .long t_str
+mod_value:
+    .long 1
+    .long mod_str
+eval_value:
+    .long 1
+    .long eval_str
+cdr_value:
+    .long 1
+    .long cdr_str
+minus_value:
+    .long 1
+    .long minus_str
+ast_value:
+    .long 1
+    .long ast_str
+lt_value:
+    .long 1
+    .long lt_str
+gt_value:
+    .long 1
+    .long gt_str
+slash_value:
+    .long 1
+    .long slash_str
 .data

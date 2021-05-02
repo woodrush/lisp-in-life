@@ -83,28 +83,32 @@ opdata_all = [
     ("x",8),
 ]
 
-ops, _ = zip(*opdata_all)
+def print_hashtable(opdata):
+    ops, _ = zip(*opdata)
 
-d_hash = {}
-for op in ops:
-    h = 0
-    # for c in op:
-    #     h = (h ^ ord(c))
-    # h = h >> 2
-    for c in op:
-        h += ord(c)
-    h &= 0b1111
-    # h = h >> 2
+    d_hash = {}
+    for op in ops:
+        h = 0
+        # for c in op:
+        #     h = (h ^ ord(c))
+        # h = h >> 2
+        for c in op:
+            h += ord(c)
+        h &= 0b1111
+        # h = h >> 2
 
-    print("{}:{}".format(op, h))
-    if h not in d_hash.keys():
-        d_hash[h] = []
-    d_hash[h].append(op)
+        print("{}:{}".format(op, h))
+        if h not in d_hash.keys():
+            d_hash[h] = []
+        d_hash[h].append(op)
 
-for item in sorted(d_hash.items()):
-    print(item)
+    for item in sorted(d_hash.items()):
+        print(item)
 
-
+print_hashtable(opdata)
+print()
+print_hashtable(opdata_all)
+print()
 
 
 

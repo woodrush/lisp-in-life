@@ -9,7 +9,8 @@ Atom-centric parse:        10906   62201   351453  179831
 List-centric parse:        10997   62580   352342  181665
 List-centric parse v2:     10598   58983   342057  169339
 Jump hashtable in header:  10083   57580   331297  167283
-
+C-layer getchar:           10111   58276   329306  169433
+Assembly getchar:          10062   57226   325363  166146
 
 Pre-parse run (string table creation overheaad):
 Linear search:         3421

@@ -6,37 +6,36 @@
 #define QFTASM_RAMSTDIN_BUF_STARTPOSITION 2688
 
 #define NULL 0
-#define EOF -1
 
 //====================================================================================
 #define num_ops 24
 
-#define lambda_str 11
-#define print_str 18
-#define define_str 24
-#define quote_str 31
-#define list_str 37
-#define if_str 42
-#define car_str 45
-#define while_str 49
-#define progn_str 55
-#define macro_str 61
-#define lambdaast_str 67
-#define eq_str 75
-#define cons_str 78
-#define plus_str 83
-#define t_str 85
-#define mod_str 87
-#define eval_str 91
-#define cdr_str 96
-#define minus_str 100
-#define ast_str 102
-#define lt_str 104
-#define gt_str 106
-#define slash_str 108
-#define atom_str 110
+extern char* lambda_str;
+// extern char* print_str;
+// extern char* define_str;
+// extern char* quote_str;
+// extern char* list_str;
+// extern char* if_str;
+// extern char* car_str;
+// extern char* while_str;
+// extern char* progn_str;
+// extern char* macro_str;
+// extern char* lambdaast_str;
+// extern char* eq_str;
+// extern char* cons_str;
+// extern char* plus_str;
+extern char* t_str;
+// extern char* mod_str;
+// extern char* eval_str;
+// extern char* cdr_str;
+// extern char* minus_str;
+// extern char* ast_str;
+// extern char* lt_str;
+// extern char* gt_str;
+// extern char* slash_str;
+// extern char* atom_str;
 
-#define last_op atom_str
+#define last_op evalhash
 #define opstring_head lambda_str
 
 //====================================================================================
@@ -47,8 +46,38 @@
 // int j;
 // int k;
 
+extern int QFTASM_PC;
+extern int QFTASM_STDIN;
+extern int QFTASM_STDOUT;
+extern int QFTASM_A;
+extern int QFTASM_B;
+extern int QFTASM_C;
+extern int QFTASM_D;
+extern int QFTASM_BP;
+extern int QFTASM_SP;
+extern int QFTASM_TEMP;
+extern int QFTASM_TEMP_2;
 
-int getchar(void);
+extern int evalhash;
+
+
+#define EOF -1
+DEFLOCATION char c;
+// #define getchar_c() { \
+//     c = *((int*)(QFTASM_STDIN >> 1)); \
+//     c = (QFTASM_STDIN &~ 0b1111111111111110) ? ((c &~ 0b11111111) >> 8) : (c &~ 0b1111111100000000); \
+//     QFTASM_STDIN += 1; \
+// }
+#define getchar_c() (c = getchar())
+
+// void getchar_() { \
+//     c = *((int*)(QFTASM_STDIN >> 1)); \
+//     c = (QFTASM_STDIN &~ 0b1111111111111110) ? ((c &~ 0b11111111) >> 8) : (c &~ 0b1111111100000000); \
+//     QFTASM_STDIN += 1; \
+// }
+
+
+void getchar(void);
 int putchar(int c);
 void exit(int s);
 

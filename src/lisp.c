@@ -3,7 +3,8 @@
 #endif
 
 #ifdef ELVM
-#  define DEFLOCATION extern
+// #  define DEFLOCATION extern
+#  define DEFLOCATION
 #else
 #  define DEFLOCATION
 #endif
@@ -17,13 +18,13 @@ DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
 DEFLOCATION char* _str;
 
-extern int evalhash;
 
 
 #ifdef ELVM
 #include "elvm.h"
 #else
 #include "lisp.h"
+int getOrSetAtomFromStringTable_newflag; //= 0;
 #endif
 
 
@@ -89,7 +90,7 @@ typedef struct Lambda {
 
 
 DEFLOCATION char charbuf;
-DEFLOCATION char c;
+// DEFLOCATION char c;
 
 char buf[32];
 
@@ -122,7 +123,6 @@ DEFLOCATION StringTable* stringtable;
 
 // No more extern slots left in the header
 
-int getOrSetAtomFromStringTable_newflag; //= 0;
 
 StringTable** branch;
 char* __targetstring;
@@ -226,27 +226,6 @@ getOrSetAtomFromStringTableHead:
     s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; ++s1, ++s2) {
-
-//         if (*s1 != *s2) {
-//             // There is a string next to this string in the table
-//             if ((_stringtable = _stringtable->next)) {
-//                 goto parseatomloop;
-//             }
-
-//             // This was the last string in the table, so create a string
-//             // _malloc_bytes = i+1;
-//             malloc_k(i+1, _str);
-//             // _str = (char*) _malloc_result;
-//             debug("parseAtom\n");
-//             s1 = _str;
-//             s2 = buf;
-//             for(; *s2; ++s1, ++s2) {
-//                 *s1 = *s2;
-//             }
-//             appendStringTable();
-//             return;
-//         }
-
         // The strings were not equal
         if (*s1 != *s2) {
             // _stringtable = stringtable->lesser;
@@ -262,7 +241,11 @@ getOrSetAtomFromStringTableHead:
                 // return _value;
             }
 getOrSetAtomFromStringTable_setstringtable:
+
+#ifndef ELVM
             if (getOrSetAtomFromStringTable_newflag) {
+#endif
+#ifndef memdumpopt2
                 debug("Creating new stringtable entry with a new string pointer...\n");
 
                 // This was the last string in the table, so create a string
@@ -279,11 +262,18 @@ getOrSetAtomFromStringTable_setstringtable:
                 for(; *s2; ++s1, ++s2) {
                     *s1 = *s2;
                 }
+#  ifndef ELVM
             }
             else {
+#  endif
+#endif
+#ifndef memdumpopt1
                 debug("Creating new stringtable entry with an existing string pointer...\n");
                 _str = __targetstring;
+#  ifndef ELVM
             }
+#  endif
+#endif
             newAtomNode(_str);
             newStringTable(_stringtable, _value);
             *branch = _stringtable;
@@ -301,26 +291,6 @@ getOrSetAtomFromStringTable_setstringtable:
     _value = stringtable->value;
     // return _value;
 }
-
-// #define appendStringTable() {                             
-//     malloc_k(sizeof(StringTable), _stringtable);          
-//     debug("appendStringTable\n");                         
-//     newAtomNode();                                        
-//     _stringtable->value = _value;                         
-//     _stringtable->next = stringTableHead;                 
-//     stringTableHead = _stringtable;                       
-// }
-
-
-// Value* parseListLoop() {
-//     parseExpr();
-//     Value* parsednode = _value;
-//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-// }
-
-// int isNumeric(){
-//     return c == '-' || ('0' <= c && c <= '9');
-// }
 
 
 // j : sign
@@ -367,20 +337,21 @@ getOrSetAtomFromStringTable_setstringtable:
     listTail = _list;            \
 }
 
+
 void parseExpr(Value* listTail) {
     // Value* listHead = listTail;
 parseExprHead:;
     // Remove whitespace
 // space:;
     // if (!c) {
-    //     c = getchar();
+    //     getchar_c();
     // }
     while (c == ' ' || c == '\n') {
-        c = getchar();
+        getchar_c();
     }
     if (c == ';') {
         do {
-            c = getchar();
+            getchar_c();
             if (c == EOF) {
                 // _value = listHead;
                 return;
@@ -395,7 +366,7 @@ parseExprHead:;
     }
     // Parse as a list
     if (c == '(') {
-        c = getchar();
+        getchar_c();
         // if (c == ')') {
         //     parseExprHeadList(nil);
         //     c = 0;
@@ -433,7 +404,7 @@ parseExprHead:;
         // debug1("popped list.\n%s", "");
         
         // c = 0;
-        c = getchar();
+        getchar_c();
         // goto parseExprHead;
         // _value = listHead;
         return;
@@ -450,7 +421,7 @@ parseExprHead:;
         buf[i] = c;
         sthash += c;
         ++i;
-        c = getchar();
+        getchar_c();
     }
     buf[i] = '\0';
 
@@ -1022,35 +993,20 @@ void printValue() {
 }
 #undef v
 
+extern Value lambda_value;
 int main (void) {
-//     // putchar('0' + testptr);
-//     putchar('0' + testptr2);
-//     goto *testptr2;
-
-// testlabel1:
-//     putchar('a');
-// testlabel2:
-//     putchar('b');
-//     exit(0);
-
-    // // evalhash[0] = 1;
-    // putchar('a');
-    // // int aaaa = *((int*)(&evalhash)) == 3101;
-    // int aaaa = *((int*)(&evalhash + 3)) == 2949;
-
-    // int aaaa = evalhash == 3096;
-    // putchar('0' + aaaa);
-    // aaaa = (102 - 11) >> 1 == 45;
-    // putchar('1' + aaaa);
-    // aaaa = *((int*)(((int)&evalhash) + ((102 - 11) >> 1))) == 3550;
-    // putchar('0' + aaaa);
-    // exit(0);
-
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
+    putchar('a');
 #ifndef memdumpopt2
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
-    // TODO: get this value from the string table
-    // _str = t_str;
     newAtomNode(t_str);
     true_value = _value;
 
@@ -1071,6 +1027,8 @@ int main (void) {
         getOrSetAtomFromStringTable();
 
     }
+    getOrSetAtomFromStringTable_newflag = 1;
+
 #  else
     s3 = opstring_head;
     // s1 = eval_str;
@@ -1090,9 +1048,8 @@ int main (void) {
         ++s3;
     }
 #  endif
-    getOrSetAtomFromStringTable_newflag = 1;
 
-    _str = "";
+    _str = NULL;
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
@@ -1103,20 +1060,36 @@ int main (void) {
 
 #endif
 #ifndef memdumpopt1
+    _value = nil;
+    printValue();
+    _value = &lambda_value;
+    putchar('0' + lambda_value.type);
+    putchar('0' + lambda_value.value);
+    printValue();
 
-    c = getchar();
-    do {
-        parseExpr(curlist);
-        // curlist->next = newList(curlist->next, NULL);
-        // curlist = curlist->next;
-    } while((curlist = curlist->next));
+    // char* s = evalhash;
+    // for (;*s;s++) {
+    //     putchar(*s);
+    // }
+    // putchar('a');
+
+    // getchar_c();
+    // parseExpr(curlist);
+    // // do {
+    // //     parseExpr(curlist);
+    // //     // curlist->next = newList(curlist->next, NULL);
+    // //     // curlist = curlist->next;
+    // // } while((curlist = curlist->next));
     
-    initlist = nil->next;
-    nil->next = NULL;
-    while (initlist) {
-        eval(initlist->value);
-        initlist = initlist->next;
-    }
+    
+    // initlist = nil->next;
+    // _value = initlist;
+    // printValue();
+    // nil->next = NULL;
+    // while (initlist) {
+    //     eval(initlist->value);
+    //     initlist = initlist->next;
+    // }
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #  endif
