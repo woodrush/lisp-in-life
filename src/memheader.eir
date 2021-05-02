@@ -277,7 +277,7 @@ stringtable_lambda:
     .long stringtable_atom
     .long 0
 stringtable_atom:
-    .long slash_value
+    .long evalhash
     .long 0
     .long 0
 stringtable_macro:

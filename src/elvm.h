@@ -10,30 +10,56 @@
 //====================================================================================
 #define num_ops 24
 
-extern int lambda_str;
-// extern char* print_str;
-// extern char* define_str;
-// extern char* quote_str;
-// extern char* list_str;
-// extern char* if_str;
-// extern char* car_str;
-// extern char* while_str;
-// extern char* progn_str;
-// extern char* macro_str;
-// extern char* lambdaast_str;
-// extern char* eq_str;
-// extern char* cons_str;
-// extern char* plus_str;
-// extern int t_str;
-// extern char* mod_str;
-// extern char* eval_str;
-// extern char* cdr_str;
-// extern char* minus_str;
-// extern char* ast_str;
-// extern char* lt_str;
-// extern char* gt_str;
-// extern char* slash_str;
-// extern char* atom_str;
+extern char lambda_str_head;
+extern char print_str_head;
+extern char define_str_head;
+extern char quote_str_head;
+extern char list_str_head;
+extern char if_str_head;
+extern char car_str_head;
+extern char while_str_head;
+extern char progn_str_head;
+extern char macro_str_head;
+extern char lambdaast_str_head;
+extern char eq_str_head;
+extern char cons_str_head;
+extern char plus_str_head;
+extern char t_str_head;
+extern char mod_str_head;
+extern char eval_str_head;
+extern char cdr_str_head;
+extern char minus_str_head;
+extern char ast_str_head;
+extern char lt_str_head;
+extern char gt_str_head;
+extern char slash_str_head;
+
+extern int evalhash;
+
+#define lambda_str (&lambda_str_head)
+#define print_str (&print_str_head)
+#define define_str (&define_str_head)
+#define quote_str (&quote_str_head)
+#define list_str (&list_str_head)
+#define if_str (&if_str_head)
+#define car_str (&car_str_head)
+#define while_str (&while_str_head)
+#define progn_str (&progn_str_head)
+#define macro_str (&macro_str_head)
+#define lambdaast_str (&lambdaast_str_head)
+#define eq_str (&eq_str_head)
+#define cons_str (&cons_str_head)
+#define plus_str (&plus_str_head)
+#define t_str (&t_str_head)
+#define mod_str (&mod_str_head)
+#define eval_str (&eval_str_head)
+#define cdr_str (&cdr_str_head)
+#define minus_str (&minus_str_head)
+#define ast_str (&ast_str_head)
+#define lt_str (&lt_str_head)
+#define gt_str (&gt_str_head)
+#define slash_str (&slash_str_head)
+#define atom_str (&evalhash)
 
 
 #define last_op &evalhash
@@ -59,7 +85,6 @@ extern int QFTASM_SP;
 extern int QFTASM_TEMP;
 extern int QFTASM_TEMP_2;
 
-extern int evalhash;
 
 
 #define EOF -1
