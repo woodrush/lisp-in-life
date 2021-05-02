@@ -157,6 +157,10 @@ evalhash:
     .long eval_cmp
     .long eval_arith
     .long eval_atom
+
+#========================================
+# Values
+#========================================
 lambda_value:
     .long 1
     .long lambda_str
@@ -226,4 +230,137 @@ gt_value:
 slash_value:
     .long 1
     .long slash_str
-.data
+
+#========================================
+# Stringtables
+#========================================
+# Hashtable contents:
+# (0, ['mod'])
+# (1, ['atom', 'lambda'])
+# (2, ['macro'])
+# (3, ['cons'])
+# (4, ['t'])
+# (6, ['car', 'eq', 'progn'])
+# (8, ['eval'])
+# (9, ['cdr', 'while'])
+# (10, ['*'])
+# (11, ['+', 'define', 'lambda*'])
+# (12, ['<', 'list'])
+# (13, ['-', 'print'])
+# (14, ['>', 'quote'])
+# (15, ['/', 'if'])
+
+stringTableHeadList:
+    .long stringtable_mod
+    .long stringtable_lambda
+    .long stringtable_macro
+    .long stringtable_cons
+    .long stringtable_t
+    .long 0
+    .long stringtable_eq
+    .long 0
+    .long stringtable_eval
+    .long stringtable_cdr
+    .long stringtable_ast
+    .long stringtable_define
+    .long stringtable_list
+    .long stringtable_print
+    .long stringtable_quote
+    .long stringtable_if
+
+stringtable_mod:
+    .long mod_value
+    .long 0
+    .long 0
+stringtable_lambda:
+    .long lambda_value
+    .long stringtable_atom
+    .long 0
+stringtable_atom:
+    .long slash_value
+    .long 0
+    .long 0
+stringtable_macro:
+    .long macro_value
+    .long 0
+    .long 0
+stringtable_cons:
+    .long cons_value
+    .long 0
+    .long 0
+stringtable_t:
+    .long t_value
+    .long 0
+    .long 0
+stringtable_eq:
+    .long eq_value
+    .long stringtable_car
+    .long stringtable_progn
+stringtable_car:
+    .long car_value
+    .long 0
+    .long 0
+stringtable_progn:
+    .long progn_value
+    .long 0
+    .long 0
+stringtable_eval:
+    .long eval_value
+    .long 0
+    .long 0
+stringtable_cdr:
+    .long cdr_value
+    .long 0
+    .long stringtable_while
+stringtable_while:
+    .long while_value
+    .long 0
+    .long 0
+stringtable_ast:
+    .long ast_value
+    .long 0
+    .long 0
+stringtable_define:
+    .long define_value
+    .long stringtable_plus
+    .long stringtable_lambdaast
+stringtable_plus:
+    .long plus_value
+    .long 0
+    .long 0
+stringtable_lambdaast:
+    .long lambdaast_value
+    .long 0
+    .long 0
+stringtable_list:
+    .long list_value
+    .long stringtable_lt
+    .long 0
+stringtable_lt:
+    .long lt_value
+    .long 0
+    .long 0
+stringtable_print:
+    .long print_value
+    .long stringtable_minus
+    .long 0
+stringtable_minus:
+    .long minus_value
+    .long 0
+    .long 0
+stringtable_quote:
+    .long quote_value
+    .long stringtable_gt
+    .long 0
+stringtable_gt:
+    .long gt_value
+    .long 0
+    .long 0
+stringtable_if:
+    .long if_value
+    .long stringtable_slash
+    .long 0
+stringtable_slash:
+    .long slash_value
+    .long 0
+    .long 0

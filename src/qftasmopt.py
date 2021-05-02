@@ -161,6 +161,10 @@ for i_inst, inst in enumerate(rom):
             reg_value[d3] = lineno, (mode_2, d1 + d2)
         elif opcode == "SUB" and mode_1 == 0 and mode_2 == 0:
             reg_value[d3] = lineno, (mode_2, d1 - d2)
+        elif opcode == "XOR" and mode_1 == 0 and mode_2 == 0:
+            reg_value[d3] = lineno, (mode_2, d1 ^ d2)
+        elif opcode == "ANT" and mode_1 == 0 and mode_2 == 0:
+            reg_value[d3] = lineno, (mode_2, d1 & (~d2))
         else:
             if d3 in reg_value.keys():
                 del reg_value[d3]

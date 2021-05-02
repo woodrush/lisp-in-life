@@ -98,7 +98,7 @@ DEFLOCATION char* s1;
 DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
-StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+DEFLOCATION StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 DEFLOCATION StringTable* stringTableHead;
 DEFLOCATION StringTable* _stringtable;
@@ -995,15 +995,6 @@ void printValue() {
 
 extern Value lambda_value;
 int main (void) {
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
-    putchar('a');
 #ifndef memdumpopt2
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
@@ -1060,35 +1051,28 @@ int main (void) {
 
 #endif
 #ifndef memdumpopt1
-    _value = nil;
-    printValue();
-    _value = &lambda_value;
-    putchar('0' + lambda_value.type);
-    putchar('0' + lambda_value.value);
-    printValue();
-
-    // char* s = evalhash;
-    // for (;*s;s++) {
-    //     putchar(*s);
-    // }
-    // putchar('a');
-
-    // getchar_c();
-    // parseExpr(curlist);
-    // // do {
-    // //     parseExpr(curlist);
-    // //     // curlist->next = newList(curlist->next, NULL);
-    // //     // curlist = curlist->next;
-    // // } while((curlist = curlist->next));
-    
-    
-    // initlist = nil->next;
-    // _value = initlist;
+    // _value = nil;
     // printValue();
-    // nil->next = NULL;
+    // _value = &lambda_value;
+    // putchar('0' + lambda_value.type);
+    // putchar('0' + lambda_value.value);
+    // printValue();
+
+    getchar_c();
+    do {
+        parseExpr(curlist);
+        // curlist->next = newList(curlist->next, NULL);
+        // curlist = curlist->next;
+    } while((curlist = curlist->next));
+    
+    
+    initlist = nil->next;
+    _value = initlist->value;
+    printValue();
+    nil->next = NULL;
     // while (initlist) {
-    //     eval(initlist->value);
-    //     initlist = initlist->next;
+        eval(initlist->value);
+        // initlist = initlist->next;
     // }
 #  ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
