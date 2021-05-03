@@ -51,7 +51,7 @@ typedef struct Value {
     union {
         char* str;
         struct Value* next;
-        long long n;
+        long n;
         struct Lambda* lambda;
     };
 } Value;
@@ -820,7 +820,6 @@ void printValue() {
     Value* list;
     if (!_value) {
         debug("<nil1>");
-        putchar('n');
         return;
         list = NULL;
         goto printlist;
@@ -829,7 +828,6 @@ void printValue() {
     k = value_type(v);
     putchar('t');
     putchar('0' + k);
-    v = value_ptr(v);
     // putchar('0' + (v->str == (char*)(((long)aaa + (long)aaa + (long)aaa + (long)aaa) ^ ATOM) ));
     // putchar('0' + ((char*)((long)(v->n) >> 2) == aaa) );
     // putchar('\n');
@@ -843,7 +841,6 @@ void printValue() {
     // _value = (Value*)(((long)_value) >> 2);
     // putchar('0' + (long)_value);
     if (k == INT) {
-        putchar('i');
         debug("<int>");
         #define p _str
         // k = v->n;
@@ -894,11 +891,9 @@ printlist:
 
 int main (void) {
     // return 0;
-    i = 123;
-    newIntValue();
-    initlist = _value;
+    // i = 123;
+    // newIntValue();
     // printValue();
-    // return 0;
 
     // newAtomNode(aaa);
     // printValue();
@@ -910,29 +905,26 @@ int main (void) {
     // _value = nil;
     // printValue();
 
-    _value = newList(initlist, newList(newList(initlist, NULL), newList(nil, NULL)));
+    _value = newList(nil, NULL);
     printValue();
+    return 0;
 
     c = getchar();
-    // do {
+    do {
         parseExpr(curlist);
-    // } while((curlist = (Value*)((curlist->n) >> 2)));
+    } while((curlist = curlist->next));
     
-    initlist = (Value*)((nil->n) >> 2);
-    nil->n = LIST;
+    initlist = nil->next;
+    nil->next = NULL;
     while (initlist) {
-        printf("\n%ld\n", (long)initlist);
-        // _value = initlist->value;
-    // return 0;
-        _value = initlist;
+        _value = initlist->value;
 
         // k = value_type(initlist);
         // putchar('t');
         // putchar('0' + k);
         // return 0;
-// return 0;
+return 0;
         printValue();
-        putchar('\n');
         return 0;
         // eval(initlist->value);
         initlist = initlist->next;
