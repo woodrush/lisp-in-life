@@ -189,7 +189,9 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_if,         // 15
 };
 
-// LIST, since ->type and ->next are inside the same union
-Value nil_value = { .type = LIST, .value = NULL };
-#define nil (&nil_value)
-#define true_value (&t_value)
+// // LIST, since ->type and ->next are inside the same union
+// Value nil_value = { .type = LIST, .value = NULL };
+// // #define nil (&nil_value)
+// Value* nil = &nil_value;
+// // #define true_value (&t_value)
+// Value* true_value = &t_value;

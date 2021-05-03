@@ -1,35 +1,21 @@
+char* _str;
+int q, r;
+int i = 777;
+int j = 888;
+int k;
+int _malloc_bytes;
+void* _malloc_result;
+
+
 #ifndef GCC
 #define ELVM
 #endif
-
-#ifdef ELVM
-// #  define DEFLOCATION extern
-#  define DEFLOCATION
-#else
-#  define DEFLOCATION
-#endif
-
-// In the ELVM version, these variables are defined in memheader.eir
-DEFLOCATION int i;
-DEFLOCATION int q, r;
-DEFLOCATION int j;
-DEFLOCATION int k;
-DEFLOCATION int _malloc_bytes;
-DEFLOCATION void* _malloc_result;
-DEFLOCATION char* _str;
-
-
-char* printstr_lambda = "Lambda>";
-char* printstr_macro = "Macro>";
-char* printstr_closure = "Closure>";
 
 #ifdef ELVM
 #include "elvm.h"
 #else
 #include "lisp.h"
 #endif
-int getOrSetAtomFromStringTable_newflag; //= 0;
-
 
 // #define QFTASM_HEAP_MEM_MAX 2846
 
@@ -92,49 +78,37 @@ typedef struct Lambda {
 } Lambda;
 
 
-#include <hashtable.h>
-
-
-
-DEFLOCATION char charbuf;
-// DEFLOCATION char c;
+char charbuf = 0;
+char c;
 
 char buf[32];
+char* s1;
+char* s2;
+char* s3;
 
-DEFLOCATION char* s1;
-DEFLOCATION char* s2;
-DEFLOCATION char* s3;
+StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+StringTable* stringTableHead = NULL;
+StringTable* _stringtable;
 
-// extern StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-// extern int stringTableHeadList;
-// StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+Lambda* _lambda;
 
-DEFLOCATION StringTable* _stringtable;
+Env* _env;
+Env* _env2;
+Env* _env3;
+Env* _evalenv;
 
-DEFLOCATION Lambda* _lambda;
+Value* nil;
+Value* true_value;
+Value* _value;
+Value* _list;
+Value* initlist;
+Value* curlist;
 
-DEFLOCATION Env* _env;
-DEFLOCATION Env* _env2;
-DEFLOCATION Env* _env3;
-DEFLOCATION Env* _evalenv;
-
-DEFLOCATION Value* _value;
-DEFLOCATION Value* _list;
-DEFLOCATION Value* initlist;
-DEFLOCATION Value* curlist;
-
-DEFLOCATION int sthash;
-
-DEFLOCATION StringTable* stringtable;
-
-// No more extern slots left in the header
-
-
-StringTable** branch;
-char* __targetstring;
+int sthash;
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
+int mlb;
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -215,6 +189,10 @@ Value* newList(Value* node, Value* next) {
 }
 
 // TODO: optimize _str[0] to char c
+int getOrSetAtomFromStringTable_newflag = 0;
+StringTable* stringtable;
+StringTable** branch;
+char* __targetstring;
 
 // Caution: always is __stringtable = stringTableHead when called
 void getOrSetAtomFromStringTable () {
@@ -223,21 +201,36 @@ void getOrSetAtomFromStringTable () {
         branch = (stringTableHeadList + sthash);
         goto getOrSetAtomFromStringTable_setstringtable;
     }
-
-    // stringtable = *((StringTable**)(&stringTableHeadList + sthash));
-    // if (!stringtable) {
-    //     branch = (StringTable**)(&stringTableHeadList + sthash);
-    //     goto getOrSetAtomFromStringTable_setstringtable;
-    // }
     // stringtable = __stringtable;
     // targetstring = __targetstring;
 
     // stringtable = stringTableHead;
 getOrSetAtomFromStringTableHead:
-    s1 = __targetstring;
-    s2 = stringtable->value->str;
+    s1 = stringtable->value->str;
+    s2 = __targetstring;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; ++s1, ++s2) {
+
+//         if (*s1 != *s2) {
+//             // There is a string next to this string in the table
+//             if ((_stringtable = _stringtable->next)) {
+//                 goto parseatomloop;
+//             }
+
+//             // This was the last string in the table, so create a string
+//             // _malloc_bytes = i+1;
+//             malloc_k(i+1, _str);
+//             // _str = (char*) _malloc_result;
+//             debug("parseAtom\n");
+//             s1 = _str;
+//             s2 = buf;
+//             for(; *s2; ++s1, ++s2) {
+//                 *s1 = *s2;
+//             }
+//             appendStringTable();
+//             return;
+//         }
+
         // The strings were not equal
         if (*s1 != *s2) {
             // _stringtable = stringtable->lesser;
@@ -253,11 +246,7 @@ getOrSetAtomFromStringTableHead:
                 // return _value;
             }
 getOrSetAtomFromStringTable_setstringtable:
-
-// #ifndef ELVM
             if (getOrSetAtomFromStringTable_newflag) {
-// #endif
-#ifndef memdumpopt2
                 debug("Creating new stringtable entry with a new string pointer...\n");
 
                 // This was the last string in the table, so create a string
@@ -274,18 +263,11 @@ getOrSetAtomFromStringTable_setstringtable:
                 for(; *s2; ++s1, ++s2) {
                     *s1 = *s2;
                 }
-// #  ifndef ELVM
             }
             else {
-// #  endif
-#endif
-#ifndef memdumpopt1
                 debug("Creating new stringtable entry with an existing string pointer...\n");
                 _str = __targetstring;
-// #  ifndef ELVM
             }
-// #  endif
-#endif
             newAtomNode(_str);
             newStringTable(_stringtable, _value);
             *branch = _stringtable;
@@ -303,6 +285,26 @@ getOrSetAtomFromStringTable_setstringtable:
     _value = stringtable->value;
     // return _value;
 }
+
+// #define appendStringTable() {                             
+//     malloc_k(sizeof(StringTable), _stringtable);          
+//     debug("appendStringTable\n");                         
+//     newAtomNode();                                        
+//     _stringtable->value = _value;                         
+//     _stringtable->next = stringTableHead;                 
+//     stringTableHead = _stringtable;                       
+// }
+
+
+// Value* parseListLoop() {
+//     parseExpr();
+//     Value* parsednode = _value;
+//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
+// }
+
+// int isNumeric(){
+//     return c == '-' || ('0' <= c && c <= '9');
+// }
 
 
 // j : sign
@@ -349,21 +351,20 @@ getOrSetAtomFromStringTable_setstringtable:
     listTail = _list;            \
 }
 
-
 void parseExpr(Value* listTail) {
     // Value* listHead = listTail;
 parseExprHead:;
     // Remove whitespace
 // space:;
     // if (!c) {
-    //     getchar_c();
+    //     c = getchar();
     // }
     while (c == ' ' || c == '\n') {
-        getchar_c();
+        c = getchar();
     }
     if (c == ';') {
         do {
-            getchar_c();
+            c = getchar();
             if (c == EOF) {
                 // _value = listHead;
                 return;
@@ -378,7 +379,7 @@ parseExprHead:;
     }
     // Parse as a list
     if (c == '(') {
-        getchar_c();
+        c = getchar();
         // if (c == ')') {
         //     parseExprHeadList(nil);
         //     c = 0;
@@ -416,7 +417,7 @@ parseExprHead:;
         // debug1("popped list.\n%s", "");
         
         // c = 0;
-        getchar_c();
+        c = getchar();
         // goto parseExprHead;
         // _value = listHead;
         return;
@@ -433,7 +434,7 @@ parseExprHead:;
         buf[i] = c;
         sthash += c;
         ++i;
-        getchar_c();
+        c = getchar();
     }
     buf[i] = '\0';
 
@@ -548,7 +549,7 @@ void printValue();
 
 
 
-// void eval(Value* node);
+void eval(Value* node);
 #define evalAsInt() {           \
     if (_value->type != INT) {  \
         eval(_value);           \
@@ -573,8 +574,120 @@ typedef struct {
     };
 } EvalStack;
 
+// void* evalhash[62];
+extern int evalhash;
 
+// int evalcount = 0;
 void eval(Value* node) {
+    // ++evalcount;
+// #ifdef ELVM
+//     if (!*evalhash) {
+//         // evalhash[0] = 0;
+//         // evalhash[lambda_str-10] = &&eval_createlambda;
+//         // evalhash[print_str-10] = &&eval_print;
+//         // evalhash[define_str-10] = &&eval_define;
+//         // evalhash[quote_str-10] = &&eval_quote;
+//         // evalhash[list_str-10] = &&eval_list;
+//         // evalhash[if_str-10] = &&eval_if;
+//         // evalhash[car_str-10] = &&eval_car;
+//         // evalhash[while_str-10] = &&eval_while;
+//         // evalhash[progn_str-10] = &&eval_progn;
+//         // evalhash[macro_str-10] = &&eval_createlambda;
+//         // evalhash[lambdaast_str-10] = &&eval_createlambda;
+//         // evalhash[eq_str-10] = &&eval_eq;
+//         // evalhash[cons_str-10] = &&eval_cons;
+//         // evalhash[plus_str-10] = &&eval_arith;
+//         // evalhash[mod_str-10] = &&eval_arith;
+//         // evalhash[eval_str-10] = &&eval_eval;
+//         // evalhash[cdr_str-10] = &&eval_cdr;
+//         // evalhash[minus_str -10] = &&eval_arith;
+//         // evalhash[ast_str -10] = &&eval_arith;
+//         // evalhash[lt_str -10] = &&eval_cmp;
+//         // evalhash[gt_str -10] = &&eval_cmp;
+//         // evalhash[slash_str -10] = &&eval_arith;
+//         // evalhash[atom_str -10] = &&eval_atom;
+
+//         evalhash[0] = 1;
+//         evalhash[(lambda_str)>>1] = &&eval_createlambda;
+//         evalhash[(print_str)>>1] = &&eval_print;
+//         evalhash[(define_str)>>1] = &&eval_define;
+//         evalhash[(quote_str)>>1] = &&eval_quote;
+//         evalhash[(list_str)>>1] = &&eval_list;
+//         evalhash[(if_str)>>1] = &&eval_if;
+//         evalhash[(car_str)>>1] = &&eval_car;
+//         evalhash[(while_str)>>1] = &&eval_while;
+//         evalhash[(progn_str)>>1] = &&eval_progn;
+//         evalhash[(macro_str)>>1] = &&eval_createlambda;
+//         evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
+//         evalhash[(eq_str)>>1] = &&eval_eq;
+//         evalhash[(cons_str)>>1] = &&eval_cons;
+//         evalhash[(plus_str)>>1] = &&eval_arith;
+//         evalhash[(mod_str)>>1] = &&eval_arith;
+//         evalhash[(eval_str)>>1] = &&eval_eval;
+//         evalhash[(cdr_str)>>1] = &&eval_cdr;
+//         evalhash[(minus_str )>>1] = &&eval_arith;
+//         evalhash[(ast_str )>>1] = &&eval_arith;
+//         evalhash[(lt_str )>>1] = &&eval_cmp;
+//         evalhash[(gt_str )>>1] = &&eval_cmp;
+//         evalhash[(slash_str )>>1] = &&eval_arith;
+//         evalhash[(atom_str )>>1] = &&eval_atom;
+//     }
+// #endif
+
+    // void* evalhash[51] = {
+    //     &&eval_createlambda, 0, 0,
+    //     &&eval_print, 0, 0,
+    //     &&eval_define, 0, 0, 0,
+    //     &&eval_quote, 0, 0,
+    //     &&eval_list, 0,
+    //     &&eval_if, 0,
+    //     &&eval_car, 0,
+    //     &&eval_while, 0, 0,
+    //     &&eval_progn, 0, 0,
+    //     &&eval_createlambda, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0,
+    //     &&eval_eq,
+    //     &&eval_cons, 0, 0,
+    //     &&eval_arith,
+    //     0,
+    //     &&eval_arith, 0,
+    //     &&eval_eval, 0,
+    //     &&eval_cdr, 0,
+    //     &&eval_arith,
+    //     &&eval_arith,
+    //     &&eval_cmp,
+    //     &&eval_cmp,
+    //     &&eval_arith,
+    //     &&eval_atom,
+    // };
+    // void* evalhash[101] = {
+    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0,
+    //     &&eval_print, 0, 0, 0, 0, 0,
+    //     &&eval_define, 0, 0, 0, 0, 0, 0,
+    //     &&eval_quote, 0, 0, 0, 0, 0,
+    //     &&eval_list, 0, 0, 0, 0,
+    //     &&eval_if, 0, 0,
+    //     &&eval_car, 0, 0, 0,
+    //     &&eval_while, 0, 0, 0, 0, 0,
+    //     &&eval_progn, 0, 0, 0, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0, 0, 0,
+    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0, 0,
+    //     &&eval_eq, 0, 0,
+    //     &&eval_cons, 0, 0, 0, 0,
+    //     &&eval_arith, 0,
+    //     0, 0,
+    //     &&eval_arith, 0, 0, 0,
+    //     &&eval_eval, 0, 0, 0, 0,
+    //     &&eval_cdr, 0, 0, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_cmp, 0,
+    //     &&eval_cmp, 0,
+    //     &&eval_arith, 0,
+    //     &&eval_atom,
+    // };
+
+// #define node evalarg->node
     EvalStack evalstack;
     debug("entering eval...\n");
 
@@ -624,7 +737,7 @@ void eval(Value* node) {
         headstr = node->value->str;
 
 #ifdef ELVM
-        if ((int)(&evalhash) < (int)headstr) {
+        if ((int)last_op < (int)headstr) {
             goto eval_lambda_call;
         }
 #endif
@@ -635,15 +748,54 @@ void eval(Value* node) {
             }
         }
 
-// #ifdef ELVM
-//     goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
-// #else
-        // void* test__[2] = {&&eval_define, &&eval_if};
+#ifdef ELVM
+    // k = ((int)_str - 11)/2;
+    // k = ((int)_str - 11);
+    // computed_goto = evalhash[k];
+    // int addr_tmp = ;
+    // i = addr_tmp;
+    // newIntValue();
+    // printValue();
 
-        //      if (_str == define_str) {goto *test__[0];}
-        // else if (_str == if_str) {goto *test__[1];}
-             if (_str == define_str) {goto eval_define;}
-        else if (_str == if_str) {goto eval_if;}
+    // i = *((int*)addr_tmp);
+    // newIntValue();
+    // printValue();
+
+    // exit(0);
+    goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
+
+// #define lambda_str 11
+// #define print_str 18
+// #define define_str 24
+// #define quote_str 31
+// #define list_str 37
+// #define if_str 42
+// #define car_str 45
+// #define while_str 49
+// #define progn_str 55
+// #define macro_str 61
+// #define lambdaast_str 67
+// #define eq_str 75
+// #define cons_str 78
+// #define plus_str 83
+// #define t_str 85
+// #define mod_str 87
+// #define eval_str 91
+// #define cdr_str 96
+// #define minus_str 100
+// #define ast_str 102
+// #define lt_str 104
+// #define gt_str 106
+// #define slash_str 108
+// #define atom_str 110
+
+#else
+
+        void* test__[2] = {&&eval_define, &&eval_if};
+        // test__ = &&eval_define;
+
+             if (_str == define_str) {goto *test__[0];}
+        else if (_str == if_str) {goto *test__[1];}
         else if (_str == quote_str) goto eval_quote;
         else if (_str == car_str) goto eval_car;
         else if (_str == cdr_str) goto eval_cdr;
@@ -659,7 +811,7 @@ void eval(Value* node) {
         else if (_str == lt_str || _str == gt_str) goto eval_cmp;
         else if (_str == list_str) goto eval_list;
         else goto eval_lambda_call;
-// #endif
+#endif
         // if (_str == define_str) {
 eval_define:;
             eval(arg2list->value);
@@ -916,7 +1068,7 @@ eval_lambda_call:
     }
 
     // For macros, evaluate the result before returning it
-    // Env* tempenv = z;
+    // Env* tempenv = _evalenv;
     // Env* temp2 = curenv;
     // _evalenv = temp2;
     evalstack_env2 = _evalenv;
@@ -927,7 +1079,6 @@ eval_lambda_call:
         // _evalenv = _evalenv;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
-        _evalenv = curenv;
         eval(_value);
     }
     _evalenv = evalstack_env2;
@@ -948,7 +1099,6 @@ eval_lambda_call:
 #undef nodetype
 
 #define v _value
-
 void printValue() {
     Value* list;
     if (!_value) {
@@ -985,9 +1135,7 @@ void printValue() {
     } else if (k == LAMBDA) {
         debug("<lambda>");
         k = v->lambda->type;
-        putchar('#');
-        putchar('<');
-        _str = (k == L_LAMBDA) ? printstr_lambda : (k == L_MACRO) ? printstr_macro : printstr_closure;
+        _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
     } else if (k == ATOM) {
         debug("<atom>");
         _str = v->str;
@@ -1011,66 +1159,41 @@ void printValue() {
 }
 #undef v
 
-
-// typedef struct StringTable {
-//     // char* varname;
-//     Value* value;
-//     struct StringTable* lesser;
-//     struct StringTable* greater;
-// } StringTable;
-// typedef struct Value {
-//     union {
-//         Valuetype type;
-//         struct Value* next;
-//     };
-//     union {
-//         char* str;
-//         struct Value* value;
-//         int n;
-//         struct Lambda* lambda;
-//     };
-// } Value;
-
-void printf(char* s){
-    for(;*s;s++){
-        putchar(*s);
-    }
-}
-
-void printStringTable(StringTable* st, int level) {
-    // if (st) {
-    //     Value* headvalue = st->value;
-    //     for(int k=0;k<level;k++) { printf("  "); }
-    //     printf("%s\n", headvalue->str);
-    //     if (st->lesser){
-    //         for(int k=0;k<level;k++) { printf("  "); }
-    //         printf("Lesser:");
-    //         printStringTable(st->lesser, level+1);
-    //     }
-    //     if (st->greater){
-    //         for(int k=0;k<level;k++) { printf("  "); }
-    //         printf("Greater:");
-    //         printStringTable(st->greater, level+1);
-    //     }
-    // } else {
-        printf("NULL\n");
-    // }
-}
-
 int main (void) {
-//     _value = &slash_value;
-//     printValue();
+//     // putchar('0' + testptr);
+//     putchar('0' + testptr2);
+//     goto *testptr2;
 
-// #  ifdef ELVM
-//     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-// #  endif
+// testlabel1:
+//     putchar('a');
+// testlabel2:
+//     putchar('b');
 //     exit(0);
 
+    // // evalhash[0] = 1;
+    // putchar('a');
+    // // int aaaa = *((int*)(&evalhash)) == 3101;
+    // int aaaa = *((int*)(&evalhash + 3)) == 2949;
+
+    // int aaaa = evalhash == 3096;
+    // putchar('0' + aaaa);
+    // aaaa = (102 - 11) >> 1 == 45;
+    // putchar('1' + aaaa);
+    // aaaa = *((int*)(((int)&evalhash) + ((102 - 11) >> 1))) == 3550;
+    // putchar('0' + aaaa);
+    // exit(0);
+
 #ifndef memdumpopt2
+    // (Value*)LIST, since ->type and ->next are inside the same union
+    nil = newList(NULL, (Value*)LIST);
+    // TODO: get this value from the string table
+    _str = t_str;
+    newAtomNode(t_str);
+    true_value = _value;
 
-
-#  ifdef ELVM
-
+    newStringTable(_stringtable, _value);
+    stringTableHead = _stringtable;
+#  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(j=0; j<num_ops; ++j){
         _str = opstr_list[j];
@@ -1079,40 +1202,13 @@ int main (void) {
         sthash = 0;
         for(; *s1; ++s1,++i){sthash += *s1;}
         sthash_mod16();
-        // printf("%s : %d\n", _str, sthash);
         // getOrSetAtomFromStringTable(stringTableHead, _str);
         // __stringtable = stringTableHead;
         __targetstring = _str;
         getOrSetAtomFromStringTable();
-    }
-    return 0;
-    for (i=0; i<16; ++i){
-        StringTable* st = stringTableHeadList[i];
-        printStringTable(st, 0);
-    }
-    // printf("\n");
-    // exit(0);
-    // stringTableHeadList[0 ] = &stringtable_mod;        // 0 
-    // stringTableHeadList[1 ] = &stringtable_lambda;     // 1 stringtable_atom
-    // stringTableHeadList[2 ] = &stringtable_macro;      // 2 
-    // stringTableHeadList[3 ] = &stringtable_cons;       // 3 
-    // stringTableHeadList[4 ] = &stringtable_t;          // 4 
-    // stringTableHeadList[5 ] = NULL;                    // 5 
-    // stringTableHeadList[6 ] = &stringtable_eq;         // 6  stringtable_car; stringtable_progn
-    // stringTableHeadList[7 ] = NULL;                    // 7 
-    // stringTableHeadList[8 ] = &stringtable_eval;       // 8 
-    // stringTableHeadList[9 ] = &stringtable_cdr;        // 9  stringtable_while
-    // stringTableHeadList[10] = &stringtable_ast;        // 10
-    // stringTableHeadList[11] = &stringtable_define;     // 11 stringtable_plus; stringtable_lambdaast
-    // stringTableHeadList[12] = &stringtable_list;       // 12 stringtable_lt
-    // stringTableHeadList[13] = &stringtable_print;      // 13 stringtable_minus
-    // stringTableHeadList[14] = &stringtable_quote;      // 14 stringtable_gt
-    // stringTableHeadList[15] = &stringtable_if;         // 15
 
-    getOrSetAtomFromStringTable_newflag = 1;
-
+    }
 #  else
-    getOrSetAtomFromStringTable_newflag = 0;
     s3 = opstring_head;
     // s1 = eval_str;
     for(j=0; j<num_ops; ++j){
@@ -1130,37 +1226,10 @@ int main (void) {
         // for(; *s1; ++s1){}
         ++s3;
     }
-
-    // stringTableHeadList[0] = &stringtable_mod;
-    // stringTableHeadList[1] = &stringtable_lambda;
-    // stringTableHeadList[2] = &stringtable_macro;
-    // stringTableHeadList[3] = &stringtable_cons;
-    // stringTableHeadList[4] = &stringtable_t;
-    // stringTableHeadList[5] = NULL;
-    // stringTableHeadList[6] = &stringtable_eq;
-    // stringTableHeadList[7] = NULL;
-    // stringTableHeadList[8] = &stringtable_eval;
-    // stringTableHeadList[9] = &stringtable_cdr;
-    // stringTableHeadList[10] = &stringtable_ast;
-    // stringTableHeadList[11] = &stringtable_define;
-    // stringTableHeadList[12] = &stringtable_list;
-    // stringTableHeadList[13] = &stringtable_print;
-    // stringTableHeadList[14] = &stringtable_if;
-    // stringTableHeadList[15] = &stringtable_quote;
-
+#  endif
     getOrSetAtomFromStringTable_newflag = 1;
-#  endif
 
-    // for (i=0; i<16; ++i){
-    //     StringTable* st = stringTableHeadList[i];
-    //     printStringTable(st, 0);
-    // }
-#  ifdef ELVM
-    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-#  endif
-    return 0;
-
-    _str = NULL;
+    _str = "";
     _value = NULL;
     _env = NULL;
     _evalenv = newEnv();
@@ -1168,36 +1237,25 @@ int main (void) {
     // initlist = newList(NULL, NULL);
     initlist = nil;
     curlist = initlist;
+
 #endif
 #ifndef memdumpopt1
-    // _value = nil;
-    // printValue();
-    // for(s1=lambda_str;*s1;s1++){
-    //     putchar(*s1);
-    // }
-    // _value = &lambda_value;
-    // putchar('0' + lambda_value.type);
-    // putchar('0' + lambda_value.value);
-    // printValue();
-    _value = &lambda_value;
-    printValue();
-    getchar_c();
+
+    c = getchar();
     do {
         parseExpr(curlist);
         // curlist->next = newList(curlist->next, NULL);
         // curlist = curlist->next;
     } while((curlist = curlist->next));
-
-#  ifdef ELVM
-    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-#  endif
-    return 0;
+    
     initlist = nil->next;
     nil->next = NULL;
     while (initlist) {
-        _value = initlist->value;
         eval(initlist->value);
         initlist = initlist->next;
     }
+#  ifdef ELVM
+    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+#  endif
 #endif
 }

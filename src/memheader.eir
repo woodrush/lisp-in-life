@@ -1,112 +1,57 @@
-# Registers
 .data
-QFTASM_PC:
-	.long 0
-QFTASM_STDIN:
-	.long 0
-QFTASM_STDOUT:
-	.long 0
-QFTASM_A:
-	.long 0
-QFTASM_B:
-	.long 0
-QFTASM_C:
-	.long 0
-QFTASM_D:
-	.long 0
-QFTASM_BP:
-	.long 0
-QFTASM_SP:
-	.long 0
-QFTASM_TEMP:
-	.long 0
-QFTASM_TEMP_2:
-	.long 0
+	.string "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+.data
+	.string "lambda\x00print\x00define\x00quote\x00list\x00if\x00car\x00while\x00progn\x00macro\x00lambda*\x00eq\x00cons\x00+\x00t\x00mod\x00eval\x00cdr\x00-\x00*\x00<\x00>\x00/"
 
-
-# evalhash is defined with a negative offset here, to compensate for the offset in the jump hash calculation
-# atom_str_head:
+.data
 evalhash:
-    .long 0
-    .long 0
-    .long 0
-    .long 0
-    .long 0
+	.string "atom"
+.data
 
-# The actual evalhash table starts here.
-# Unused regions are allocated as global variables
     .long eval_createlambda
-# i: # extern
     .long 0
-# q: # extern
     .long 0
-# r: # extern
     .long 0
     .long eval_print
-# j: # extern
     .long 0
-# k: # extern
     .long 0
     .long eval_define
-# _malloc_bytes: # extern
     .long 0
-# _malloc_result: # extern
     .long 0
     .long eval_quote
-# _str: # extern
     .long 0
-# charbuf: # extern
     .long 0
     .long eval_list
-# c: # extern
     .long 0
-# s1: # extern
     .long 0
     .long eval_if
     .long eval_car
-# s2: # extern
     .long 0
     .long eval_while
-# s3: # extern
     .long 0
-# stringTableHead: # extern
-    .long 254
+    .long 0
     .long eval_progn
-# _stringtable: # extern
-    .long 526
-# _lambda: # extern
+    .long 0
     .long 0
     .long eval_createlambda
-# _env: # extern
     .long 0
-# _env2: # extern
-    .long 529
+    .long 0
     .long eval_createlambda
-# _env3: # extern
     .long 0
-# _evalenv: # extern
-    .long 529
-# nil: #146 # extern
-    .long 248
+    .long 0
+    .long 0
     .long eval_eq
-# true_value: # extern
-    .long 250
+    .long 0
     .long eval_cons
-# _value: # extern
     .long 0
     .long eval_arith
-# _list: # extern
-    .long 248
+    .long 0
     .long eval_arith
-# initlist: # extern
-    .long 248
+    .long 0
     .long eval_eval
-# curlist: # extern
-    .long 248
-# sthash: # extern
-    .long 1
+    .long 0
+    .long 0
     .long eval_cdr
-# stringtable: # extern
     .long 0
     .long eval_arith
     .long eval_arith
