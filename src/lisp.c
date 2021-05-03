@@ -801,15 +801,13 @@ eval_lambda_call:
 #undef evalstack_env2
 #undef nodetype
 
-char closurestr[] =  "###closure";
 #define v _value
 void printValue() {
     Value* list;
     if (!_value) {
         debug("<nil1>");
-        putchar('(');
-        putchar(')');
-        return;
+        list = NULL;
+        goto printlist;
     }
 
     k = v->type;
@@ -831,11 +829,6 @@ void printValue() {
             k = q;
         } while (k);
         #undef p
-    } else if (!(_value->value)) {
-        debug("<nil2>");
-        putchar('(');
-        putchar(')');
-        return;
     } else if (k == LAMBDA) {
         debug("<lambda>");
         k = v->lambda->type;
@@ -845,10 +838,11 @@ void printValue() {
         _str = v->str;
     } else {
         debug("<list>");
-        putchar('(');
         list = v;
-        while(list) {
-            _value = list->value;
+printlist:
+        putchar('(');
+        while(list && (_value = list->value)) {
+            // _value = list->value;
             printValue();
             if ((list = list->next)) {
                 putchar(' ');
