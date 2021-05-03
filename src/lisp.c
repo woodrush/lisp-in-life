@@ -32,7 +32,15 @@ void* _malloc_result;
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 typedef enum {
-    ATOM=1, INT=2, LAMBDA=3, LIST=4
+    // ATOM=1, INT=2, LAMBDA=3, LIST=4
+    // INT  =  0b00 << 14,
+    // ATOM = 0b01 << 14,
+    // LAMBDA = 0b10 << 14,
+    // LIST = 0b11 << 14,
+    INT = 0,
+    ATOM = 1,
+    LAMBDA = 2,
+    LIST = 3,
 } Valuetype;
 
 typedef struct Value {
@@ -47,6 +55,9 @@ typedef struct Value {
         struct Lambda* lambda;
     };
 } Value;
+
+#define value_type(x) (x->n & LIST)
+#define value_ptr(x) ((Value*)(((long)x) >> 2))
 
 typedef struct StringTable {
     // char* varname;
@@ -149,8 +160,8 @@ void _div(int n, int m) {
 #define newAtomNode(__str) {         \
     malloc_k(sizeof(Value), _value); \
     debug("newAtomNode\n");          \
-    _value->type = ATOM;             \
-    _value->str = __str;             \
+    _value->type = 0;             \
+    _value->str = (char*)(((long)__str + (long)__str + (long)__str + (long)__str) ^ ATOM);             \
 }
 
 #define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
@@ -165,8 +176,8 @@ void _div(int n, int m) {
 #define newLambdaNode() {            \
     malloc_k(sizeof(Value), _value); \
     debug("lambda 2\n");             \
-    _value->type = LAMBDA;           \
-    _value->lambda = _lambda;        \
+    _value->type = 0;           \
+    _value->lambda = (Lambda*)(((long)_lambda + (long)_lambda + (long)_lambda + (long)_lambda) ^ LAMBDA);        \
 }
 
 Value* newList(Value* node, Value* next) {
@@ -219,8 +230,8 @@ StringTable** branch;
 #define newIntValue() {              \
     malloc_k(sizeof(Value), _value); \
     debug("newIntValue\n");          \
-    _value->type = INT;              \
-    _value->n = i;                   \
+    _value->type = 0;              \
+    _value->n = (i + i + i + i) ^ (int)INT;                   \
 }
 
 #define pushTailList(__value) {             \
@@ -405,7 +416,7 @@ void printValue();
 
 void eval(Value* node);
 #define evalAsInt() {           \
-    if (_value->type != INT) {  \
+    if (value_type(_value) != INT) {  \
         eval(_value);           \
     }                           \
     i = _value->n;              \
@@ -444,7 +455,8 @@ void eval(Value* node) {
 #define evalstack_env2 (evalstack.e2)
 #define nodetype i
 
-    nodetype = node->type;
+    nodetype = value_type(node);
+    node = (Value*)((long)node >> 2);
     // Is an atom
     if (nodetype == ATOM) {
         _str = node->str;
@@ -475,7 +487,7 @@ void eval(Value* node) {
     }
 
     // The head of the list is an atom
-    if (node->value->type == ATOM) {
+    if (value_type(node->value) == ATOM) {
         #define headstr _str
         headstr = node->value->str;
 
@@ -650,11 +662,11 @@ eval_eq:
                 _value = NULL;
             }
             // Integer equality
-            else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
+            else if (value_type(n1) == INT && value_type(n2) == INT && n1->n == n2->n) {
                 _value = true_value;
             }
             // Atom equality
-            else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
+            else if (value_type(n1) == ATOM && value_type(n2) == ATOM && (n1->str == n2->str)) {
                 _value = true_value;
             } else {
                 _value = NULL;
@@ -711,7 +723,7 @@ eval_quote:
         // if (_str == atom_str) {
 eval_atom:
             eval(arg1);
-            _value = !_value || (_value->type == ATOM) || (_value->type == INT) ? true_value : NULL;
+            _value = !_value || (value_type(_value) == ATOM) || (value_type(_value) == INT) ? true_value : NULL;
             return;
         // }
         // if (_str == eval_str) {
@@ -810,11 +822,18 @@ void printValue() {
         goto printlist;
     }
 
-    k = v->type;
+    k = value_type(v);
+    putchar('t');
+    putchar('0' + k);
+    v = value_ptr(v->value);
+    // putchar('a' + (long)v);
+    // _value = (Value*)(((long)_value) >> 2);
+    // putchar('0' + (long)_value);
     if (k == INT) {
         debug("<int>");
         #define p _str
-        k = v->n;
+        // k = v->n;
+        k = (long)v;
         if (k < 0) {
             putchar('-');
             k = -k;
@@ -858,6 +877,13 @@ printlist:
 #undef v
 
 int main (void) {
+    // newAtomNode("asdf");
+    // printValue();
+    // return 0;
+    i = 123;
+    newIntValue();
+    printValue();
+    return 0;
     c = getchar();
     do {
         parseExpr(curlist);
