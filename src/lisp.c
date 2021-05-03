@@ -46,18 +46,18 @@ typedef enum {
 typedef struct Value {
     union {
         Valuetype type;
-        struct Value* value;
+        struct Value* next;
     };
     union {
         char* str;
-        struct Value* next;
-        long n;
+        struct Value* value;
+        int n;
         struct Lambda* lambda;
     };
 } Value;
 
 #define value_type(x) (x->n & LIST)
-#define value_ptr(x) ((Value*) (((long)(x->n)) >> 2) )
+#define value_ptr(x) ((Value*)(((long)x) >> 2))
 
 typedef struct StringTable {
     // char* varname;
@@ -161,7 +161,7 @@ void _div(int n, int m) {
     malloc_k(sizeof(Value), _value); \
     debug("newAtomNode\n");          \
     _value->type = 0;             \
-    _value->n = (((long)__str + (long)__str + (long)__str + (long)__str) ^ ATOM);             \
+    _value->str = (char*)(((long)__str + (long)__str + (long)__str + (long)__str) ^ ATOM);             \
 }
 
 #define newLambdaStruct(__target, __argnames, __body, __env, __type) {  \
@@ -177,7 +177,7 @@ void _div(int n, int m) {
     malloc_k(sizeof(Value), _value); \
     debug("lambda 2\n");             \
     _value->type = 0;           \
-    _value->n = (((long)_lambda + (long)_lambda + (long)_lambda + (long)_lambda) ^ LAMBDA);        \
+    _value->lambda = (Lambda*)(((long)_lambda + (long)_lambda + (long)_lambda + (long)_lambda) ^ LAMBDA);        \
 }
 
 Value* newList(Value* node, Value* next) {
@@ -187,7 +187,7 @@ Value* newList(Value* node, Value* next) {
     // ret = (Value*) _malloc_result;
     debug("newList\n");
     ret->value = node;
-    ret->n = (((long)next + (long)next + (long)next + (long)next) ^ LIST);
+    ret->next = next;
     return ret;
 #undef ret
 }
@@ -813,14 +813,11 @@ eval_lambda_call:
 #undef evalstack_env2
 #undef nodetype
 
-char aaa[] = "asdf";
-
 #define v _value
 void printValue() {
     Value* list;
     if (!_value) {
         debug("<nil1>");
-        return;
         list = NULL;
         goto printlist;
     }
@@ -828,15 +825,7 @@ void printValue() {
     k = value_type(v);
     putchar('t');
     putchar('0' + k);
-    // putchar('0' + (v->str == (char*)(((long)aaa + (long)aaa + (long)aaa + (long)aaa) ^ ATOM) ));
-    // putchar('0' + ((char*)((long)(v->n) >> 2) == aaa) );
-    // putchar('\n');
-    // printf("%13ld\n", (long)v->n);
-    // printf("%13ld\n", ((long)aaa + (long)aaa + (long)aaa + (long)aaa) ^ ATOM);
-    // printf("%13ld\n", (long)aaa);
-    // v = value_ptr(v);
-    // putchar('0' + (((char*)v) == aaa));
-
+    v = value_ptr(v->value);
     // putchar('a' + (long)v);
     // _value = (Value*)(((long)_value) >> 2);
     // putchar('0' + (long)_value);
@@ -876,7 +865,7 @@ printlist:
         while(list && (_value = list->value)) {
             // _value = list->value;
             printValue();
-            if ((list = (Value*)((list->n) >> 2))) {
+            if ((list = list->next)) {
                 putchar(' ');
             }
         }
@@ -889,23 +878,18 @@ printlist:
 }
 #undef v
 
+char aaa[] = "asdf";
 int main (void) {
     // return 0;
-    // i = 123;
-    // newIntValue();
-    // printValue();
+    i = 123;
+    newIntValue();
+    printValue();
 
-    // newAtomNode(aaa);
-    // printValue();
+    newAtomNode(aaa);
+    printValue();
 
-    // newLambdaStruct(_lambda,0,0,0,0);
-    // newLambdaValue();
-    // printValue();
-
-    // _value = nil;
-    // printValue();
-
-    _value = newList(nil, NULL);
+    newLambdaStruct(_lambda,0,0,0,0);
+    newLambdaValue();
     printValue();
     return 0;
 
@@ -917,19 +901,9 @@ int main (void) {
     initlist = nil->next;
     nil->next = NULL;
     while (initlist) {
-        _value = initlist->value;
-
-        // k = value_type(initlist);
-        // putchar('t');
-        // putchar('0' + k);
-        // return 0;
-return 0;
-        printValue();
-        return 0;
-        // eval(initlist->value);
+        eval(initlist->value);
         initlist = initlist->next;
     }
-    putchar('\n');
 #ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
 #endif
