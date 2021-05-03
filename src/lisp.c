@@ -2,7 +2,7 @@ char* _str;
 int q, r;
 int i = 777;
 int j = 888;
-int k;
+unsigned long k;
 int _malloc_bytes;
 void* _malloc_result;
 
@@ -31,12 +31,24 @@ void* _malloc_result;
 #endif
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
+#ifdef ELVM
 typedef enum {
-    ATOM=1, INT=2, LAMBDA=3, LIST=4
+    ATOM   = (unsigned long)1<<14,
+    INT    = (unsigned long)2<<14,
+    LAMBDA = (unsigned long)3<<14,
 } Valuetype;
+#else 
+typedef enum {
+    ATOM   = (unsigned long)1<<62,
+    INT    = (unsigned long)2<<62,
+    LAMBDA = (unsigned long)3<<62,
+} Valuetype;
+#endif
+
+const unsigned long typemask = LAMBDA;
 
 typedef struct Value {
-    Valuetype type;
+    unsigned long type;
     union {
         char* str;
         int n;
@@ -47,7 +59,7 @@ typedef struct Value {
 
 typedef struct List {
     union {
-        Valuetype type;
+        unsigned long type;
         struct List* next;
     };
     struct Value* value;
@@ -181,7 +193,6 @@ List* newList(Value* node, List* next) {
     malloc_k(sizeof(List), ret);
     // ret = (Value*) _malloc_result;
     debug("newList\n");
-    ret->type = LIST;
     ret->value = node;
     ret->next = next;
     return ret;
@@ -451,7 +462,7 @@ void eval(Value* node) {
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
 #define evalstack_env2 (evalstack.e2)
-#define nodetype i
+#define nodetype k
 
     nodetype = node->type;
     // Is an atom
