@@ -30,10 +30,10 @@ extern int evalhash;
 
 #ifndef ELVM
 #include <stdio.h>
-#  define debug(x) //printf(x)
-#  define debug1(x,y) //printf(x,y)
-#  define debug1_2(x,y) printf(x,y)
-#  define debug2(x,y,z) //printf(x,y,z)
+#  define debug(x)      // printf(x)
+#  define debug1(x,y)   // printf(x,y)
+#  define debug1_2(x,y) // printf(x,y)
+#  define debug2(x,y,z) // printf(x,y,z)
 #else
 #  define debug(x)
 #  define debug1(x,y)
@@ -266,7 +266,7 @@ StringTable** branch;
 
 #define newIntValue() {                                     \
     debug("newIntValue\n");                                 \
-    _value = (Value*) ((unsigned long long)i | topbitmask); \
+    _value = (Value*) (((unsigned long long)i) | topbitmask); \
 }
 
 #define pushTailList(__value) {             \
@@ -705,6 +705,9 @@ eval_eq:
             // pointer to a value, so equal integers always have the same n1 and n2
             if ((unsigned long long)n1 == (unsigned long long)n2) {
                 _value = true_value;
+            }
+            else if (isIntValue(n1) && isIntValue(n2) && n1 != n2) {
+                _value = NULL;
             }
             else if (!n1 || !n2) {
                 _value = NULL;
