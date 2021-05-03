@@ -89,8 +89,6 @@ char* s3;
 
 #include <hashtable.h>
 
-// StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-// StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
 Lambda* _lambda;
@@ -196,113 +194,7 @@ Value* newList(Value* node, Value* next) {
 // TODO: optimize _str[0] to char c
 StringTable* stringtable;
 StringTable** branch;
-char* __targetstring;
-
-// Caution: always is __stringtable = stringTableHead when called
-void getOrSetAtomFromStringTable () {
-    stringtable = stringTableHeadList[sthash];
-    if (!stringtable) {
-        branch = (stringTableHeadList + sthash);
-        goto getOrSetAtomFromStringTable_setstringtable;
-    }
-    // stringtable = __stringtable;
-    // targetstring = __targetstring;
-
-    // stringtable = stringTableHead;
-getOrSetAtomFromStringTableHead:
-    s1 = __targetstring;
-    s2 = stringtable->value->str;
-    debug2("%s v.s. %s (the input)\n", s1, s2);
-    for (; *s1 || *s2; ++s1, ++s2) {
-
-//         if (*s1 != *s2) {
-//             // There is a string next to this string in the table
-//             if ((_stringtable = _stringtable->next)) {
-//                 goto parseatomloop;
-//             }
-
-//             // This was the last string in the table, so create a string
-//             // _malloc_bytes = i+1;
-//             malloc_k(i+1, _str);
-//             // _str = (char*) _malloc_result;
-//             debug("parseAtom\n");
-//             s1 = _str;
-//             s2 = buf;
-//             for(; *s2; ++s1, ++s2) {
-//                 *s1 = *s2;
-//             }
-//             appendStringTable();
-//             return;
-//         }
-
-        // The strings were not equal
-        if (*s1 != *s2) {
-            // _stringtable = stringtable->lesser;
-            // k = targetstring[0] < stringtable->value->str[0];
-            branch = *s1 < *s2 ? &(stringtable->lesser) : &(stringtable->greater);
-            // There are no more strings that could match in the table
-            if ((stringtable = *branch)) {
-                // There is a string table that we could proceed to search
-                debug("Continuing search...\n");
-                // getOrSetAtomFromStringTable(_stringtable, targetstring);
-                goto getOrSetAtomFromStringTableHead;
-                // return;
-                // return _value;
-            }
-getOrSetAtomFromStringTable_setstringtable:
-            debug("Creating new stringtable entry with a new string pointer...\n");
-
-            // This was the last string in the table, so create a string
-            // _malloc_bytes = i+1;
-            malloc_k(i+1, _str);
-            // s2 = _str;
-            // _str = s1;
-            // s1 = _value->str;
-            s1 = _str;
-            s2 = __targetstring;
-            // s2 = _str;
-            // _str = (char*) _malloc_result;
-            debug("parseAtom\n");
-            for(; *s2; ++s1, ++s2) {
-                *s1 = *s2;
-            }
-            newAtomNode(_str);
-            newStringTable(_stringtable, _value);
-            *branch = _stringtable;
-            // if (k) {
-            //     stringtable->lesser = _stringtable;
-            // } else {
-            //     stringtable->greater = _stringtable;
-            // }
-            return;
-            // return _value;
-        }
-    }
-    // The strings were equal
-    debug("The strings have matched!\n");
-    _value = stringtable->value;
-    // return _value;
-}
-
-// #define appendStringTable() {                             
-//     malloc_k(sizeof(StringTable), _stringtable);          
-//     debug("appendStringTable\n");                         
-//     newAtomNode();                                        
-//     _stringtable->value = _value;                         
-//     _stringtable->next = stringTableHead;                 
-//     stringTableHead = _stringtable;                       
-// }
-
-
-// Value* parseListLoop() {
-//     parseExpr();
-//     Value* parsednode = _value;
-//     return parsednode ? newList(parsednode, parseListLoop()) : NULL;
-// }
-
-// int isNumeric(){
-//     return c == '-' || ('0' <= c && c <= '9');
-// }
+// char* __targetstring;
 
 
 // j : sign
@@ -333,16 +225,6 @@ getOrSetAtomFromStringTable_setstringtable:
     _value->n = i;                   \
 }
 
-
-// #define pushTailList(__value) {             \
-//     _list = newList(__value, NULL);         \
-//     if (*listTailStackptr) {                \
-//         (*listTailStackptr)->next = _list;  \
-//     } else {                                \
-//         (*listHeadStackptr) = _list;        \
-//     }                                       \
-//     (*listTailStackptr) = _list;            \
-// }
 #define pushTailList(__value) {             \
     _list = newList(__value, NULL);         \
     listTail->next = _list;  \
@@ -457,12 +339,49 @@ parseExprHead:;
 
     sthash_mod16();
 
-    // _str = buf;
-    // getOrSetAtomFromStringTable(stringTableHead, buf);
+    stringtable = stringTableHeadList[sthash];
+    if (!stringtable) {
+        branch = (stringTableHeadList + sthash);
+        goto getOrSetAtomFromStringTable_setstringtable;
+    }
+getOrSetAtomFromStringTableHead:
+    s1 = buf;
+    s2 = stringtable->value->str;
+    debug2("%s v.s. %s (the input)\n", s1, s2);
+    for (; *s1 || *s2; ++s1, ++s2) {
+        // The strings were not equal
+        if (*s1 != *s2) {
+            branch = *s1 < *s2 ? &(stringtable->lesser) : &(stringtable->greater);
+            // There are no more strings that could match in the table
+            if ((stringtable = *branch)) {
+                // There is a string table that we could proceed to search
+                debug("Continuing search...\n");
+                goto getOrSetAtomFromStringTableHead;
+            }
+getOrSetAtomFromStringTable_setstringtable:
+            debug("Creating new stringtable entry with a new string pointer...\n");
 
-    // __stringtable = stringTableHead;
-    __targetstring = buf;
-    getOrSetAtomFromStringTable();
+            // This was the last string in the table, so create a string
+            malloc_k(i+1, _str);
+            s1 = _str;
+            s2 = buf;
+            debug("parseAtom\n");
+            for(; *s2; ++s1, ++s2) {
+                *s1 = *s2;
+            }
+            newAtomNode(_str);
+            newStringTable(_stringtable, _value);
+            *branch = _stringtable;
+            goto getOrSetAtomFromStringTable_end;
+        }
+    }
+    // The strings were equal
+    debug("The strings have matched!\n");
+    _value = stringtable->value;
+
+getOrSetAtomFromStringTable_end:
+
+
     pushTailList(_value);
     goto parseExprHead;
 
@@ -572,120 +491,9 @@ typedef struct {
     };
 } EvalStack;
 
-// void* evalhash[62];
 extern int evalhash;
 
-// int evalcount = 0;
 void eval(Value* node) {
-    // ++evalcount;
-// #ifdef ELVM
-//     if (!*evalhash) {
-//         // evalhash[0] = 0;
-//         // evalhash[lambda_str-10] = &&eval_createlambda;
-//         // evalhash[print_str-10] = &&eval_print;
-//         // evalhash[define_str-10] = &&eval_define;
-//         // evalhash[quote_str-10] = &&eval_quote;
-//         // evalhash[list_str-10] = &&eval_list;
-//         // evalhash[if_str-10] = &&eval_if;
-//         // evalhash[car_str-10] = &&eval_car;
-//         // evalhash[while_str-10] = &&eval_while;
-//         // evalhash[progn_str-10] = &&eval_progn;
-//         // evalhash[macro_str-10] = &&eval_createlambda;
-//         // evalhash[lambdaast_str-10] = &&eval_createlambda;
-//         // evalhash[eq_str-10] = &&eval_eq;
-//         // evalhash[cons_str-10] = &&eval_cons;
-//         // evalhash[plus_str-10] = &&eval_arith;
-//         // evalhash[mod_str-10] = &&eval_arith;
-//         // evalhash[eval_str-10] = &&eval_eval;
-//         // evalhash[cdr_str-10] = &&eval_cdr;
-//         // evalhash[minus_str -10] = &&eval_arith;
-//         // evalhash[ast_str -10] = &&eval_arith;
-//         // evalhash[lt_str -10] = &&eval_cmp;
-//         // evalhash[gt_str -10] = &&eval_cmp;
-//         // evalhash[slash_str -10] = &&eval_arith;
-//         // evalhash[atom_str -10] = &&eval_atom;
-
-//         evalhash[0] = 1;
-//         evalhash[(lambda_str)>>1] = &&eval_createlambda;
-//         evalhash[(print_str)>>1] = &&eval_print;
-//         evalhash[(define_str)>>1] = &&eval_define;
-//         evalhash[(quote_str)>>1] = &&eval_quote;
-//         evalhash[(list_str)>>1] = &&eval_list;
-//         evalhash[(if_str)>>1] = &&eval_if;
-//         evalhash[(car_str)>>1] = &&eval_car;
-//         evalhash[(while_str)>>1] = &&eval_while;
-//         evalhash[(progn_str)>>1] = &&eval_progn;
-//         evalhash[(macro_str)>>1] = &&eval_createlambda;
-//         evalhash[(lambdaast_str)>>1] = &&eval_createlambda;
-//         evalhash[(eq_str)>>1] = &&eval_eq;
-//         evalhash[(cons_str)>>1] = &&eval_cons;
-//         evalhash[(plus_str)>>1] = &&eval_arith;
-//         evalhash[(mod_str)>>1] = &&eval_arith;
-//         evalhash[(eval_str)>>1] = &&eval_eval;
-//         evalhash[(cdr_str)>>1] = &&eval_cdr;
-//         evalhash[(minus_str )>>1] = &&eval_arith;
-//         evalhash[(ast_str )>>1] = &&eval_arith;
-//         evalhash[(lt_str )>>1] = &&eval_cmp;
-//         evalhash[(gt_str )>>1] = &&eval_cmp;
-//         evalhash[(slash_str )>>1] = &&eval_arith;
-//         evalhash[(atom_str )>>1] = &&eval_atom;
-//     }
-// #endif
-
-    // void* evalhash[51] = {
-    //     &&eval_createlambda, 0, 0,
-    //     &&eval_print, 0, 0,
-    //     &&eval_define, 0, 0, 0,
-    //     &&eval_quote, 0, 0,
-    //     &&eval_list, 0,
-    //     &&eval_if, 0,
-    //     &&eval_car, 0,
-    //     &&eval_while, 0, 0,
-    //     &&eval_progn, 0, 0,
-    //     &&eval_createlambda, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0,
-    //     &&eval_eq,
-    //     &&eval_cons, 0, 0,
-    //     &&eval_arith,
-    //     0,
-    //     &&eval_arith, 0,
-    //     &&eval_eval, 0,
-    //     &&eval_cdr, 0,
-    //     &&eval_arith,
-    //     &&eval_arith,
-    //     &&eval_cmp,
-    //     &&eval_cmp,
-    //     &&eval_arith,
-    //     &&eval_atom,
-    // };
-    // void* evalhash[101] = {
-    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0,
-    //     &&eval_print, 0, 0, 0, 0, 0,
-    //     &&eval_define, 0, 0, 0, 0, 0, 0,
-    //     &&eval_quote, 0, 0, 0, 0, 0,
-    //     &&eval_list, 0, 0, 0, 0,
-    //     &&eval_if, 0, 0,
-    //     &&eval_car, 0, 0, 0,
-    //     &&eval_while, 0, 0, 0, 0, 0,
-    //     &&eval_progn, 0, 0, 0, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0, 0, 0,
-    //     &&eval_createlambda, 0, 0, 0, 0, 0, 0, 0,
-    //     &&eval_eq, 0, 0,
-    //     &&eval_cons, 0, 0, 0, 0,
-    //     &&eval_arith, 0,
-    //     0, 0,
-    //     &&eval_arith, 0, 0, 0,
-    //     &&eval_eval, 0, 0, 0, 0,
-    //     &&eval_cdr, 0, 0, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_cmp, 0,
-    //     &&eval_cmp, 0,
-    //     &&eval_arith, 0,
-    //     &&eval_atom,
-    // };
-
-// #define node evalarg->node
     EvalStack evalstack;
     debug("entering eval...\n");
 
@@ -747,50 +555,10 @@ void eval(Value* node) {
         }
 
 #ifdef ELVM
-    // k = ((int)_str - 11)/2;
-    // k = ((int)_str - 11);
-    // computed_goto = evalhash[k];
-    // int addr_tmp = ;
-    // i = addr_tmp;
-    // newIntValue();
-    // printValue();
-
-    // i = *((int*)addr_tmp);
-    // newIntValue();
-    // printValue();
-
-    // exit(0);
     goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
-
-// #define lambda_str 11
-// #define print_str 18
-// #define define_str 24
-// #define quote_str 31
-// #define list_str 37
-// #define if_str 42
-// #define car_str 45
-// #define while_str 49
-// #define progn_str 55
-// #define macro_str 61
-// #define lambdaast_str 67
-// #define eq_str 75
-// #define cons_str 78
-// #define plus_str 83
-// #define t_str 85
-// #define mod_str 87
-// #define eval_str 91
-// #define cdr_str 96
-// #define minus_str 100
-// #define ast_str 102
-// #define lt_str 104
-// #define gt_str 106
-// #define slash_str 108
-// #define atom_str 110
-
 #else
 
         void* test__[2] = {&&eval_define, &&eval_if};
-        // test__ = &&eval_define;
 
              if (_str == define_str) {goto *test__[0];}
         else if (_str == if_str) {goto *test__[1];}
