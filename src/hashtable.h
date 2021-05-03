@@ -176,9 +176,9 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_macro,      // 2
     &stringtable_cons,       // 3
     &stringtable_t,          // 4
-    NULL,                    // 5
+    1,                    // 5
     &stringtable_eq,         // 6  stringtable_car, stringtable_progn
-    NULL,                    // 7
+    1,                    // 7
     &stringtable_eval,       // 8
     &stringtable_cdr,        // 9  stringtable_while
     &stringtable_ast,        // 10
