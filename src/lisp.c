@@ -38,12 +38,12 @@ typedef enum {
 typedef struct Value {
     union {
         Valuetype type;
-        struct Value* next;
+        struct Value* value;
     };
     union {
         char* str;
-        struct Value* value;
         int n;
+        struct Value* next;
         struct Lambda* lambda;
     };
 } Value;
