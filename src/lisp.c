@@ -11,11 +11,12 @@
 DEFLOCATION char* _str;
 DEFLOCATION int q;
 DEFLOCATION int r;
-DEFLOCATION int i;
+DEFLOCATION unsigned long long i;
 DEFLOCATION int j;
 DEFLOCATION unsigned long k;
 DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
+extern int evalhash;
 
 
 
@@ -28,30 +29,36 @@ DEFLOCATION void* _malloc_result;
 // #define QFTASM_HEAP_MEM_MAX 2846
 
 #ifndef ELVM
-// #include <stdio.h>
+#include <stdio.h>
 #  define debug(x) //printf(x)
 #  define debug1(x,y) //printf(x,y)
+#  define debug1_2(x,y) printf(x,y)
 #  define debug2(x,y,z) //printf(x,y,z)
 #else
 #  define debug(x)
 #  define debug1(x,y)
+#  define debug1_2(x,y)
 #  define debug2(x,y,z)
 #endif
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 #ifdef ELVM
 typedef enum {
-    ATOM   = (unsigned long)1<<14,
-    INT    = (unsigned long)2<<14,
-    LAMBDA = (unsigned long)3<<14,
+    ATOM   = (unsigned long long)1<<14,
+    INT    = (unsigned long long)2<<14,
+    LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
+#define topbitmask ((unsigned long long)32768)
 #else 
 typedef enum {
-    ATOM   = (unsigned long)1<<62,
-    INT    = (unsigned long)2<<62,
-    LAMBDA = (unsigned long)3<<62,
+    ATOM   = (unsigned long long)1<<62,
+    INT    = (unsigned long long)2<<62,
+    LAMBDA = (unsigned long long)3<<62,
 } Valuetype;
+#define topbitmask ((unsigned long long)1 << 63)
 #endif
+#define topbit(x) (((unsigned long long)(x)) & topbitmask)
+#define isIntValue(x) (((unsigned long long)(x)) & topbitmask)
 
 const unsigned long typemask = LAMBDA;
 
@@ -60,8 +67,8 @@ typedef struct Value {
     union {
         char* str;
         int n;
-        struct Value* value;
         struct Lambda* lambda;
+        struct Value* value;
     };
 } Value;
 
@@ -250,11 +257,16 @@ StringTable** branch;
 #undef str
 #undef sign
 
-#define newIntValue() {              \
-    malloc_k(sizeof(Value), _value); \
-    debug("newIntValue\n");          \
-    _value->type = INT;              \
-    _value->n = i;                   \
+// #define newIntValue() {              \
+//     malloc_k(sizeof(Value), _value); \
+//     debug("newIntValue\n");          \
+//     _value->type = INT;              \
+//     _value->n = i;                   \
+// }
+
+#define newIntValue() {                                     \
+    debug("newIntValue\n");                                 \
+    _value = (Value*) ((unsigned long long)i | topbitmask); \
 }
 
 #define pushTailList(__value) {             \
@@ -438,11 +450,11 @@ void printValue();
 
 
 void eval(Value* node);
-#define evalAsInt() {           \
-    if (_value->type != INT) {  \
-        eval(_value);           \
-    }                           \
-    i = _value->n;              \
+#define evalAsInt() {                                                         \
+    if (!isIntValue(_value)) {                                                 \
+        eval(_value);                                                         \
+    }                                                                         \
+    i = (unsigned long long)(((unsigned long long)_value) & (~topbitmask));      \
 }
 
 typedef struct {
@@ -463,7 +475,6 @@ typedef struct {
     };
 } EvalStack;
 
-extern int evalhash;
 
 void eval(Value* node) {
     EvalStack evalstack;
@@ -479,6 +490,12 @@ void eval(Value* node) {
 #define evalstack_env (evalstack.e)
 #define evalstack_env2 (evalstack.e2)
 #define nodetype k
+
+    // If the top bit is 1, it is an integer, so return the value itself
+    if (isIntValue(node)) {
+        _value = node;
+        return;
+    }
 
     nodetype = node->type;
     // Is an atom
@@ -496,8 +513,13 @@ void eval(Value* node) {
         return;
     }
 
-    // Is an int or a lambda
-    if (nodetype == INT || nodetype == LAMBDA) {
+    // // Is an int or a lambda
+    // if (nodetype == INT || nodetype == LAMBDA) {
+    //     _value = node;
+    //     return;
+    // }
+    // Is a lambda
+    if (nodetype == LAMBDA) {
         _value = node;
         return;
     }
@@ -678,17 +700,19 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
-            // Nil equality
-            if (n1 == n2) {
+            // Nil equality and integer equality.
+            // Integers are passed as raw values with a flag at the top bit instead of a
+            // pointer to a value, so equal integers always have the same n1 and n2
+            if ((unsigned long long)n1 == (unsigned long long)n2) {
                 _value = true_value;
             }
             else if (!n1 || !n2) {
                 _value = NULL;
             }
-            // Integer equality
-            else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
-                _value = true_value;
-            }
+            // // Integer equality
+            // else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
+            //     _value = true_value;
+            // }
             // Atom equality
             else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
                 _value = true_value;
@@ -701,12 +725,15 @@ eval_eq:
         // }
         // if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
 eval_arith:
+            // _value = (Value*)(topbitmask ^ 29);
+            // return;
             c_eval = headstr[0];
 
             #define nextlist _list_eval_2
             nextlist = ((List*)node)->next;
             _value = nextlist->value;
             evalAsInt();
+
             n_ = i;
             if (c_eval == '-' && !(nextlist->next)) {
                 i = -n_;
@@ -734,8 +761,9 @@ eval_cmp:
             _value = arg2list->value;
             evalAsInt();
             n_ = i;
-            eval(arg1);
-            j = _value->n < n_;
+            _value = arg1;
+            evalAsInt();
+            j = i < n_;
             _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
         // }
@@ -747,7 +775,8 @@ eval_quote:
         // if (_str == atom_str) {
 eval_atom:
             eval(arg1);
-            _value = !_value || (_value->type == ATOM) || (_value->type == INT) ? true_value : NULL;
+            // Integers are passed as raw values, so their types must be evaluated first
+            _value = !_value || (isIntValue(_value)) || (_value->type == ATOM) ? true_value : NULL;
             return;
         // }
         // if (_str == eval_str) {
@@ -847,11 +876,12 @@ void printValue() {
         goto printlist;
     }
 
-    k = v->type;
-    if (k == INT) {
+    if (isIntValue(_value)) {
         debug("<int>");
         #define p _str
-        k = v->n;
+        k = ((unsigned long long)v) & (~topbitmask);
+        debug1_2("[%lld]", (unsigned long long)v);
+        debug1_2("[%ld]", k);
         if (k < 0) {
             putchar('-');
             k = -k;
@@ -866,27 +896,30 @@ void printValue() {
             k = q;
         } while (k);
         #undef p
-    } else if (k == LAMBDA) {
-        debug("<lambda>");
-        k = v->lambda->type;
-        _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
-    } else if (k == ATOM) {
-        debug("<atom>");
-        _str = v->str;
     } else {
-        debug("<list>");
-        list = (List*)v;
+        k = v->type;
+        if (k == LAMBDA) {
+            debug("<lambda>");
+            k = v->lambda->type;
+            _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
+        } else if (k == ATOM) {
+            debug("<atom>");
+            _str = v->str;
+        } else {
+            debug("<list>");
+            list = (List*)v;
 printlist:
-        putchar('(');
-        while(list && (_value = list->value)) {
-            // _value = list->value;
-            printValue();
-            if ((list = list->next)) {
-                putchar(' ');
+            putchar('(');
+            while(list && (_value = list->value)) {
+                // _value = list->value;
+                printValue();
+                if ((list = list->next)) {
+                    putchar(' ');
+                }
             }
+            putchar(')');
+            return;
         }
-        putchar(')');
-        return;
     }
     for (; *_str; ++_str){
         putchar(*_str);
