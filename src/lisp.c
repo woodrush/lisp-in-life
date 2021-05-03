@@ -87,7 +87,7 @@ char* s2;
 char* s3;
 
 
-#include <hashtable.h>
+#include <values.h>
 
 StringTable* _stringtable;
 
@@ -191,10 +191,8 @@ Value* newList(Value* node, Value* next) {
     _stringtable->greater = NULL;                   \
 }
 
-// TODO: optimize _str[0] to char c
 StringTable* stringtable;
 StringTable** branch;
-// char* __targetstring;
 
 
 // j : sign
@@ -232,7 +230,6 @@ StringTable** branch;
 }
 
 void parseExpr(Value* listTail) {
-    // Value* listHead = listTail;
 parseExprHead:;
     // Remove whitespace
 // space:;
@@ -260,23 +257,10 @@ parseExprHead:;
     // Parse as a list
     if (c == '(') {
         c = getchar();
-        // if (c == ')') {
-        //     parseExprHeadList(nil);
-        //     c = 0;
-        //     goto parseExprHead;
-        // }
 
         debug("pushing list...\n");
         parseExpr(listTail);
-        // listTail->next = newList(listTail->next, NULL);
-        // listTail = listTail->next;
-        // // ++listHeadStackptr;
-        // // ++listTailStackptr;
-        // ++listStackptr;
-        // listHeadStackptr = listHeadStack+listStackptr;
-        // listTailStackptr = listTailStack+listStackptr;
-        // *(listHeadStackptr) = NULL;
-        // *(listTailStackptr) = NULL;
+
         _list = listTail->next;
         pushTailList(_list ? _list : nil);
         goto parseExprHead;
@@ -288,18 +272,8 @@ parseExprHead:;
 // #else
     if (c == ')') {
         debug1("popping list...\n%s", "");
-        // // --listHeadStackptr;
-        // // --listTailStackptr;
-        // --listStackptr;
-        // listHeadStackptr = listHeadStack+listStackptr;
-        // listTailStackptr = listTailStack+listStackptr;
-        // pushTailList(*(listHeadStackptr+1));
-        // debug1("popped list.\n%s", "");
-        
-        // c = 0;
+
         c = getchar();
-        // goto parseExprHead;
-        // _value = listHead;
         return;
     }
 
@@ -321,14 +295,7 @@ parseExprHead:;
 
     // If the expression is an integer literal, evaluate it
     charbuf = buf[0];
-    // int c1 = ('0' <= charbuf && charbuf <= '9');
-    // int c2 = (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'));
-    // int c3 = c1 || c2;
-    // debug1(" c1:%d ", c1);
-    // debug1(" c2:%d ", c2);
-    // debug1(" c3:%d \n", c3);
     if (('0' <= charbuf && charbuf <= '9') || (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'))) {
-        // putchar('i');
         _str = buf;
         parseInt();
         newIntValue();
@@ -384,36 +351,6 @@ getOrSetAtomFromStringTable_end:
 
     pushTailList(_value);
     goto parseExprHead;
-
-//     _stringtable = stringTableHead;
-
-
-// parseatomloop:;
-//     s1 = buf;
-//     s2 = _stringtable->value->str;
-//     for(; *s1 || *s2; ++s1, ++s2) {
-//         if (*s1 != *s2) {
-//             // There is a string next to this string in the table
-//             if ((_stringtable = _stringtable->next)) {
-//                 goto parseatomloop;
-//             }
-
-//             // This was the last string in the table, so create a string
-//             // _malloc_bytes = i+1;
-//             malloc_k(i+1, _str);
-//             // _str = (char*) _malloc_result;
-//             debug("parseAtom\n");
-//             s1 = _str;
-//             s2 = buf;
-//             for(; *s2; ++s1, ++s2) {
-//                 *s1 = *s2;
-//             }
-//             appendStringTable();
-//             return;
-//         }
-//     }
-//     // The strings are equal
-//     _value = _stringtable->value;    
 }
 
 //================================================================================
