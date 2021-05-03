@@ -164,7 +164,7 @@ void _div(int n, int m) {
     _value->str = (char*)(((long)__str + (long)__str + (long)__str + (long)__str) ^ ATOM);             \
 }
 
-#define newLambdaStruct(__target, __argnames, __body, __env, __type) {  \
+#define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
     malloc_k(sizeof(Lambda), __target);                                \
     debug("lambda 1\n");                                               \
     _lambda->argnames = __argnames;                                    \
@@ -173,7 +173,7 @@ void _div(int n, int m) {
     _lambda->type = __type;                                            \
 }
 
-#define newLambdaValue() {            \
+#define newLambdaNode() {            \
     malloc_k(sizeof(Value), _value); \
     debug("lambda 2\n");             \
     _value->type = 0;           \
@@ -637,14 +637,14 @@ eval_while:
         // }
         // if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
 eval_createlambda:
-            newLambdaStruct(
+            newLambdaValue(
                 _lambda,
                 (arg1->value ? arg1 : NULL),
                 (arg2list->value),
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
-            newLambdaValue();
+            newLambdaNode();
             return;
         // }
         // if (_str == eq_str) {
@@ -850,13 +850,11 @@ void printValue() {
         #undef p
     } else if (k == LAMBDA) {
         debug("<lambda>");
-        // k = v->lambda->type;
-        k = ((Lambda*)v)->type;
+        k = v->lambda->type;
         _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
     } else if (k == ATOM) {
         debug("<atom>");
-        // _str = v->str;
-        _str = (char*)v;
+        _str = v->str;
     } else {
         debug("<list>");
         list = v;
@@ -878,21 +876,14 @@ printlist:
 }
 #undef v
 
-char aaa[] = "asdf";
 int main (void) {
+    // newAtomNode("asdf");
+    // printValue();
     // return 0;
     i = 123;
     newIntValue();
     printValue();
-
-    newAtomNode(aaa);
-    printValue();
-
-    newLambdaStruct(_lambda,0,0,0,0);
-    newLambdaValue();
-    printValue();
     return 0;
-
     c = getchar();
     do {
         parseExpr(curlist);
