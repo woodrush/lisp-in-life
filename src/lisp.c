@@ -97,8 +97,18 @@ Env* _env2;
 Env* _env3;
 Env* _evalenv;
 
+
+// LIST, since ->type and ->next are inside the same union
+// Value nil_value = { .type = LIST, .value = NULL };
+// // #define nil (&nil_value)
+// Value* nil = &nil_value;
+// #define true_value (&t_value)
+Value t_value = { .type = ATOM, .str = t_str };
+Value* true_value = &t_value;
+
+
 Value* nil;
-Value* true_value;
+// Value* true_value;
 Value* _value;
 Value* _list;
 Value* initlist;
@@ -1187,9 +1197,10 @@ int main (void) {
     // (Value*)LIST, since ->type and ->next are inside the same union
     nil = newList(NULL, (Value*)LIST);
     // TODO: get this value from the string table
-    _str = t_str;
-    newAtomNode(t_str);
-    true_value = _value;
+    // _str = t_str;
+    // newAtomNode(t_str);
+    // true_value = _value;
+    _value = nil;
 
     newStringTable(_stringtable, _value);
     stringTableHead = _stringtable;
