@@ -1,15 +1,23 @@
-char* _str;
-int q, r;
-int i = 777;
-int j = 888;
-unsigned long k;
-int _malloc_bytes;
-void* _malloc_result;
-
-
 #ifndef GCC
 #define ELVM
 #endif
+
+#ifdef ELVM
+#    define DEFLOCATION extern
+#else
+#    define DEFLOCATION
+#endif
+
+DEFLOCATION char* _str;
+DEFLOCATION int q;
+DEFLOCATION int r;
+DEFLOCATION int i;
+DEFLOCATION int j;
+DEFLOCATION unsigned long k;
+DEFLOCATION int _malloc_bytes;
+DEFLOCATION void* _malloc_result;
+
+
 
 #ifdef ELVM
 #include "elvm.h"
@@ -96,40 +104,48 @@ typedef struct Lambda {
 } Lambda;
 
 
-char charbuf = 0;
-char c;
+DEFLOCATION char charbuf;
+DEFLOCATION char c;
 
 char buf[32];
-char* s1;
-char* s2;
-char* s3;
+DEFLOCATION char* s1;
+DEFLOCATION char* s2;
+DEFLOCATION char* s3;
 
 
 #include <values.h>
 
-StringTable* _stringtable;
+DEFLOCATION StringTable* _stringtable;
 
-Lambda* _lambda;
+DEFLOCATION Lambda* _lambda;
 
-Env* _env;
-Env* _env2;
-Env* _env3;
-Env* _evalenv = &initialenv;
+DEFLOCATION Env* _env;
+DEFLOCATION Env* _env2;
+DEFLOCATION Env* _env3;
+
+#ifdef ELVM
+DEFLOCATION Env* _evalenv;
+DEFLOCATION Value* nil;
+DEFLOCATION Value* true_value;
+DEFLOCATION List* initlist;
+DEFLOCATION List* curlist;
+#else
+DEFLOCATION Env* _evalenv = &initialenv;
+DEFLOCATION Value* nil = (Value*)&nil_value;
+DEFLOCATION Value* true_value = &t_value;
+DEFLOCATION List* initlist = &nil_value;
+DEFLOCATION List* curlist = &nil_value;
+#endif
 
 
-Value* nil = (Value*)&nil_value;
-Value* true_value = &t_value;
+DEFLOCATION Value* _value;
+DEFLOCATION List* _list;
 
-Value* _value;
-List* _list;
-List* initlist = &nil_value;
-List* curlist = &nil_value;
 
-int sthash;
+DEFLOCATION int sthash;
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
-int mlb;
 void _div(int n, int m) {
     #define sign_n i
     #define sign j
@@ -260,7 +276,7 @@ parseExprHead:;
     if (c == ';') {
         do {
             c = getchar();
-            if (c == EOF) {
+            if (isEOF(c)) {
                 // _value = listHead;
                 return;
             }
@@ -268,7 +284,7 @@ parseExprHead:;
         // charbuf = 0;
         goto parseExprHead;
     }
-    if (c == EOF) {
+    if (isEOF(c)) {
         // _value = listHead;
         return;
     }
@@ -300,7 +316,7 @@ parseExprHead:;
 //     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
 // #else
     sthash = 0;
-    while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';' && c != EOF) {
+    while (isNotEOF(c) && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
 // #endif
         // putchar(c);
         buf[i] = c;

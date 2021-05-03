@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define isEOF(x) (x == EOF)
+#define isNotEOF(x) (x != EOF)
+
 #define num_ops 24
 char define_str[] = "define";
 char if_str[] = "if";
