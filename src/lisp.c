@@ -87,7 +87,7 @@ char* s2;
 char* s3;
 
 StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-StringTable* stringTableHead = NULL;
+// StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
 Lambda* _lambda;
@@ -1200,10 +1200,10 @@ int main (void) {
     // _str = t_str;
     // newAtomNode(t_str);
     // true_value = _value;
-    _value = nil;
+    // _value = nil;
 
-    newStringTable(_stringtable, _value);
-    stringTableHead = _stringtable;
+    // newStringTable(_stringtable, nil);
+    // stringTableHead = _stringtable;
 #  ifndef ELVM
     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
     for(j=0; j<num_ops; ++j){
