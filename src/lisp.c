@@ -98,23 +98,16 @@ Lambda* _lambda;
 Env* _env;
 Env* _env2;
 Env* _env3;
-Env* _evalenv;
+Env* _evalenv = &initialenv;
 
 
-// // #define nil (&nil_value)
 Value* nil = &nil_value;
-// #define true_value (&t_value)
-
-// Value t_value = { .type = ATOM, .str = t_str };
 Value* true_value = &t_value;
 
-
-// Value* nil;
-// Value* true_value;
 Value* _value;
 Value* _list;
-Value* initlist;
-Value* curlist;
+Value* initlist = &nil_value;
+Value* curlist = &nil_value;
 
 int sthash;
 
@@ -201,7 +194,6 @@ Value* newList(Value* node, Value* next) {
 }
 
 // TODO: optimize _str[0] to char c
-int getOrSetAtomFromStringTable_newflag = 0;
 StringTable* stringtable;
 StringTable** branch;
 char* __targetstring;
@@ -258,27 +250,21 @@ getOrSetAtomFromStringTableHead:
                 // return _value;
             }
 getOrSetAtomFromStringTable_setstringtable:
-            if (getOrSetAtomFromStringTable_newflag) {
-                debug("Creating new stringtable entry with a new string pointer...\n");
+            debug("Creating new stringtable entry with a new string pointer...\n");
 
-                // This was the last string in the table, so create a string
-                // _malloc_bytes = i+1;
-                malloc_k(i+1, _str);
-                // s2 = _str;
-                // _str = s1;
-                // s1 = _value->str;
-                s1 = _str;
-                s2 = __targetstring;
-                // s2 = _str;
-                // _str = (char*) _malloc_result;
-                debug("parseAtom\n");
-                for(; *s2; ++s1, ++s2) {
-                    *s1 = *s2;
-                }
-            }
-            else {
-                debug("Creating new stringtable entry with an existing string pointer...\n");
-                _str = __targetstring;
+            // This was the last string in the table, so create a string
+            // _malloc_bytes = i+1;
+            malloc_k(i+1, _str);
+            // s2 = _str;
+            // _str = s1;
+            // s1 = _value->str;
+            s1 = _str;
+            s2 = __targetstring;
+            // s2 = _str;
+            // _str = (char*) _malloc_result;
+            debug("parseAtom\n");
+            for(; *s2; ++s1, ++s2) {
+                *s1 = *s2;
             }
             newAtomNode(_str);
             newStringTable(_stringtable, _value);
@@ -1173,98 +1159,9 @@ void printValue() {
 #undef v
 
 int main (void) {
-//     // putchar('0' + testptr);
-//     putchar('0' + testptr2);
-//     goto *testptr2;
-
-// testlabel1:
-//     putchar('a');
-// testlabel2:
-//     putchar('b');
-//     exit(0);
-
-    // // evalhash[0] = 1;
-    // putchar('a');
-    // // int aaaa = *((int*)(&evalhash)) == 3101;
-    // int aaaa = *((int*)(&evalhash + 3)) == 2949;
-
-    // int aaaa = evalhash == 3096;
-    // putchar('0' + aaaa);
-    // aaaa = (102 - 11) >> 1 == 45;
-    // putchar('1' + aaaa);
-    // aaaa = *((int*)(((int)&evalhash) + ((102 - 11) >> 1))) == 3550;
-    // putchar('0' + aaaa);
-    // exit(0);
-
-#ifndef memdumpopt2
-    // (Value*)LIST, since ->type and ->next are inside the same union
-    // nil = newList(NULL, (Value*)LIST);
-    // TODO: get this value from the string table
-    // _str = t_str;
-    // newAtomNode(t_str);
-    // true_value = _value;
-    // _value = nil;
-
-    // newStringTable(_stringtable, nil);
-    // stringTableHead = _stringtable;
-
-
-
-// #  ifndef ELVM
-//     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
-//     for(j=0; j<num_ops; ++j){
-//         _str = opstr_list[j];
-//         s1 = _str;
-//         i = 0;
-//         sthash = 0;
-//         for(; *s1; ++s1,++i){sthash += *s1;}
-//         sthash_mod16();
-//         // getOrSetAtomFromStringTable(stringTableHead, _str);
-//         // __stringtable = stringTableHead;
-//         __targetstring = _str;
-//         getOrSetAtomFromStringTable();
-
-//     }
-// #  else
-//     s3 = opstring_head;
-//     // s1 = eval_str;
-//     for(j=0; j<num_ops; ++j){
-//         _str = s3;
-//         // s3 = _str;
-//         i = 0;
-//         sthash = 0;
-//         for(; *s3; ++s3, ++i){sthash += *s3;}
-//         sthash_mod16();
-//         // getOrSetAtomFromStringTable(stringTableHead, _str);
-//         // __stringtable = stringTableHead;
-//         __targetstring = _str;
-//         getOrSetAtomFromStringTable();
-
-//         // for(; *s1; ++s1){}
-//         ++s3;
-//     }
-// #  endif
-
-
-    getOrSetAtomFromStringTable_newflag = 1;
-
-    _str = "";
-    _value = NULL;
-    _env = NULL;
-    _evalenv = newEnv();
-    // newAtomNode(progn_str);
-    // initlist = newList(NULL, NULL);
-    initlist = nil;
-    curlist = initlist;
-
-#endif
-#ifndef memdumpopt1
-
     c = getchar();
     do {
         parseExpr(curlist);
-        // curlist->next = newList(curlist->next, NULL);
-        // curlist = curlist->next;
     } while((curlist = curlist->next));
     
     initlist = nil->next;
@@ -1273,8 +1170,7 @@ int main (void) {
         eval(initlist->value);
         initlist = initlist->next;
     }
-#  ifdef ELVM
+#ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-#  endif
 #endif
 }

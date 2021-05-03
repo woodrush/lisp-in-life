@@ -189,5 +189,12 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_if,         // 15
 };
 
+Env initialenv = {
+    .varname = NULL,
+    .value = NULL,
+    .next = NULL,
+    .prev = (Env*)1,
+};
+
 // LIST, since ->type and ->next are inside the same union
 Value nil_value = { .type = LIST, .value = NULL };
