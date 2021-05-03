@@ -176,9 +176,9 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_macro,      // 2
     &stringtable_cons,       // 3
     &stringtable_t,          // 4
-    1,                    // 5
+    NULL,                    // 5
     &stringtable_eq,         // 6  stringtable_car, stringtable_progn
-    1,                    // 7
+    NULL,                    // 7
     &stringtable_eval,       // 8
     &stringtable_cdr,        // 9  stringtable_while
     &stringtable_ast,        // 10
@@ -189,9 +189,5 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_if,         // 15
 };
 
-// // LIST, since ->type and ->next are inside the same union
-// Value nil_value = { .type = LIST, .value = NULL };
-// // #define nil (&nil_value)
-// Value* nil = &nil_value;
-// // #define true_value (&t_value)
-// Value* true_value = &t_value;
+// LIST, since ->type and ->next are inside the same union
+Value nil_value = { .type = LIST, .value = NULL };

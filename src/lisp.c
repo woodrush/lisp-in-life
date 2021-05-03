@@ -86,7 +86,10 @@ char* s1;
 char* s2;
 char* s3;
 
-StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+#include <hashtable.h>
+
+// StringTable* stringTableHeadList[16];// = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 // StringTable* stringTableHead = NULL;
 StringTable* _stringtable;
 
@@ -98,16 +101,15 @@ Env* _env3;
 Env* _evalenv;
 
 
-// LIST, since ->type and ->next are inside the same union
-// Value nil_value = { .type = LIST, .value = NULL };
 // // #define nil (&nil_value)
-// Value* nil = &nil_value;
+Value* nil = &nil_value;
 // #define true_value (&t_value)
-Value t_value = { .type = ATOM, .str = t_str };
+
+// Value t_value = { .type = ATOM, .str = t_str };
 Value* true_value = &t_value;
 
 
-Value* nil;
+// Value* nil;
 // Value* true_value;
 Value* _value;
 Value* _list;
@@ -216,8 +218,8 @@ void getOrSetAtomFromStringTable () {
 
     // stringtable = stringTableHead;
 getOrSetAtomFromStringTableHead:
-    s1 = stringtable->value->str;
-    s2 = __targetstring;
+    s1 = __targetstring;
+    s2 = stringtable->value->str;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; ++s1, ++s2) {
 
@@ -1108,6 +1110,7 @@ eval_lambda_call:
 #undef evalstack_env2
 #undef nodetype
 
+char closurestr[] =  "###closure";
 #define v _value
 void printValue() {
     Value* list;
@@ -1195,7 +1198,7 @@ int main (void) {
 
 #ifndef memdumpopt2
     // (Value*)LIST, since ->type and ->next are inside the same union
-    nil = newList(NULL, (Value*)LIST);
+    // nil = newList(NULL, (Value*)LIST);
     // TODO: get this value from the string table
     // _str = t_str;
     // newAtomNode(t_str);
@@ -1204,40 +1207,45 @@ int main (void) {
 
     // newStringTable(_stringtable, nil);
     // stringTableHead = _stringtable;
-#  ifndef ELVM
-    char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
-    for(j=0; j<num_ops; ++j){
-        _str = opstr_list[j];
-        s1 = _str;
-        i = 0;
-        sthash = 0;
-        for(; *s1; ++s1,++i){sthash += *s1;}
-        sthash_mod16();
-        // getOrSetAtomFromStringTable(stringTableHead, _str);
-        // __stringtable = stringTableHead;
-        __targetstring = _str;
-        getOrSetAtomFromStringTable();
 
-    }
-#  else
-    s3 = opstring_head;
-    // s1 = eval_str;
-    for(j=0; j<num_ops; ++j){
-        _str = s3;
-        // s3 = _str;
-        i = 0;
-        sthash = 0;
-        for(; *s3; ++s3, ++i){sthash += *s3;}
-        sthash_mod16();
-        // getOrSetAtomFromStringTable(stringTableHead, _str);
-        // __stringtable = stringTableHead;
-        __targetstring = _str;
-        getOrSetAtomFromStringTable();
 
-        // for(; *s1; ++s1){}
-        ++s3;
-    }
-#  endif
+
+// #  ifndef ELVM
+//     char* opstr_list[num_ops] = {eval_str, lambdaast_str, atom_str, quote_str, macro_str, define_str, while_str, progn_str, lambda_str, gt_str, lt_str, plus_str, minus_str, ast_str, slash_str, t_str, mod_str, print_str, cons_str, cdr_str, car_str, eq_str, if_str, list_str};
+//     for(j=0; j<num_ops; ++j){
+//         _str = opstr_list[j];
+//         s1 = _str;
+//         i = 0;
+//         sthash = 0;
+//         for(; *s1; ++s1,++i){sthash += *s1;}
+//         sthash_mod16();
+//         // getOrSetAtomFromStringTable(stringTableHead, _str);
+//         // __stringtable = stringTableHead;
+//         __targetstring = _str;
+//         getOrSetAtomFromStringTable();
+
+//     }
+// #  else
+//     s3 = opstring_head;
+//     // s1 = eval_str;
+//     for(j=0; j<num_ops; ++j){
+//         _str = s3;
+//         // s3 = _str;
+//         i = 0;
+//         sthash = 0;
+//         for(; *s3; ++s3, ++i){sthash += *s3;}
+//         sthash_mod16();
+//         // getOrSetAtomFromStringTable(stringTableHead, _str);
+//         // __stringtable = stringTableHead;
+//         __targetstring = _str;
+//         getOrSetAtomFromStringTable();
+
+//         // for(; *s1; ++s1){}
+//         ++s3;
+//     }
+// #  endif
+
+
     getOrSetAtomFromStringTable_newflag = 1;
 
     _str = "";
