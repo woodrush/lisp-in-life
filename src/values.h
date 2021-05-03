@@ -197,4 +197,4 @@ Env initialenv = {
 };
 
 // LIST, since ->type and ->next are inside the same union
-Value nil_value = { .next = (Value*)LIST, .value = NULL };
+List nil_value = { .type = LIST, .value = NULL };
