@@ -1,3 +1,40 @@
+gcc src/lisp.c -Isrc -DGCC && echo "(print -5)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print -10)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print -200)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (- -200))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (- 190 150))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print -2000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print -4000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print -8000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print 2000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print 4000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print 8000)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (+ 8191))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (+ 8191 1))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (+ 8191 2))" | ./a.out
+echo ""
+
+gcc src/lisp.c -Isrc -DGCC && echo "(print (- 8191))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (- -8191 1))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (- -8191 2))" | ./a.out
+echo ""
+
+
 gcc src/lisp.c -Isrc -DGCC -Wall && echo 1 | ./a.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print 1)" | ./a.out

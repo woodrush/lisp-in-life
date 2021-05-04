@@ -2,9 +2,6 @@
 #define ELVM
 #endif
 
-// TODO: Fix arithmetic operations for negative integers
-// (make them to be true 14-bit integer operations, to compensate for the top descriptor bits)
-
 #ifdef ELVM
 #    define DEFLOCATION extern
 #else
@@ -16,7 +13,7 @@ DEFLOCATION int q;
 DEFLOCATION int r;
 DEFLOCATION unsigned long long i;
 DEFLOCATION int j;
-DEFLOCATION unsigned long k;
+DEFLOCATION unsigned long long k;
 DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
 extern int evalhash;
@@ -59,6 +56,7 @@ typedef enum {
     LAMBDA = (unsigned long long)3<<62,
 } Valuetype;
 #  define typemaskinv (~LAMBDA)
+#  define valuemask_14 (((unsigned long long)1<<14)-1)
 #endif
 
 #define typemask LAMBDA
@@ -254,7 +252,7 @@ StringTable** branch;
 
 #define newIntValue() {                                \
     debug("newIntValue\n");                            \
-    _value = (Value) (((unsigned long long)i) ^ INT); \
+    _value = (Value) (((unsigned long long)(i &~ typemask)) ^ INT); \
 }
 
 #define pushTailList(__value) {      \
@@ -686,10 +684,10 @@ eval_arith:
             _value = nextlist->value;
             evalAsInt();
 
-            n_ = i;
             if (c_eval == '-' && !(nextlist->next)) {
-                i = -n_;
+                i = -i;
             } else {
+                n_ = i;
                 for (nextlist = nextlist->next; nextlist; nextlist = nextlist->next) {
                     _value = nextlist->value;
                     evalAsInt();
@@ -830,19 +828,24 @@ void printValue() {
     if (isIntValue(_value)) {
         debug("<int>");
         k = ((unsigned long long)v) & (~typemask);
+        // printf("[%lld]\n", k);
+#ifndef ELVM
+        k &= valuemask_14;
+#endif
         debug1_2("[%lld]", (unsigned long long)v);
-        debug1_2("[%ld]", k);
-        if (k < 0) {
+        debug1_2("[%lld]", k);
+        // printf("[%lld]\n", k);
+        if (k > 8191) {
             putchar('-');
-            k = -k;
+            k = 16384-k;
         }
+        // printf("[%lld]\n", k);
         _str = buf + 7;
         *_str = '\0';
         do {
-            c = k >> 1;
-            _div(c, 5);
+            _div(k, 10);
             --_str;
-            *_str = (r + r + (k &~ 65534 ? 1 : 0) + '0');
+            *_str = (r + '0');
             k = q;
         } while (k);
     } else if (isAtomValue(_value)){
