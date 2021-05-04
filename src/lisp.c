@@ -81,8 +81,8 @@ typedef struct List {
 
 
 typedef struct StringTable {
-    // char* varname;
-    Value* value;
+    char* varname;
+    // Value* value;
     struct StringTable* lesser;
     struct StringTable* greater;
 } StringTable;
@@ -222,11 +222,11 @@ List* newList(Value* node, List* next) {
 }
 
 
-#define newStringTable(__stringtable, __value) {    \
+#define newStringTable(__stringtable, __str) {      \
     newAtomNode(_str);                              \
     malloc_k(sizeof(StringTable), __stringtable);   \
     debug("newStringTable\n");                      \
-    _stringtable->value = __value;                  \
+    _stringtable->varname = __str;                  \
     _stringtable->lesser = NULL;                    \
     _stringtable->greater = NULL;                   \
 }
@@ -358,7 +358,7 @@ parseExprHead:;
     }
 getOrSetAtomFromStringTableHead:
     s1 = buf;
-    s2 = stringtable->value->str;
+    s2 = stringtable->varname;
     debug2("%s v.s. %s (the input)\n", s1, s2);
     for (; *s1 || *s2; ++s1, ++s2) {
         // The strings were not equal
@@ -381,19 +381,19 @@ getOrSetAtomFromStringTable_setstringtable:
             for(; *s2; ++s1, ++s2) {
                 *s1 = *s2;
             }
-            newAtomNode(_str);
-            newStringTable(_stringtable, _value);
+            newStringTable(_stringtable, _str);
             *branch = _stringtable;
             goto getOrSetAtomFromStringTable_end;
         }
     }
     // The strings were equal
     debug("The strings have matched!\n");
-    _value = stringtable->value;
+    // _value = stringtable->value;
+    _str = stringtable->varname;
 
 getOrSetAtomFromStringTable_end:
 
-
+    newAtomNode(_str);
     pushTailList(_value);
     goto parseExprHead;
 }

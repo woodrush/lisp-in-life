@@ -25,122 +25,122 @@ Value atom_value = { .type = ATOM, .str = atom_str };
 
 
 StringTable stringtable_slash = {
-    .value = &slash_value,
+    .varname = slash_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_if = {
-    .value = &if_value,
+    .varname = if_str,
     .lesser = &stringtable_slash,
     .greater = NULL,
 };
 StringTable stringtable_gt = {
-    .value = &gt_value,
+    .varname = gt_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_quote = {
-    .value = &quote_value,
+    .varname = quote_str,
     .lesser = &stringtable_gt,
     .greater = NULL,
 };
 StringTable stringtable_minus = {
-    .value = &minus_value,
+    .varname = minus_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_print = {
-    .value = &print_value,
+    .varname = print_str,
     .lesser = &stringtable_minus,
     .greater = NULL,
 };
 StringTable stringtable_lt = {
-    .value = &lt_value,
+    .varname = lt_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_list = {
-    .value = &list_value,
+    .varname = list_str,
     .lesser = &stringtable_lt,
     .greater = NULL,
 };
 StringTable stringtable_lambdaast = {
-    .value = &lambdaast_value,
+    .varname = lambdaast_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_plus = {
-    .value = &plus_value,
+    .varname = plus_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_define = {
-    .value = &define_value,
+    .varname = define_str,
     .lesser = &stringtable_plus,
     .greater = &stringtable_lambdaast,
 };
 StringTable stringtable_ast = {
-    .value = &ast_value,
+    .varname = ast_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_while = {
-    .value = &while_value,
+    .varname = while_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_cdr = {
-    .value = &cdr_value,
+    .varname = cdr_str,
     .lesser = NULL,
     .greater = &stringtable_while,
 };
 StringTable stringtable_eval = {
-    .value = &eval_value,
+    .varname = eval_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_progn = {
-    .value = &progn_value,
+    .varname = progn_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_car = {
-    .value = &car_value,
+    .varname = car_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_eq = {
-    .value = &eq_value,
+    .varname = eq_str,
     .lesser = &stringtable_car,
     .greater = &stringtable_progn,
 };
 StringTable stringtable_t = {
-    .value = &t_value,
+    .varname = t_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_cons = {
-    .value = &cons_value,
+    .varname = cons_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_macro = {
-    .value = &macro_value,
+    .varname = macro_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_atom = {
-    .value = &atom_value,
+    .varname = atom_str,
     .lesser = NULL,
     .greater = NULL,
 };
 StringTable stringtable_lambda = {
-    .value = &lambda_value,
+    .varname = lambda_str,
     .lesser = &stringtable_atom,
     .greater = NULL,
 };
 StringTable stringtable_mod = {
-    .value = &mod_value,
+    .varname = mod_str,
     .lesser = NULL,
     .greater = NULL,
 };
