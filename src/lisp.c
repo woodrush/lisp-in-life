@@ -874,7 +874,9 @@ void printValue() {
         debug("<lambda>");
         value2Lambda(_value, _value);
         k = ((Lambda*)_value)->type;
-        _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
+        putchar('#');
+        putchar('<');
+        _str = (k == L_LAMBDA) ? "Lambda>" : (k == L_MACRO) ? "Macro>" : "Closure>";
     } else {
         debug("<list>");
 printlist:

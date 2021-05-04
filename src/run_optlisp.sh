@@ -25,6 +25,8 @@ python ../elvm/tools/qftasm/qftasm_pp.py opt7.qftasmpp > lisp_opt.qftasm
 
 # # # wc -l lisp_opt.qftasm
 
+echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
+
 cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm

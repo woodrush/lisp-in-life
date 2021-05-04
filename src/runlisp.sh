@@ -32,7 +32,7 @@ wc -l lisp.qftasm
 # echo "(print (> -2 1))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -2 1))"
 # echo "(print (> 1 -2))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> 1 -2))"
 # echo "===="
-# echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print ((lambda (n) (+ 1 n)) 5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print -5)" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print -10)" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
