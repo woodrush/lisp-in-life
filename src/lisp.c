@@ -74,17 +74,13 @@ typedef struct Value {
 } Value;
 
 typedef struct List {
-    union {
-        unsigned long type;
-        struct List* next;
-    };
+    struct List* next;
     struct Value* value;
 } List;
 
 
 typedef struct StringTable {
     char* varname;
-    // Value* value;
     struct StringTable* lesser;
     struct StringTable* greater;
 } StringTable;
@@ -291,7 +287,6 @@ parseExprHead:;
         do {
             c = getchar();
             if (isEOF(c)) {
-                // _value = listHead;
                 return;
             }
         } while(c != '\n');
@@ -299,7 +294,6 @@ parseExprHead:;
         goto parseExprHead;
     }
     if (isEOF(c)) {
-        // _value = listHead;
         return;
     }
     // Parse as a list
@@ -315,9 +309,6 @@ parseExprHead:;
     }
 
     // Parse as an atom
-// #ifdef ELVM
-//     if (c == ')' || !c) {
-// #else
     if (c == ')') {
         debug1("popping list...\n%s", "");
 
@@ -326,12 +317,8 @@ parseExprHead:;
     }
 
     i = 0;
-// #ifdef ELVM
-//     while (c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
-// #else
     sthash = 0;
     while (isNotEOF(c) && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
-// #endif
         // putchar(c);
         buf[i] = c;
         sthash += c;
@@ -453,10 +440,10 @@ void printValue();
 
 void eval(Value* node);
 #define evalAsInt() {                                                         \
-    if (!isIntValue(_value)) {                                                 \
+    if (!isIntValue(_value)) {                                                \
         eval(_value);                                                         \
     }                                                                         \
-    i = (unsigned long long)(((unsigned long long)_value) & (~typemask));      \
+    i = (unsigned long long)(((unsigned long long)_value) & (~typemask));     \
 }
 
 typedef struct {
@@ -491,7 +478,6 @@ void eval(Value* node) {
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
 #define evalstack_env2 (evalstack.e2)
-#define nodetype k
 
     // If the top bit is 1, it is an integer, so return the value itself
     if (isIntValue(node) || isLambdaValue(node)) {
@@ -512,20 +498,6 @@ void eval(Value* node) {
         _value = NULL;
         return;
     }
-
-    nodetype = node->type;
-
-    // // Is an int or a lambda
-    // if (nodetype == INT || nodetype == LAMBDA) {
-    //     _value = node;
-    //     return;
-    // }
-    // Is a lambda
-    // if (nodetype == LAMBDA) {
-    //     _value = node;
-    //     return;
-    // }
-
     // Is a list
 
     // Is ()
@@ -705,30 +677,13 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
+            if (!n1) { n1 = nil; }
+            if (!n2) { n2 = nil; }
             // Nil equality and integer equality, and atom equality.
             // Integers are passed as raw values with a flag at the top bit instead of a
             // pointer to a value, so equal integers always have the same n1 and n2.
             // Atoms are the same except the raw values are constant string pointers.
-            if ((unsigned long long)n1 == (unsigned long long)n2) {
-                _value = true_value;
-            }
-            // else if (isIntValue(n1) && isIntValue(n2) && n1 != n2) {
-            //     _value = NULL;
-            // }
-            else if (!n1 || !n2) {
-                _value = NULL;
-            }
-            // // Integer equality
-            // else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
-            //     _value = true_value;
-            // }
-            // // Atom equality
-            // else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
-            //     _value = true_value;
-            // } 
-            else {
-                _value = NULL;
-            }
+            _value = ((unsigned long long)n1 == (unsigned long long)n2) ? true_value : NULL;
             return;
             #undef n1
             #undef n2
@@ -783,8 +738,7 @@ eval_quote:
         // if (_str == atom_str) {
 eval_atom:
             eval(arg1);
-            // Integers are passed as raw values, so their types must be evaluated first
-            _value = !_value || (isIntValue(_value)) || (_value->type == ATOM) ? true_value : NULL;
+            _value = !_value || (isIntValue(_value)) || (isAtomValue(_value)) ? true_value : NULL;
             return;
         // }
         // if (_str == eval_str) {
@@ -875,7 +829,6 @@ eval_lambda_call:
 #undef n_
 #undef evalstack_env
 #undef evalstack_env2
-#undef nodetype
 
 #define v _value
 void printValue() {
@@ -888,7 +841,6 @@ void printValue() {
 
     if (isIntValue(_value)) {
         debug("<int>");
-        #define p _str
         k = ((unsigned long long)v) & (~typemask);
         debug1_2("[%lld]", (unsigned long long)v);
         debug1_2("[%ld]", k);
@@ -896,16 +848,15 @@ void printValue() {
             putchar('-');
             k = -k;
         }
-        p = buf + 5;
-        *p = '\0';
+        _str = buf + 7;
+        *_str = '\0';
         do {
             c = k >> 1;
             _div(c, 5);
-            --p;
-            *p = (r + r + (k &~ 65534 ? 1 : 0) + '0');
+            --_str;
+            *_str = (r + r + (k &~ 65534 ? 1 : 0) + '0');
             k = q;
         } while (k);
-        #undef p
     } else if (isAtomValue(_value)){
         debug("<atom>");
         atom2Str(v);
