@@ -456,7 +456,7 @@ void eval(Value node) {
     EvalStack evalstack;
     debug("entering eval...\n");
 
-#define _value_eval (evalstack._value_eval_)
+#define _value_eval (evalstack._value_eval)
 #define _list_eval (evalstack._list_eval_)
 #define _list_eval_2 (evalstack._list_eval_2)
 #define arg1 (evalstack.arg1_)
@@ -639,10 +639,13 @@ eval_progn:
         // }
         // if (_str == while_str) {
 eval_while:
-            _value = NULL;
+            // _value = NULL;
+            _value_eval = NULL;
             while (eval(arg1), _value) {
                 eval(arg2list->value);
+                _value_eval = _value;
             }
+            _value = _value_eval;
             return;
         // }
         // if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
