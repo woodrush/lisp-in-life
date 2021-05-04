@@ -48,19 +48,18 @@ typedef enum {
     INT    = (unsigned long long)2<<14,
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
-#define topbitmask ((unsigned long long)32768)
 #else 
 typedef enum {
     ATOM   = (unsigned long long)1<<62,
     INT    = (unsigned long long)2<<62,
     LAMBDA = (unsigned long long)3<<62,
 } Valuetype;
-#define topbitmask ((unsigned long long)1 << 63)
 #endif
-#define topbit(x) (((unsigned long long)(x)) & topbitmask)
-#define isIntValue(x) (((unsigned long long)(x)) & topbitmask)
 
-const unsigned long typemask = LAMBDA;
+#define typemask LAMBDA
+
+#define isIntValue(x) ((((unsigned long long)(x)) & typemask) == INT)
+
 
 typedef struct Value {
     unsigned long type;
@@ -266,7 +265,7 @@ StringTable** branch;
 
 #define newIntValue() {                                     \
     debug("newIntValue\n");                                 \
-    _value = (Value*) (((unsigned long long)i) | topbitmask); \
+    _value = (Value*) (((unsigned long long)i) | INT); \
 }
 
 #define pushTailList(__value) {             \
@@ -454,7 +453,7 @@ void eval(Value* node);
     if (!isIntValue(_value)) {                                                 \
         eval(_value);                                                         \
     }                                                                         \
-    i = (unsigned long long)(((unsigned long long)_value) & (~topbitmask));      \
+    i = (unsigned long long)(((unsigned long long)_value) & (~typemask));      \
 }
 
 typedef struct {
@@ -728,8 +727,6 @@ eval_eq:
         // }
         // if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
 eval_arith:
-            // _value = (Value*)(topbitmask ^ 29);
-            // return;
             c_eval = headstr[0];
 
             #define nextlist _list_eval_2
@@ -882,7 +879,7 @@ void printValue() {
     if (isIntValue(_value)) {
         debug("<int>");
         #define p _str
-        k = ((unsigned long long)v) & (~topbitmask);
+        k = ((unsigned long long)v) & (~typemask);
         debug1_2("[%lld]", (unsigned long long)v);
         debug1_2("[%ld]", k);
         if (k < 0) {
