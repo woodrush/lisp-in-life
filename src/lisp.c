@@ -60,6 +60,7 @@ typedef enum {
 
 #define isIntValue(x) ((((unsigned long long)(x)) & typemask) == INT)
 #define isAtomValue(x) ((((unsigned long long)(x)) & typemask) == ATOM)
+#define isLambdaValue(x) ((((unsigned long long)(x)) & typemask) == LAMBDA)
 
 
 typedef struct Value {
@@ -67,7 +68,7 @@ typedef struct Value {
     union {
         // char* str;
         // int n;
-        struct Lambda* lambda;
+        // struct Lambda* lambda;
         struct Value* value;
     };
 } Value;
@@ -197,7 +198,7 @@ void _div(int n, int m) {
     _str = (char*) (((unsigned long long)__value) & (~typemask)); \
 }
 
-#define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
+#define newLambdaData(__target, __argnames, __body, __env, __type) {   \
     malloc_k(sizeof(Lambda), __target);                                \
     debug("lambda 1\n");                                               \
     _lambda->argnames = __argnames;                                    \
@@ -206,12 +207,17 @@ void _div(int n, int m) {
     _lambda->type = __type;                                            \
 }
 
-#define newLambdaNode() {            \
-    malloc_k(sizeof(Value), _value); \
-    debug("lambda 2\n");             \
-    _value->type = LAMBDA;           \
-    _value->lambda = _lambda;        \
+#define lambda2Value(__lambda) {                                 \
+    debug("lambda2Value\n");                                     \
+    _value = (Value*) (((unsigned long long)__lambda) | LAMBDA); \
 }
+
+#define value2Lambda(__value, __outvalue) {                              \
+    debug("value2Lambda\n");                                             \
+    __outvalue = (Value*) (((unsigned long long)__value) & (~typemask)); \
+}
+
+
 
 List* newList(Value* node, List* next) {
 #define ret _list
@@ -488,7 +494,7 @@ void eval(Value* node) {
 #define nodetype k
 
     // If the top bit is 1, it is an integer, so return the value itself
-    if (isIntValue(node)) {
+    if (isIntValue(node) || isLambdaValue(node)) {
         _value = node;
         return;
     }
@@ -515,10 +521,10 @@ void eval(Value* node) {
     //     return;
     // }
     // Is a lambda
-    if (nodetype == LAMBDA) {
-        _value = node;
-        return;
-    }
+    // if (nodetype == LAMBDA) {
+    //     _value = node;
+    //     return;
+    // }
 
     // Is a list
 
@@ -682,14 +688,14 @@ eval_while:
         // }
         // if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
 eval_createlambda:
-            newLambdaValue(
+            newLambdaData(
                 _lambda,
                 (List*)(arg1->value ? arg1 : NULL),
                 (List*)(arg2list->value),
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
-            newLambdaNode();
+            lambda2Value(_lambda);
             return;
         // }
         // if (_str == eq_str) {
@@ -800,7 +806,8 @@ eval_lambda_call:
     // it is expected for it to evaluate to a lambda.
     curarg = ((List*)node)->next;
     eval(node->value);
-    node = (Value*)(_value->lambda);
+    value2Lambda(_value, node);
+    // node = (Value*)(_value->lambda);
     // curlambda = _value->lambda;
     curargname = curlambda->argnames;
 
@@ -902,27 +909,25 @@ void printValue() {
     } else if (isAtomValue(_value)){
         debug("<atom>");
         atom2Str(v);
+    } else if (isLambdaValue(_value)){
+        debug("<lambda>");
+        value2Lambda(_value, _value);
+        k = ((Lambda*)_value)->type;
+        _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
     } else {
-        k = v->type;
-        if (k == LAMBDA) {
-            debug("<lambda>");
-            k = v->lambda->type;
-            _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
-        } else {
-            debug("<list>");
-            list = (List*)v;
+        debug("<list>");
+        list = (List*)v;
 printlist:
-            putchar('(');
-            while(list && (_value = list->value)) {
-                // _value = list->value;
-                printValue();
-                if ((list = list->next)) {
-                    putchar(' ');
-                }
+        putchar('(');
+        while(list && (_value = list->value)) {
+            // _value = list->value;
+            printValue();
+            if ((list = list->next)) {
+                putchar(' ');
             }
-            putchar(')');
-            return;
         }
+        putchar(')');
+        return;
     }
     for (; *_str; ++_str){
         putchar(*_str);
