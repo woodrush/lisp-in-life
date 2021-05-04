@@ -2,6 +2,9 @@
 #define ELVM
 #endif
 
+// TODO: Fix arithmetic operations for negative integers
+// (make them to be true 14-bit integer operations, to compensate for the top descriptor bits)
+
 #ifdef ELVM
 #    define DEFLOCATION extern
 #else
@@ -63,19 +66,11 @@ typedef enum {
 #define isLambdaValue(x) ((((unsigned long long)(x)) & typemask) == LAMBDA)
 
 
-typedef struct Value {
-    unsigned long type;
-    union {
-        // char* str;
-        // int n;
-        // struct Lambda* lambda;
-        struct Value* value;
-    };
-} Value;
+typedef void* Value;
 
 typedef struct List {
     struct List* next;
-    struct Value* value;
+    Value value;
 } List;
 
 
@@ -92,7 +87,7 @@ typedef enum {
 typedef struct Env {
     char* varname;
     struct Env* prev;
-    struct Value* value;
+    Value value;
     struct Env* next;
 } Env;
 
@@ -108,7 +103,6 @@ typedef struct Lambda {
 } Lambda;
 
 
-DEFLOCATION char charbuf;
 DEFLOCATION char c;
 
 char buf[32];
@@ -127,23 +121,23 @@ DEFLOCATION Env* _env;
 DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
-DEFLOCATION Value* true_value;
-// DEFLOCATION Value* true_value = &t_value;
+DEFLOCATION Value true_value;
+// DEFLOCATION Value true_value = &t_value;
 
 #ifdef ELVM
 DEFLOCATION Env* _evalenv;
-DEFLOCATION Value* nil;
+DEFLOCATION Value nil;
 DEFLOCATION List* initlist;
 DEFLOCATION List* curlist;
 #else
 DEFLOCATION Env* _evalenv = &initialenv;
-DEFLOCATION Value* nil = (Value*)&nil_value;
+DEFLOCATION Value nil = (Value)&nil_value;
 DEFLOCATION List* initlist = &nil_value;
 DEFLOCATION List* curlist = &nil_value;
 #endif
 
 
-DEFLOCATION Value* _value;
+DEFLOCATION Value _value;
 DEFLOCATION List* _list;
 
 
@@ -186,7 +180,7 @@ void _div(int n, int m) {
 
 #define str2Atom(__str) {                                   \
     debug("str2Atom\n");                                    \
-    _value = (Value*) (((unsigned long long)__str) | ATOM); \
+    _value = (Value) (((unsigned long long)__str) | ATOM); \
 }
 
 #define atom2Str(__value) {                                       \
@@ -205,21 +199,21 @@ void _div(int n, int m) {
 
 #define lambda2Value(__lambda) {                                 \
     debug("lambda2Value\n");                                     \
-    _value = (Value*) (((unsigned long long)__lambda) | LAMBDA); \
+    _value = (Value) (((unsigned long long)__lambda) | LAMBDA); \
 }
 
 #define value2Lambda(__value, __outvalue) {                              \
     debug("value2Lambda\n");                                             \
-    __outvalue = (Value*) (((unsigned long long)__value) & (~typemask)); \
+    __outvalue = (Value) (((unsigned long long)__value) & (~typemask)); \
 }
 
 
 
-List* newList(Value* node, List* next) {
+List* newList(Value node, List* next) {
 #define ret _list
     // _malloc_bytes = sizeof(Value);
     malloc_k(sizeof(List), ret);
-    // ret = (Value*) _malloc_result;
+    // ret = (Value) _malloc_result;
     debug("newList\n");
     ret->value = node;
     ret->next = next;
@@ -264,7 +258,7 @@ StringTable** branch;
 
 #define newIntValue() {                                \
     debug("newIntValue\n");                            \
-    _value = (Value*) (((unsigned long long)i) | INT); \
+    _value = (Value) (((unsigned long long)i) | INT); \
 }
 
 #define pushTailList(__value) {      \
@@ -290,7 +284,6 @@ parseExprHead:;
                 return;
             }
         } while(c != '\n');
-        // charbuf = 0;
         goto parseExprHead;
     }
     if (isEOF(c)) {
@@ -304,7 +297,7 @@ parseExprHead:;
         parseExpr(listTail);
 
         _list = listTail->next;
-        pushTailList(_list ? (Value*)_list : nil);
+        pushTailList(_list ? (Value)_list : nil);
         goto parseExprHead;
     }
 
@@ -329,8 +322,8 @@ parseExprHead:;
 
 
     // If the expression is an integer literal, evaluate it
-    charbuf = buf[0];
-    if (('0' <= charbuf && charbuf <= '9') || (charbuf == '-' && ('0' <= buf[1] && buf[1] <= '9'))) {
+    j = buf[0];
+    if (('0' <= j && j <= '9') || (j == '-' && ('0' <= buf[1] && buf[1] <= '9'))) {
         _str = buf;
         parseInt();
         newIntValue();
@@ -438,7 +431,7 @@ void printValue();
 
 
 
-void eval(Value* node);
+void eval(Value node);
 #define evalAsInt() {                                                         \
     if (!isIntValue(_value)) {                                                \
         eval(_value);                                                         \
@@ -450,10 +443,10 @@ typedef struct {
     union {
         char c_eval_;
         List* _list_eval_;
-        Value* _value_eval;
+        Value _value_eval;
     };
     union {
-        Value* arg1_;
+        Value arg1_;
         List* _list_eval_2;
         Env* e2;
     };
@@ -465,7 +458,7 @@ typedef struct {
 } EvalStack;
 
 
-void eval(Value* node) {
+void eval(Value node) {
     EvalStack evalstack;
     debug("entering eval...\n");
 
@@ -501,16 +494,16 @@ void eval(Value* node) {
     // Is a list
 
     // Is ()
-    if (!(node->value)) {
+    if (!(((List*)node)->value)) {
         _value = NULL;
         return;
     }
 
     // The head of the list is an atom
-    if (isAtomValue(node->value)) {
+    if (isAtomValue(((List*)node)->value)) {
         #define headstr _str
         // headstr = node->value->str;
-        atom2Str(node->value);
+        atom2Str(((List*)node)->value);
 
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
@@ -582,7 +575,7 @@ eval_if:
 eval_car:
             eval(arg1);
             if (_value) {
-                _value = _value->value;
+                _value = ((List*)_value)->value;
             }
             return;
         // }
@@ -590,7 +583,7 @@ eval_car:
 eval_cdr:
             eval(arg1);
             if (_value) {
-                _value = (Value*)((List*)_value)->next;
+                _value = (Value)((List*)_value)->next;
             }
             return;
         // }
@@ -603,14 +596,14 @@ eval_list:
             } else {
                 eval(arg1);
                 initlist = newList(_value, NULL);
-                arg1 = (Value*)((List*)node)->next;
-                curlist = (Value*)initlist;
-                while ((arg1 = (Value*)((List*)arg1)->next)) {
-                    eval(arg1->value);
+                arg1 = (Value)((List*)node)->next;
+                curlist = (Value)initlist;
+                while ((arg1 = (Value)((List*)arg1)->next)) {
+                    eval(((List*)arg1)->value);
                     ((List*)curlist)->next = newList(_value, NULL);
-                    curlist = (Value*)((List*)curlist)->next;
+                    curlist = (Value)((List*)curlist)->next;
                 }
-                _value = (Value*)initlist;
+                _value = (Value)initlist;
             }
             return;
             #undef initlist
@@ -622,7 +615,7 @@ eval_cons:
             eval(arg1);
             car = _value;
             eval(arg2list->value);
-            _value = (Value*)newList(car, (List*)_value);
+            _value = (Value)newList(car, (List*)_value);
             // _value = newListNode();
             return;
             #undef car
@@ -635,7 +628,7 @@ eval_print:
             if( ((List*)((List*)node)->next)->next) {
                 putchar('\n');
             }
-            _value = (Value*)_list_eval;
+            _value = (Value)_list_eval;
             return;
         // }
         // if (_str == progn_str) {
@@ -662,7 +655,7 @@ eval_while:
 eval_createlambda:
             newLambdaData(
                 _lambda,
-                (List*)(arg1->value ? arg1 : NULL),
+                (List*)(((List*)arg1)->value ? arg1 : NULL),
                 (List*)(arg2list->value),
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
@@ -759,9 +752,9 @@ eval_lambda_call:
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
     curarg = ((List*)node)->next;
-    eval(node->value);
+    eval(((List*)node)->value);
     value2Lambda(_value, node);
-    // node = (Value*)(_value->lambda);
+    // node = (Value)(_value->lambda);
     // curlambda = _value->lambda;
     curargname = curlambda->argnames;
 
@@ -806,9 +799,9 @@ eval_lambda_call:
     evalstack_env2 = _evalenv;
     _evalenv = curenv;
 
-    eval((Value*)curlambda->body);
+    eval((Value)curlambda->body);
     if (curlambda->type == L_MACRO) {
-        // _evalenv = _evalenv;
+        _evalenv = curenv;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
@@ -835,7 +828,6 @@ void printValue() {
     List* list;
     if (!_value) {
         debug("<nil1>");
-        list = NULL;
         goto printlist;
     }
 
@@ -867,8 +859,8 @@ void printValue() {
         _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
     } else {
         debug("<list>");
-        list = (List*)v;
 printlist:
+        list = (List*)v;
         putchar('(');
         while(list && (_value = list->value)) {
             // _value = list->value;

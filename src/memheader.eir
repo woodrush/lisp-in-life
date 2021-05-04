@@ -28,8 +28,8 @@ _malloc_bytes:
     .long eval_quote
 _malloc_result:
     .long 0
-charbuf:
-    .long 0
+_evalenv:
+    .long initialenv
     .long eval_list
 _list:
     .long 0
@@ -74,8 +74,7 @@ nil:
 true_value:
     .long 0
     .long eval_eval
-_evalenv:
-    .long initialenv
+    .long 0
     .long 0
     .long eval_cdr
     .long 0
