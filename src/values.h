@@ -1,29 +1,3 @@
-Value lambda_value = { .type = ATOM, .str = lambda_str };
-Value print_value = { .type = ATOM, .str = print_str };
-Value define_value = { .type = ATOM, .str = define_str };
-Value quote_value = { .type = ATOM, .str = quote_str };
-Value list_value = { .type = ATOM, .str = list_str };
-Value if_value = { .type = ATOM, .str = if_str };
-Value car_value = { .type = ATOM, .str = car_str };
-Value while_value = { .type = ATOM, .str = while_str };
-Value progn_value = { .type = ATOM, .str = progn_str };
-Value macro_value = { .type = ATOM, .str = macro_str };
-Value lambdaast_value = { .type = ATOM, .str = lambdaast_str };
-Value eq_value = { .type = ATOM, .str = eq_str };
-Value cons_value = { .type = ATOM, .str = cons_str };
-Value plus_value = { .type = ATOM, .str = plus_str };
-Value t_value = { .type = ATOM, .str = t_str };
-Value mod_value = { .type = ATOM, .str = mod_str };
-Value eval_value = { .type = ATOM, .str = eval_str };
-Value cdr_value = { .type = ATOM, .str = cdr_str };
-Value minus_value = { .type = ATOM, .str = minus_str };
-Value ast_value = { .type = ATOM, .str = ast_str };
-Value lt_value = { .type = ATOM, .str = lt_str };
-Value gt_value = { .type = ATOM, .str = gt_str };
-Value slash_value = { .type = ATOM, .str = slash_str };
-Value atom_value = { .type = ATOM, .str = atom_str };
-
-
 StringTable stringtable_slash = {
     .varname = slash_str,
     .lesser = NULL,

@@ -72,7 +72,7 @@ nil:
     .long nil_value
     .long eval_arith
 true_value:
-    .long t_value
+    .long 0
     .long eval_eval
 _evalenv:
     .long initialenv

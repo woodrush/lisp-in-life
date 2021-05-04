@@ -18,9 +18,9 @@ gcc src/lisp.c -Isrc -DGCC && echo "(define n 15)(print (+ 1 n))" | ./a.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print ((lambda (n) (+ 3 n)) 5))" | ./a.out
 echo ""
-gcc src/lisp.c -Isrc -DGCC && echo "(print (< 1 5)" | ./a.out
+gcc src/lisp.c -Isrc -DGCC && echo "(print (< 1 5))" | ./a.out
 echo ""
-gcc src/lisp.c -Isrc -DGCC && echo "(print (> 1 5)" | ./a.out
+gcc src/lisp.c -Isrc -DGCC && echo "(print (> 1 5))" | ./a.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && cat print.lisp | ./a.out
 echo ""

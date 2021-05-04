@@ -59,6 +59,7 @@ typedef enum {
 #define typemask LAMBDA
 
 #define isIntValue(x) ((((unsigned long long)(x)) & typemask) == INT)
+#define isAtomValue(x) ((((unsigned long long)(x)) & typemask) == ATOM)
 
 
 typedef struct Value {
@@ -129,16 +130,17 @@ DEFLOCATION Env* _env;
 DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
+DEFLOCATION Value* true_value;
+// DEFLOCATION Value* true_value = &t_value;
+
 #ifdef ELVM
 DEFLOCATION Env* _evalenv;
 DEFLOCATION Value* nil;
-DEFLOCATION Value* true_value;
 DEFLOCATION List* initlist;
 DEFLOCATION List* curlist;
 #else
 DEFLOCATION Env* _evalenv = &initialenv;
 DEFLOCATION Value* nil = (Value*)&nil_value;
-DEFLOCATION Value* true_value = &t_value;
 DEFLOCATION List* initlist = &nil_value;
 DEFLOCATION List* curlist = &nil_value;
 #endif
@@ -185,12 +187,14 @@ void _div(int n, int m) {
 // Parser
 //================================================================================
 
+#define str2Atom(__str) {                                   \
+    debug("str2Atom\n");                                    \
+    _value = (Value*) (((unsigned long long)__str) | ATOM); \
+}
 
-#define newAtomNode(__str) {         \
-    malloc_k(sizeof(Value), _value); \
-    debug("newAtomNode\n");          \
-    _value->type = ATOM;             \
-    _value->str = __str;             \
+#define atom2Str(__value) {                                       \
+    debug("atom2Str\n");                                          \
+    _str = (char*) (((unsigned long long)__value) & (~typemask)); \
 }
 
 #define newLambdaValue(__target, __argnames, __body, __env, __type) {  \
@@ -223,7 +227,6 @@ List* newList(Value* node, List* next) {
 
 
 #define newStringTable(__stringtable, __str) {      \
-    newAtomNode(_str);                              \
     malloc_k(sizeof(StringTable), __stringtable);   \
     debug("newStringTable\n");                      \
     _stringtable->varname = __str;                  \
@@ -256,22 +259,16 @@ StringTable** branch;
 #undef str
 #undef sign
 
-// #define newIntValue() {              \
-//     malloc_k(sizeof(Value), _value); \
-//     debug("newIntValue\n");          \
-//     _value->type = INT;              \
-//     _value->n = i;                   \
-// }
 
-#define newIntValue() {                                     \
-    debug("newIntValue\n");                                 \
+#define newIntValue() {                                \
+    debug("newIntValue\n");                            \
     _value = (Value*) (((unsigned long long)i) | INT); \
 }
 
-#define pushTailList(__value) {             \
-    _list = newList(__value, NULL);         \
-    listTail->next = _list;  \
-    listTail = _list;            \
+#define pushTailList(__value) {      \
+    _list = newList(__value, NULL);  \
+    listTail->next = _list;          \
+    listTail = _list;                \
 }
 
 void parseExpr(List* listTail) {
@@ -393,7 +390,7 @@ getOrSetAtomFromStringTable_setstringtable:
 
 getOrSetAtomFromStringTable_end:
 
-    newAtomNode(_str);
+    str2Atom(_str);
     pushTailList(_value);
     goto parseExprHead;
 }
@@ -496,10 +493,8 @@ void eval(Value* node) {
         return;
     }
 
-    nodetype = node->type;
-    // Is an atom
-    if (nodetype == ATOM) {
-        _str = node->str;
+    if (isAtomValue(node)) {
+        atom2Str(node);
         _env = _evalenv;
         // Get the variable's value from the environment
         do {
@@ -511,6 +506,8 @@ void eval(Value* node) {
         _value = NULL;
         return;
     }
+
+    nodetype = node->type;
 
     // // Is an int or a lambda
     // if (nodetype == INT || nodetype == LAMBDA) {
@@ -532,9 +529,10 @@ void eval(Value* node) {
     }
 
     // The head of the list is an atom
-    if (node->value->type == ATOM) {
+    if (isAtomValue(node->value)) {
         #define headstr _str
-        headstr = node->value->str;
+        // headstr = node->value->str;
+        atom2Str(node->value);
 
 #ifdef ELVM
         if ((int)last_op < (int)headstr) {
@@ -576,8 +574,9 @@ void eval(Value* node) {
 eval_define:;
             eval(arg2list->value);
             _env = _evalenv;
+            atom2Str(arg1);
             do {
-                if (_env->varname == arg1->str){
+                if (_env->varname == _str){
                     _env->value = _value;
                     return;
                 }
@@ -586,7 +585,8 @@ eval_define:;
             debug("appending to global environment...\n");
 
             // Append to the global environment
-            _str = arg1->str;
+            // _str = arg1->str;
+            // atom2Str(arg1);
             _env = NULL;
             _env3->next = newEnv();
             debug("appended to global environment.\n");
@@ -699,15 +699,16 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
-            // Nil equality and integer equality.
+            // Nil equality and integer equality, and atom equality.
             // Integers are passed as raw values with a flag at the top bit instead of a
-            // pointer to a value, so equal integers always have the same n1 and n2
+            // pointer to a value, so equal integers always have the same n1 and n2.
+            // Atoms are the same except the raw values are constant string pointers.
             if ((unsigned long long)n1 == (unsigned long long)n2) {
                 _value = true_value;
             }
-            else if (isIntValue(n1) && isIntValue(n2) && n1 != n2) {
-                _value = NULL;
-            }
+            // else if (isIntValue(n1) && isIntValue(n2) && n1 != n2) {
+            //     _value = NULL;
+            // }
             else if (!n1 || !n2) {
                 _value = NULL;
             }
@@ -715,10 +716,11 @@ eval_eq:
             // else if (n1->type == INT && n2->type == INT && n1->n == n2->n) {
             //     _value = true_value;
             // }
-            // Atom equality
-            else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
-                _value = true_value;
-            } else {
+            // // Atom equality
+            // else if (n1->type == ATOM && n2->type == ATOM && (n1->str == n2->str)) {
+            //     _value = true_value;
+            // } 
+            else {
                 _value = NULL;
             }
             return;
@@ -822,7 +824,8 @@ eval_lambda_call:
                 _value = NULL;
             }
         }
-        _str = curargname->value->str;
+        // _str = curargname->value->str;
+        atom2Str(curargname->value);
         _env = curenv;
         if (curlambda->type == L_CLOSURE) {
             curenv = newEnv();
@@ -896,15 +899,15 @@ void printValue() {
             k = q;
         } while (k);
         #undef p
+    } else if (isAtomValue(_value)){
+        debug("<atom>");
+        atom2Str(v);
     } else {
         k = v->type;
         if (k == LAMBDA) {
             debug("<lambda>");
             k = v->lambda->type;
             _str = (k == L_LAMBDA) ? "#<Lambda>" : (k == L_MACRO) ? "#<Macro>" : "#<Closure>";
-        } else if (k == ATOM) {
-            debug("<atom>");
-            _str = v->str;
         } else {
             debug("<list>");
             list = (List*)v;
@@ -928,6 +931,8 @@ printlist:
 #undef v
 
 int main (void) {
+    str2Atom(t_str);
+    true_value = _value;
     c = getchar();
     do {
         parseExpr(curlist);
@@ -937,6 +942,9 @@ int main (void) {
     ((List*)nil)->next = NULL;
     while (initlist) {
         eval(initlist->value);
+        // 
+        // _value = initlist->value;
+        // printValue();
         initlist = initlist->next;
     }
 #ifdef ELVM
