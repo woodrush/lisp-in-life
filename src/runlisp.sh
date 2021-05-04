@@ -26,6 +26,28 @@ wc -l lisp.qftasm
 
 # echo 1 | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+
+echo "(print (< -5 0))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -5 0))"
+echo "(print (< -5 -2))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -5 -2))"
+echo "(print (< -2 -5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -2 -5))"
+echo "(print (< -2 0))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -2 0))"
+echo "(print (< 0 -2))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< 0 -2))"
+echo "(print (> -5 0))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -5 0))"
+echo "(print (> -5 -2))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -5 -2))"
+echo "(print (> -2 -5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -2 -5))"
+echo "(print (> -2 0))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -2 0))"
+echo "(print (> 0 -2))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> 0 -2))"
+echo "(print (< -5 1))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -5 1))"
+echo "(print (< -5 -2))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -5 -2))"
+echo "(print (< -2 -5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -2 -5))"
+echo "(print (< -2 1))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -2 1))"
+echo "(print (< 1 -2))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< 1 -2))"
+echo "(print (> -5 1))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -5 1))"
+echo "(print (> -5 -2))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -5 -2))"
+echo "(print (> -2 -5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -2 -5))"
+echo "(print (> -2 1))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> -2 1))"
+echo "(print (> 1 -2))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (> 1 -2))"
+echo "===="
 echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 echo "(print ((lambda (n) (+ 1 n)) 5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 echo "(print -5)" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm

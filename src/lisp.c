@@ -710,10 +710,26 @@ eval_cmp:
             c_eval = headstr[0];
             _value = arg2list->value;
             evalAsInt();
+#ifndef ELVM
+            i &= valuemask_14;
+#endif
+            debug1_2("[arg2:%lld]\n", i);
+            if (i > 8191) {
+                i = i - 16384;
+            }
+            debug1_2("[arg2:%lld]\n", i);
             n_ = i;
             _value = arg1;
             evalAsInt();
-            j = i < n_;
+#ifndef ELVM
+            i &= valuemask_14;
+#endif
+            debug1_2("[arg1:%lld]\n", i);
+            if (i > 8191) {
+                i = i - 16384;
+            }
+            debug1_2("[arg1:%lld]\n", i);
+            j = (int)i < (int)n_;
             _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
         // }
@@ -828,18 +844,18 @@ void printValue() {
     if (isIntValue(_value)) {
         debug("<int>");
         k = ((unsigned long long)v) & (~typemask);
-        // printf("[%lld]\n", k);
+        // debug1_2("[%lld]\n", k);
 #ifndef ELVM
         k &= valuemask_14;
 #endif
         debug1_2("[%lld]", (unsigned long long)v);
         debug1_2("[%lld]", k);
-        // printf("[%lld]\n", k);
+        // debug1_2("[%lld]\n", k);
         if (k > 8191) {
             putchar('-');
             k = 16384-k;
         }
-        // printf("[%lld]\n", k);
+        // debug1_2("[%lld]\n", k);
         _str = buf + 7;
         *_str = '\0';
         do {
