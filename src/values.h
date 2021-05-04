@@ -171,4 +171,4 @@ Env initialenv = {
 };
 
 // .type = 1, since ->type and ->next are inside the same union
-List nil_value = { .value = NULL };
+List nil_value = { .next = NULL, .value = NULL };

@@ -893,5 +893,6 @@ int main (void) {
     }
 #ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+    *(*((char**)2)) = 0;
 #endif
 }
