@@ -903,7 +903,7 @@ int main (void) {
     do {
         parseExpr(curlist);
     } while((curlist = curlist->next));
-
+// return 0;
     initlist = ((List*)nil)->next;
     ((List*)nil)->next = NULL;
     while (initlist) {
