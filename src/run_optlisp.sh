@@ -21,9 +21,14 @@ diff opt8.qftasmpp opt9.qftasmpp | wc -l
 # python ./src/qftasmopt.py opt7.qftasmpp > opt8.qftasmpp  && wc -l opt8.qftasmpp
 # python ./src/qftasmopt.py opt8.qftasmpp > opt9.qftasmpp  && wc -l opt9.qftasmpp
 
-python ../elvm/tools/qftasm/qftasm_pp.py opt7.qftasmpp > lisp_opt.qftasm
 
-# # # wc -l lisp_opt.qftasm
+# python ../elvm/tools/qftasm/qftasm_pp.py opt9.qftasmpp > lisp_opt_nomemory.qftasm
+
+
+
+python ../elvm/tools/qftasm/qftasm_pp.py opt9.qftasmpp > lisp_opt.qftasm
+
+# # # # wc -l lisp_opt.qftasm
 
 echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 
