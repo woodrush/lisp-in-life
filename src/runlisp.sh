@@ -14,8 +14,6 @@ python ../elvm/tools/qftasm/qftasm_pp.py tmp.qftasmpp > lisp.qftasm
 
 wc -l lisp.qftasm
 
-echo 1 | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 
 # echo 1 | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > ramdump_1.txt
 # cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > ramdump_print.txt
@@ -26,11 +24,13 @@ cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo 1 | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > ramdump_1_3.txt
 # cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > ramdump_print_3.txt
 
-echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-echo "(print ((lambda (n) (+ 1 n)) 5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-echo "(print ())" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo 1 | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo "(print ((lambda (n) (+ 1 n)) 5))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo "(print ())" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm

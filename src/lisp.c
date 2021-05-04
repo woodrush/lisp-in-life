@@ -881,7 +881,7 @@ int main (void) {
     do {
         parseExpr(curlist);
     } while((curlist = curlist->next));
-    
+
     initlist = ((List*)nil)->next;
     ((List*)nil)->next = NULL;
     while (initlist) {
@@ -893,6 +893,6 @@ int main (void) {
     }
 #ifdef ELVM
     *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
-    *(*((char**)2)) = 0;
+    *(*((char**)QFTASM_STDOUT)) = 0;
 #endif
 }

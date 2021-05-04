@@ -1,5 +1,6 @@
-#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 1200
+#define QFTASM_RAMSTDIN_BUF_STARTPOSITION 700
 
+#define QFTASM_STDOUT 2
 #define NULL 0
 // #define isEOF(x) (!x)
 // #define isNotEOF(x) (x)
@@ -37,16 +38,8 @@
 #define atom_str 110
 
 #define last_op atom_str
-#define opstring_head lambda_str
 
 //====================================================================================
-
-// char* _str;
-// int q, r;
-// int i;
-// int j;
-// int k;
-
 
 int getchar(void);
 int putchar(int c);
@@ -54,22 +47,10 @@ void exit(int s);
 
 extern int* _edata;
 
-// int _malloc_bytes;
-// void* _malloc_result;
-
-// void malloc_k() {
-//     _malloc_result = (int)_edata;
-//     _edata += _malloc_bytes;
-//     // if ((int*)r > _edata) {
-//     //     _str = "Memory overflow\n";
-//     //     for (; *_str; _str++){
-//     //         putchar(*_str);
-//     //     }
-//     //     exit(1);
-//     // }
-//     // return (int*)r;
-// }
-#define malloc_k(_malloc_bytes, _malloc_result) { _malloc_result = (int)_edata; _edata += _malloc_bytes; }
+#define malloc_k(_malloc_bytes, _malloc_result) { \
+    _malloc_result = (int)_edata;                 \
+    _edata += _malloc_bytes;                      \
+}
 
 void _div(int n, int m);
 
