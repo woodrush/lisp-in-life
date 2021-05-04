@@ -65,8 +65,8 @@ typedef enum {
 typedef struct Value {
     unsigned long type;
     union {
-        char* str;
-        int n;
+        // char* str;
+        // int n;
         struct Lambda* lambda;
         struct Value* value;
     };
