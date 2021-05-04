@@ -51,19 +51,21 @@ typedef enum {
     INT    = (unsigned long long)2<<14,
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
+#  define typemaskinv (0b0011111111111111)
 #else 
 typedef enum {
     ATOM   = (unsigned long long)1<<62,
     INT    = (unsigned long long)2<<62,
     LAMBDA = (unsigned long long)3<<62,
 } Valuetype;
+#  define typemaskinv (~LAMBDA)
 #endif
 
 #define typemask LAMBDA
 
-#define isIntValue(x) ((((unsigned long long)(x)) & typemask) == INT)
-#define isAtomValue(x) ((((unsigned long long)(x)) & typemask) == ATOM)
-#define isLambdaValue(x) ((((unsigned long long)(x)) & typemask) == LAMBDA)
+#define isIntValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == INT)
+#define isAtomValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == ATOM)
+#define isLambdaValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == LAMBDA)
 
 
 typedef void* Value;
@@ -79,10 +81,6 @@ typedef struct StringTable {
     struct StringTable* lesser;
     struct StringTable* greater;
 } StringTable;
-
-typedef enum {
-    ENV_PERSISTENT=1, ENV_TEMPORARY=2
-} Envtype;
 
 typedef struct Env {
     char* varname;
@@ -180,7 +178,7 @@ void _div(int n, int m) {
 
 #define str2Atom(__str) {                                   \
     debug("str2Atom\n");                                    \
-    _value = (Value) (((unsigned long long)__str) | ATOM); \
+    _value = (Value) (((unsigned long long)__str) ^ ATOM); \
 }
 
 #define atom2Str(__value) {                                       \
@@ -199,7 +197,7 @@ void _div(int n, int m) {
 
 #define lambda2Value(__lambda) {                                 \
     debug("lambda2Value\n");                                     \
-    _value = (Value) (((unsigned long long)__lambda) | LAMBDA); \
+    _value = (Value) (((unsigned long long)__lambda) ^ LAMBDA); \
 }
 
 #define value2Lambda(__value, __outvalue) {                              \
@@ -252,13 +250,11 @@ StringTable** branch;
     }                                \
     i = j ? i : -i;                  \
 }
-#undef str
-#undef sign
 
 
 #define newIntValue() {                                \
     debug("newIntValue\n");                            \
-    _value = (Value) (((unsigned long long)i) | INT); \
+    _value = (Value) (((unsigned long long)i) ^ INT); \
 }
 
 #define pushTailList(__value) {      \
