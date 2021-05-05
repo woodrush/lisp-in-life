@@ -859,21 +859,21 @@ eval_lambda_call:
     _evalenv = curenv;
 
     if (lambdaType(curlambda) == L_MACRO) {
-        // evalstack.prev_edata = 0;
-// #ifdef ELVM
-//         if (!macro_eval) {
-//             macro_eval = 1;
-//             evalstack.prev_edata =_edata;
-//             _edata = 1780;
-//         }
-// #endif
+        evalstack.prev_edata = 0;
+#ifdef ELVM
+        if (!macro_eval) {
+            macro_eval = 1;
+            evalstack.prev_edata =_edata;
+            _edata = 1780;
+        }
+#endif
         eval((Value)curlambda->body);
-// #ifdef ELVM
-//         if (evalstack.prev_edata) {
-//             _edata = evalstack.prev_edata;
-//             macro_eval = 0;
-//         }
-// #endif
+#ifdef ELVM
+        if (evalstack.prev_edata) {
+            _edata = evalstack.prev_edata;
+            macro_eval = 0;
+        }
+#endif
 
         _evalenv = curenv;
         // _evalenv = curlambda->env;

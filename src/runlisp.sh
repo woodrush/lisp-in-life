@@ -56,7 +56,7 @@ wc -l lisp.qftasm
 # echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 
-# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
