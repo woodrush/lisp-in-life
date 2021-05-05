@@ -34,11 +34,13 @@ extern int evalhash;
 #  define debug1(x,y)   // printf(x,y)
 #  define debug1_2(x,y) // printf(x,y)
 #  define debug2(x,y,z) // printf(x,y,z)
+#  define debug_malloc(x) printf(x)
 #else
 #  define debug(x)
 #  define debug1(x,y)
 #  define debug1_2(x,y)
 #  define debug2(x,y,z)
+#  define debug_malloc(x)
 #endif
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
@@ -49,7 +51,12 @@ typedef enum {
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
 #  define typemaskinv (0b0011111111111111)
-#else 
+#define buf ((char*)65336)
+// int* _edata_stringtable = ((int*)65368);
+DEFLOCATION int* _edata_stringtable;
+
+
+#else
 typedef enum {
     ATOM   = (unsigned long long)1<<62,
     INT    = (unsigned long long)2<<62,
@@ -57,6 +64,8 @@ typedef enum {
 } Valuetype;
 #  define typemaskinv (~LAMBDA)
 #  define valuemask_14 (((unsigned long long)1<<14)-1)
+char buf[32];
+
 #endif
 
 #define typemask LAMBDA
@@ -101,7 +110,6 @@ typedef struct Lambda {
 
 DEFLOCATION char c;
 
-char buf[32];
 DEFLOCATION char* s1;
 DEFLOCATION char* s2;
 DEFLOCATION char* s3;
@@ -186,7 +194,7 @@ void _div(int n, int m) {
 
 #define newLambdaData(__target, __argnames, __body, __env, __type) {   \
     malloc_k(sizeof(Lambda), __target);                                \
-    debug("lambda 1\n");                                               \
+    debug_malloc("lambda 1\n");                                        \
     _lambda->argnames = __argnames;                                    \
     _lambda->body = __body;                                            \
     _lambda->env = __env;                                              \
@@ -210,7 +218,7 @@ List* newList(Value node, List* next) {
     // _malloc_bytes = sizeof(Value);
     malloc_k(sizeof(List), ret);
     // ret = (Value) _malloc_result;
-    debug("newList\n");
+    debug_malloc("newList\n");
     ret->value = node;
     ret->next = next;
     return ret;
@@ -219,8 +227,8 @@ List* newList(Value node, List* next) {
 
 
 #define newStringTable(__stringtable, __str) {      \
-    malloc_k(sizeof(StringTable), __stringtable);   \
-    debug("newStringTable\n");                      \
+    malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stringtable);   \
+    debug_malloc("newStringTable\n");                      \
     _stringtable->varname = __str;                  \
     _stringtable->lesser = NULL;                    \
     _stringtable->greater = NULL;                   \
@@ -354,7 +362,7 @@ getOrSetAtomFromStringTable_setstringtable:
             malloc_k(i+1, _str);
             s1 = _str;
             s2 = buf;
-            debug("parseAtom\n");
+            debug_malloc("parseAtom (new string)\n");
             for(; *s2; ++s1, ++s2) {
                 *s1 = *s2;
             }
@@ -384,7 +392,7 @@ Env* newEnv() {
     // _malloc_bytes = sizeof(Env);
     malloc_k(sizeof(Env), _env2);
     // _env2 = (Env*) _malloc_result;
-    debug("newEnv\n");
+    debug_malloc("newEnv\n");
     _env2->varname = _str;
     _env2->value = _value;
     _env2->next = _env;
@@ -905,7 +913,9 @@ int main (void) {
     do {
         parseExpr(curlist);
     } while((curlist = curlist->next));
-// return 0;
+
+    debug_malloc("==== end of parsing phase ====\n");
+
     initlist = ((List*)nil)->next;
     ((List*)nil)->next = NULL;
     while (initlist) {

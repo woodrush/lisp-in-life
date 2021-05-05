@@ -74,7 +74,8 @@ nil:
 true_value:
     .long 0
     .long eval_eval
-    .long 0
+_edata_stringtable:
+    .long 65368
     .long 0
     .long eval_cdr
     .long 0
