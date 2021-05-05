@@ -114,13 +114,13 @@
 # echo ""
 # gcc src/lisp.c -Isrc -DGCC && echo "(print (> 1 5))" | ./a.out
 # echo ""
-gcc src/lisp.c -Isrc -DGCC && cat print.lisp | ./a.out > print.gcc.out
+gcc src/lisp.c -Isrc -DGCC && cat print.lisp | ./a.out #> print.gcc.out
 echo ""
-gcc src/lisp.c -Isrc -DGCC && cat fact.lisp | ./a.out > fact.gcc.out
+gcc src/lisp.c -Isrc -DGCC && cat fact.lisp | ./a.out #> fact.gcc.out
 echo ""
-gcc src/lisp.c -Isrc -DGCC && cat primes.lisp | ./a.out > primes.gcc.out
+gcc src/lisp.c -Isrc -DGCC && cat primes.lisp | ./a.out #> primes.gcc.out
 echo ""
-gcc src/lisp.c -Isrc -DGCC && cat objects.lisp | ./a.out > objects.gcc.out
+gcc src/lisp.c -Isrc -DGCC && cat objects.lisp | ./a.out #> objects.gcc.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print (lambda () 1))" | ./a.out
 echo ""

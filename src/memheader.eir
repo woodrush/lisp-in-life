@@ -71,15 +71,14 @@ curlist:
 nil:
     .long nil_value
     .long eval_arith
-true_value:
+macro_eval:
     .long 0
     .long eval_eval
 nil_value: # Uses 2 bytes of memory
     .long 0
     .long 0
     .long eval_cdr
-_edata_stack:
-    .long 65386
+    .long 0
     .long eval_arith
     .long eval_arith
     .long eval_cmp

@@ -34,7 +34,7 @@ extern int evalhash;
 #  define debug1(x,y)   // printf(x,y)
 #  define debug1_2(x,y) // printf(x,y)
 #  define debug2(x,y,z) // printf(x,y,z)
-#  define debug_malloc(x) printf(x)
+#  define debug_malloc(x) // printf(x)
 #else
 #  define debug(x)
 #  define debug1(x,y)
@@ -89,6 +89,7 @@ typedef enum {
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
 
+DEFLOCATION macro_eval;
 int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 
 #  define typemaskinv (0b0011111111111111)
@@ -100,8 +101,8 @@ int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 #define stringTableHeadList ((StringTable**)(stack_head+32))
 // #define _edata_stack ((int*)65385)
 
-// int* _edata_stack = ((int*)65368);
-DEFLOCATION int* _edata_stack;
+#define _edata_stack (*((int*)stack_head+48))
+// DEFLOCATION int* _edata_stack;
 DEFLOCATION List nil_value;
 
 #else
@@ -155,19 +156,20 @@ DEFLOCATION Env* _env;
 DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
-DEFLOCATION Value true_value;
-// DEFLOCATION Value true_value = &t_value;
-
 #ifdef ELVM
 DEFLOCATION Env* _evalenv;
 DEFLOCATION Value nil;
 DEFLOCATION List* initlist;
 DEFLOCATION List* curlist;
+// true_value is hardcoded in memheader.eir for ELVM
+Value true_value = t_str ^ ATOM;
 #else
 DEFLOCATION Env* _evalenv = &initialenv;
 DEFLOCATION Value nil = (Value)&nil_value;
 DEFLOCATION List* initlist = &nil_value;
 DEFLOCATION List* curlist = &nil_value;
+// true_value is hardcoded in memheader.eir for ELVM
+Value true_value;
 #endif
 
 
@@ -175,7 +177,7 @@ DEFLOCATION Value _value;
 DEFLOCATION List* _list;
 
 DEFLOCATION int sthash;
-int macro_eval = 0;
+
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
@@ -263,6 +265,7 @@ List* newList(Value node, List* next) {
     __stringtable->greater = NULL;                   \
 }
 
+#ifndef memoryless_rom
 StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
     StringTable* ret;
     malloc_k_pos(sizeof(StringTable), ret, _edata_stack);
@@ -272,7 +275,7 @@ StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* gre
     ret->greater = greater;
     return ret;
 }
-
+#endif
 
 
 StringTable* stringtable;
@@ -962,8 +965,15 @@ printlist:
 }
 
 int main (void) {
+#ifndef ELVM
     str2Atom(t_str);
     true_value = _value;
+#endif
+
+#ifndef memoryless_rom
+#   ifdef ELVM
+    _edata_stack = stack_head+49;
+#   endif
 
     stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
     stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
@@ -989,7 +999,10 @@ int main (void) {
     stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
     stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
     stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
-
+#endif
+#ifdef precalculation_run
+    return 0;
+#endif
 
     c = getchar();
     do {
