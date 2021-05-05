@@ -1,6 +1,6 @@
-# ../elvm/out/8cc -S -DELVM -Dprecalculation_run -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
+../elvm/out/8cc -S -DELVM -Dprecalculation_run -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
 
-../elvm/out/8cc -S -DELVM -Dskip_precalculation -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
+# ../elvm/out/8cc -S -DELVM -Dskip_precalculation -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
 
 # ../elvm/out/8cc -S -DELVM -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
 
@@ -17,7 +17,7 @@ python ../elvm/tools/qftasm/qftasm_pp.py tmp.qftasmpp > lisp.qftasm
 
 wc -l lisp.qftasm
 
-# echo " " | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > src/precalculated_memmap.txt
+echo " " | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm > src/precalculated_memmap.txt
 
 
 # echo "(print (< -5 0))"  | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm && hy -c "(print (< -5 0))"
@@ -65,7 +65,7 @@ wc -l lisp.qftasm
 # echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 
-cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
-cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
+# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm

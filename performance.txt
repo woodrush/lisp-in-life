@@ -1,4 +1,5 @@
 Full run:
+                           print   fact    primes  objects
 Linear search:             8955    74707   451068  239627  
 Binary search v1:          18705   86044   448457  250697   
 Binary search v2:          16709   81885   441279  236820   Code optimization
@@ -11,6 +12,8 @@ List-centric parse v2:     10598   58983   342057  169339
 Jump hashtable in header:  10083   57580   331297  167283
 C-layer getchar:           10111   58276   329306  169433
 Assembly getchar:          10062   57226   325363  166146
+10-bit RAM:                 4200   53501   350409  165718
+
 
 Pre-parse run (string table creation overheaad):
 Linear search:         3421
