@@ -34,7 +34,7 @@ extern int evalhash;
 #  define debug1(x,y)   // printf(x,y)
 #  define debug1_2(x,y) // printf(x,y)
 #  define debug2(x,y,z) // printf(x,y,z)
-#  define debug_malloc(x) //printf(x)
+#  define debug_malloc(x) printf(x)
 #else
 #  define debug(x)
 #  define debug1(x,y)
@@ -93,11 +93,16 @@ typedef enum {
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
 #  define typemaskinv (0b0011111111111111)
-#define buf ((char*)65352)
-#define stringTableHeadList ((StringTable**)65336)
+// #define buf ((char*)65352)
+// #define stringTableHeadList ((StringTable**)65336)
 
-// int* _edata_stringtable = ((int*)65368);
-DEFLOCATION int* _edata_stringtable;
+#define stack_head (65536-QFTASM_STACK_SIZE)
+#define buf ((char*)stack_head)
+#define stringTableHeadList ((StringTable**)(stack_head+32))
+// #define _edata_stack ((int*)65385)
+
+// int* _edata_stack = ((int*)65368);
+DEFLOCATION int* _edata_stack;
 DEFLOCATION List nil_value;
 
 #else
@@ -160,8 +165,8 @@ DEFLOCATION List* curlist = &nil_value;
 DEFLOCATION Value _value;
 DEFLOCATION List* _list;
 
-
 DEFLOCATION int sthash;
+
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
@@ -243,7 +248,7 @@ List* newList(Value node, List* next) {
 
 
 #define newStringTable_(__stringtable, __str) {      \
-    malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stringtable);   \
+    malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stack);   \
     debug_malloc("newStringTable_\n");                      \
     __stringtable->varname = __str;                  \
     __stringtable->lesser = NULL;                    \
@@ -252,7 +257,7 @@ List* newList(Value node, List* next) {
 
 StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
     StringTable* ret;
-    malloc_k_pos(sizeof(StringTable), ret, _edata_stringtable);
+    malloc_k_pos(sizeof(StringTable), ret, _edata_stack);
     debug_malloc("newStringTable\n");
     ret->varname = varname;
     ret->lesser = lesser;
@@ -848,12 +853,15 @@ eval_lambda_call:
     evalstack_env2 = _evalenv;
     _evalenv = curenv;
 
-    eval((Value)curlambda->body);
     if (curlambda->type == L_MACRO) {
+        eval((Value)curlambda->body);
+
         _evalenv = curenv;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
+    } else {
+        eval((Value)curlambda->body);
     }
     _evalenv = evalstack_env2;
     // _evalenv = tempenv;

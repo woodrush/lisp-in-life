@@ -74,12 +74,12 @@ nil:
 true_value:
     .long 0
     .long eval_eval
-nil_value:
+nil_value: # Uses 2 bytes of memory
     .long 0
     .long 0
     .long eval_cdr
-_edata_stringtable:
-    .long 65368
+_edata_stack:
+    .long 65386
     .long eval_arith
     .long eval_arith
     .long eval_cmp
