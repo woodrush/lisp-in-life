@@ -226,13 +226,14 @@ List* newList(Value node, List* next) {
 }
 
 
-#define newStringTable(__stringtable, __str) {      \
+#define newStringTable_(__stringtable, __str) {      \
     malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stringtable);   \
     debug_malloc("newStringTable\n");                      \
-    _stringtable->varname = __str;                  \
-    _stringtable->lesser = NULL;                    \
-    _stringtable->greater = NULL;                   \
+    __stringtable->varname = __str;                  \
+    __stringtable->lesser = NULL;                    \
+    __stringtable->greater = NULL;                   \
 }
+
 
 StringTable* stringtable;
 StringTable** branch;
@@ -366,7 +367,7 @@ getOrSetAtomFromStringTable_setstringtable:
             for(; *s2; ++s1, ++s2) {
                 *s1 = *s2;
             }
-            newStringTable(_stringtable, _str);
+            newStringTable_(_stringtable, _str);
             *branch = _stringtable;
             goto getOrSetAtomFromStringTable_end;
         }
@@ -844,7 +845,6 @@ eval_lambda_call:
 #undef evalstack_env
 #undef evalstack_env2
 
-#define v _value
 void printValue() {
     List* list;
     if (!_value) {
@@ -854,12 +854,12 @@ void printValue() {
 
     if (isIntValue(_value)) {
         debug("<int>");
-        k = ((unsigned long long)v) & (~typemask);
+        k = ((unsigned long long)_value) & (~typemask);
         // debug1_2("[%lld]\n", k);
 #ifndef ELVM
         k &= valuemask_14;
 #endif
-        debug1_2("[%lld]", (unsigned long long)v);
+        debug1_2("[%lld]", (unsigned long long)_value);
         debug1_2("[%lld]", k);
         // debug1_2("[%lld]\n", k);
         if (k > 8191) {
@@ -877,7 +877,7 @@ void printValue() {
         } while (k);
     } else if (isAtomValue(_value)){
         debug("<atom>");
-        atom2Str(v);
+        atom2Str(_value);
     } else if (isLambdaValue(_value)){
         debug("<lambda>");
         value2Lambda(_value, _value);
@@ -888,7 +888,7 @@ void printValue() {
     } else {
         debug("<list>");
 printlist:
-        list = (List*)v;
+        list = (List*)_value;
         putchar('(');
         while(list && (_value = list->value)) {
             // _value = list->value;
@@ -904,7 +904,6 @@ printlist:
         putchar(*_str);
     }
 }
-#undef v
 
 int main (void) {
     str2Atom(t_str);

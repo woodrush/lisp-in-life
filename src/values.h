@@ -88,7 +88,7 @@ StringTable stringtable_eq = {
     .lesser = &stringtable_car,
     .greater = &stringtable_progn,
 };
-StringTable stringtable_t = {
+StringTable stringtable_true = {
     .varname = t_str,
     .lesser = NULL,
     .greater = NULL,
@@ -149,7 +149,7 @@ StringTable* stringTableHeadList[16] = {
     &stringtable_lambda,     // 1 stringtable_atom
     &stringtable_macro,      // 2
     &stringtable_cons,       // 3
-    &stringtable_t,          // 4
+    &stringtable_true,       // 4
     NULL,                    // 5
     &stringtable_eq,         // 6  stringtable_car, stringtable_progn
     NULL,                    // 7
