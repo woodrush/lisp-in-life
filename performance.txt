@@ -15,6 +15,8 @@ Assembly getchar:          10062   57226   325363  166146
 10-bit RAM:                 4200   53501   350409  165718
 
 
+Varlife generations:       178,257,857
+
 Pre-parse run (string table creation overheaad):
 Linear search:         3421
 Binary search v3:      3650
