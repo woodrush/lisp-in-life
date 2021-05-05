@@ -268,7 +268,7 @@ List* newList(Value node, List* next) {
     __stringtable->greater = NULL;                   \
 }
 
-#ifndef memoryless_rom
+#ifndef skip_precalculation
 StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
     StringTable* ret;
     malloc_k_pos(sizeof(StringTable), ret, _edata_stack);
@@ -968,12 +968,12 @@ printlist:
 }
 
 int main (void) {
-#ifndef ELVM
+#ifdef GCC
     str2Atom(t_str);
     true_value = _value;
 #endif
 
-#ifndef memoryless_rom
+#ifndef skip_precalculation
 #   ifdef ELVM
     _edata_stack = stack_head+49;
 #   endif

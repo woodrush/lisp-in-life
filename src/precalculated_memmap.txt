@@ -1,0 +1,255 @@
+Address overflow at pc 683 with address 872 (d2), n_steps: 193
+Address overflow at pc 688 with address 872 (d2), n_steps: 198
+Address overflow at pc 683 with address 872 (d2), n_steps: 345
+Address overflow at pc 688 with address 872 (d2), n_steps: 350
+Address overflow at pc 683 with address 872 (d2), n_steps: 445
+Address overflow at pc 688 with address 872 (d2), n_steps: 450
+Address overflow at pc 683 with address 872 (d2), n_steps: 593
+Address overflow at pc 688 with address 872 (d2), n_steps: 598
+Address overflow at pc 683 with address 872 (d2), n_steps: 741
+Address overflow at pc 688 with address 872 (d2), n_steps: 746
+Address overflow at pc 683 with address 872 (d2), n_steps: 889
+Address overflow at pc 688 with address 872 (d2), n_steps: 894
+Address overflow at pc 683 with address 872 (d2), n_steps: 1081
+Address overflow at pc 688 with address 872 (d2), n_steps: 1086
+Address overflow at pc 683 with address 872 (d2), n_steps: 1189
+Address overflow at pc 688 with address 872 (d2), n_steps: 1194
+Address overflow at pc 683 with address 872 (d2), n_steps: 1289
+Address overflow at pc 688 with address 872 (d2), n_steps: 1294
+Address overflow at pc 683 with address 872 (d2), n_steps: 1481
+Address overflow at pc 688 with address 872 (d2), n_steps: 1486
+Address overflow at pc 683 with address 872 (d2), n_steps: 1629
+Address overflow at pc 688 with address 872 (d2), n_steps: 1634
+Address overflow at pc 683 with address 872 (d2), n_steps: 1733
+Address overflow at pc 688 with address 872 (d2), n_steps: 1738
+Address overflow at pc 683 with address 872 (d2), n_steps: 1881
+Address overflow at pc 688 with address 872 (d2), n_steps: 1886
+Address overflow at pc 683 with address 872 (d2), n_steps: 2029
+Address overflow at pc 688 with address 872 (d2), n_steps: 2034
+Address overflow at pc 683 with address 872 (d2), n_steps: 2137
+Address overflow at pc 688 with address 872 (d2), n_steps: 2142
+Address overflow at pc 683 with address 872 (d2), n_steps: 2237
+Address overflow at pc 688 with address 872 (d2), n_steps: 2242
+Address overflow at pc 683 with address 872 (d2), n_steps: 2389
+Address overflow at pc 688 with address 872 (d2), n_steps: 2394
+Address overflow at pc 683 with address 872 (d2), n_steps: 2489
+Address overflow at pc 688 with address 872 (d2), n_steps: 2494
+Address overflow at pc 683 with address 872 (d2), n_steps: 2641
+Address overflow at pc 688 with address 872 (d2), n_steps: 2646
+Address overflow at pc 683 with address 872 (d2), n_steps: 2741
+Address overflow at pc 688 with address 872 (d2), n_steps: 2746
+Address overflow at pc 683 with address 872 (d2), n_steps: 2893
+Address overflow at pc 688 with address 872 (d2), n_steps: 2898
+Address overflow at pc 683 with address 872 (d2), n_steps: 2993
+Address overflow at pc 688 with address 872 (d2), n_steps: 2998
+Address overflow at pc 683 with address 872 (d2), n_steps: 3141
+Address overflow at pc 688 with address 872 (d2), n_steps: 3146
+
+stdin buffer:  
+
+ROM size: 6442
+n_steps: 3268
+Nonzero write count ram addresses: 237
+Nonzero write count ram max address: 1023
+[[65535, 3316], [700, 1], [822, 1], [0, 1945], [0, 903], [65383, 250], [65532, 942], [65535, 278], [65535, 1608], [0, 0], [0, 0], [108, 1], [97, 1], [109, 1], [98, 1], [100, 1], [97, 1], [0, 0], [112, 1], [114, 1]]
+[[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
+824 : 0
+825 : 0
+826 : 0
+827 : 0
+828 : 0
+829 : 0
+830 : 0
+831 : 0
+832 : 0
+833 : 0
+834 : 0
+835 : 0
+836 : 0
+837 : 0
+838 : 0
+839 : 0
+840 : 0
+841 : 0
+842 : 0
+843 : 0
+844 : 0
+845 : 0
+846 : 0
+847 : 0
+848 : 0
+849 : 0
+850 : 0
+851 : 0
+852 : 0
+853 : 0
+854 : 0
+855 : 0
+856 : 65385
+857 : 65391
+858 : 65394
+859 : 65397
+860 : 65400
+861 : 0
+862 : 65409
+863 : 0
+864 : 65412
+865 : 65418
+866 : 65421
+867 : 65430
+868 : 65436
+869 : 65442
+870 : 65448
+871 : 65451
+872 : 65454
+873 : 87
+874 : 0
+875 : 0
+876 : 110
+877 : 0
+878 : 0
+879 : 11
+880 : 65388
+881 : 0
+882 : 61
+883 : 0
+884 : 0
+885 : 78
+886 : 0
+887 : 0
+888 : 85
+889 : 0
+890 : 0
+891 : 55
+892 : 0
+893 : 0
+894 : 45
+895 : 0
+896 : 0
+897 : 75
+898 : 65406
+899 : 65403
+900 : 91
+901 : 0
+902 : 0
+903 : 49
+904 : 0
+905 : 0
+906 : 96
+907 : 0
+908 : 65415
+909 : 102
+910 : 0
+911 : 0
+912 : 67
+913 : 0
+914 : 0
+915 : 83
+916 : 0
+917 : 0
+918 : 24
+919 : 65427
+920 : 65424
+921 : 104
+922 : 0
+923 : 0
+924 : 37
+925 : 65433
+926 : 0
+927 : 100
+928 : 0
+929 : 0
+930 : 18
+931 : 65439
+932 : 0
+933 : 106
+934 : 0
+935 : 0
+936 : 31
+937 : 65445
+938 : 0
+939 : 42
+940 : 0
+941 : 0
+942 : 0
+943 : 0
+944 : 0
+945 : 0
+946 : 0
+947 : 0
+948 : 0
+949 : 0
+950 : 0
+951 : 0
+952 : 0
+953 : 0
+954 : 0
+955 : 0
+956 : 0
+957 : 0
+958 : 0
+959 : 0
+960 : 0
+961 : 0
+962 : 0
+963 : 0
+964 : 0
+965 : 0
+966 : 0
+967 : 0
+968 : 0
+969 : 0
+970 : 0
+971 : 0
+972 : 0
+973 : 0
+974 : 0
+975 : 0
+976 : 0
+977 : 0
+978 : 0
+979 : 0
+980 : 0
+981 : 0
+982 : 0
+983 : 0
+984 : 0
+985 : 0
+986 : 0
+987 : 0
+988 : 0
+989 : 0
+990 : 0
+991 : 0
+992 : 0
+993 : 0
+994 : 0
+995 : 0
+996 : 0
+997 : 0
+998 : 0
+999 : 0
+1000 : 0
+1001 : 0
+1002 : 0
+1003 : 0
+1004 : 0
+1005 : 0
+1006 : 0
+1007 : 0
+1008 : 0
+1009 : 0
+1010 : 0
+1011 : 0
+1012 : 0
+1013 : 0
+1014 : 0
+1015 : 0
+1016 : 0
+1017 : 65451
+1018 : 65535
+1019 : 6274
+1020 : 65368
+1021 : 32
+1022 : 65451
+1023 : 0
