@@ -65,15 +65,11 @@ typedef struct Env {
     struct Env* next;
 } Env;
 
-typedef enum {
-    L_LAMBDA, L_MACRO, L_CLOSURE
-} Lambdatype;
-
 typedef struct Lambda {
     struct List* argnames;
     struct List* body;
     struct Env* env;
-    Lambdatype type;
+    // Lambdatype type;
 } Lambda;
 
 
@@ -92,6 +88,7 @@ typedef enum {
     INT    = (unsigned long long)2<<14,
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
+
 #  define typemaskinv (0b0011111111111111)
 // #define buf ((char*)65352)
 // #define stringTableHeadList ((StringTable**)65336)
@@ -111,6 +108,7 @@ typedef enum {
     INT    = (unsigned long long)2<<62,
     LAMBDA = (unsigned long long)3<<62,
 } Valuetype;
+
 #  define typemaskinv (~LAMBDA)
 #  define valuemask_14 (((unsigned long long)1<<14)-1)
 char buf[32];
@@ -125,6 +123,15 @@ StringTable* stringTableHeadList[16];
 #define isIntValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == INT)
 #define isAtomValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == ATOM)
 #define isLambdaValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == LAMBDA)
+
+typedef enum {
+    L_LAMBDA  = ATOM,
+    L_MACRO   = INT,
+    L_CLOSURE = LAMBDA
+} Lambdatype;
+
+#define lambdaType(lambda) (((unsigned long long)((lambda)->env)) &~ typemaskinv)
+#define lambdaEnv(lambda) ((Env*)(((unsigned long long)((lambda)->env)) &~ typemask))
 
 
 
@@ -166,7 +173,7 @@ DEFLOCATION Value _value;
 DEFLOCATION List* _list;
 
 DEFLOCATION int sthash;
-
+int macro_eval = 0;
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
 
@@ -218,8 +225,7 @@ void _div(int n, int m) {
     debug_malloc("lambda 1\n");                                        \
     _lambda->argnames = __argnames;                                    \
     _lambda->body = __body;                                            \
-    _lambda->env = __env;                                              \
-    _lambda->type = __type;                                            \
+    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
 }
 
 #define lambda2Value(__lambda) {                                 \
@@ -477,6 +483,7 @@ typedef struct {
         char c_eval_;
         List* _list_eval_;
         Value _value_eval;
+        int* prev_edata;
     };
     union {
         Value arg1_;
@@ -813,11 +820,11 @@ eval_lambda_call:
 
     // Th body of the macro should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
-    curenv = (curlambda->type == L_MACRO) ? _evalenv : curlambda->env;
+    curenv = (lambdaType(curlambda) == L_MACRO) ? _evalenv : lambdaEnv(curlambda);
 
     while (curargname) {
         // Set argument to nil if there are no arguments
-        if (curlambda->type == L_MACRO) {
+        if (lambdaType(curlambda) == L_MACRO) {
             if (curarg) {
                 _value = curarg->value;
             } else {
@@ -833,7 +840,7 @@ eval_lambda_call:
         // _str = curargname->value->str;
         atom2Str(curargname->value);
         _env = curenv;
-        if (curlambda->type == L_CLOSURE) {
+        if (lambdaType(curlambda) == L_CLOSURE) {
             curenv = newEnv();
         } else {
             prependTemporaryEnv(curenv);
@@ -851,8 +858,22 @@ eval_lambda_call:
     evalstack_env2 = _evalenv;
     _evalenv = curenv;
 
-    if (curlambda->type == L_MACRO) {
+    if (lambdaType(curlambda) == L_MACRO) {
+        // evalstack.prev_edata = 0;
+// #ifdef ELVM
+//         if (!macro_eval) {
+//             macro_eval = 1;
+//             evalstack.prev_edata =_edata;
+//             _edata = 1780;
+//         }
+// #endif
         eval((Value)curlambda->body);
+// #ifdef ELVM
+//         if (evalstack.prev_edata) {
+//             _edata = evalstack.prev_edata;
+//             macro_eval = 0;
+//         }
+// #endif
 
         _evalenv = curenv;
         // _evalenv = curlambda->env;
@@ -914,7 +935,7 @@ void printValue() {
     } else if (isLambdaValue(_value)){
         debug("<lambda>");
         value2Lambda(_value, _value);
-        k = ((Lambda*)_value)->type;
+        k = lambdaType((Lambda*)_value);
         putchar('#');
         putchar('<');
         _str = (k == L_LAMBDA) ? "Lambda>" : (k == L_MACRO) ? "Macro>" : "Closure>";
