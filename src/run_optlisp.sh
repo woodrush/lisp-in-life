@@ -1,4 +1,8 @@
-../elvm/out/8cc -S -DELVM -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+# ../elvm/out/8cc -S -DELVM -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+
+../elvm/out/8cc -S -DELVM -Dskip_precalculation -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+
+
 echo "" > tmp.eir
 cat ./src/memheader.eir >> tmp.eir
 cat tmp_.eir >> tmp.eir
