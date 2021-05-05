@@ -74,11 +74,12 @@ nil:
 true_value:
     .long 0
     .long eval_eval
-_edata_stringtable:
-    .long 65368
+nil_value:
+    .long 0
     .long 0
     .long eval_cdr
-    .long 0
+_edata_stringtable:
+    .long 65368
     .long eval_arith
     .long eval_arith
     .long eval_cmp

@@ -43,37 +43,6 @@ extern int evalhash;
 #  define debug_malloc(x)
 #endif
 
-// ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
-#ifdef ELVM
-typedef enum {
-    ATOM   = (unsigned long long)1<<14,
-    INT    = (unsigned long long)2<<14,
-    LAMBDA = (unsigned long long)3<<14,
-} Valuetype;
-#  define typemaskinv (0b0011111111111111)
-#define buf ((char*)65336)
-// int* _edata_stringtable = ((int*)65368);
-DEFLOCATION int* _edata_stringtable;
-
-
-#else
-typedef enum {
-    ATOM   = (unsigned long long)1<<62,
-    INT    = (unsigned long long)2<<62,
-    LAMBDA = (unsigned long long)3<<62,
-} Valuetype;
-#  define typemaskinv (~LAMBDA)
-#  define valuemask_14 (((unsigned long long)1<<14)-1)
-char buf[32];
-
-#endif
-
-#define typemask LAMBDA
-
-#define isIntValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == INT)
-#define isAtomValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == ATOM)
-#define isLambdaValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == LAMBDA)
-
 
 typedef void* Value;
 
@@ -115,7 +84,43 @@ DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
 
+
+// ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
+#ifdef ELVM
+typedef enum {
+    ATOM   = (unsigned long long)1<<14,
+    INT    = (unsigned long long)2<<14,
+    LAMBDA = (unsigned long long)3<<14,
+} Valuetype;
+#  define typemaskinv (0b0011111111111111)
+#define buf ((char*)65352)
+#define stringTableHeadList ((StringTable**)65336)
+
+// int* _edata_stringtable = ((int*)65368);
+DEFLOCATION int* _edata_stringtable;
+DEFLOCATION List nil_value;
+
+#else
+typedef enum {
+    ATOM   = (unsigned long long)1<<62,
+    INT    = (unsigned long long)2<<62,
+    LAMBDA = (unsigned long long)3<<62,
+} Valuetype;
+#  define typemaskinv (~LAMBDA)
+#  define valuemask_14 (((unsigned long long)1<<14)-1)
+char buf[32];
+// .type = 1, since ->type and ->next are inside the same union
+List nil_value = { .next = NULL, .value = NULL };
 StringTable* stringTableHeadList[16];
+
+#endif
+
+#define typemask LAMBDA
+
+#define isIntValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == INT)
+#define isAtomValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == ATOM)
+#define isLambdaValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == LAMBDA)
+
 
 
 Env initialenv = {
@@ -125,8 +130,6 @@ Env initialenv = {
     .prev = (Env*)1,
 };
 
-// .type = 1, since ->type and ->next are inside the same union
-List nil_value = { .next = NULL, .value = NULL };
 
 
 
