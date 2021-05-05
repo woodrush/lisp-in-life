@@ -399,6 +399,7 @@ getOrSetAtomFromStringTable_setstringtable:
             for(; *s2; ++s1, ++s2) {
                 *s1 = *s2;
             }
+            *s1 = 0;
             newStringTable_(_stringtable, _str);
             *branch = _stringtable;
             goto getOrSetAtomFromStringTable_end;
@@ -976,7 +977,6 @@ int main (void) {
     } while((curlist = curlist->next));
 
     debug_malloc("==== end of parsing phase ====\n");
-
     initlist = ((List*)nil)->next;
     ((List*)nil)->next = NULL;
     while (initlist) {
