@@ -34,7 +34,7 @@ extern int evalhash;
 #  define debug1(x,y)   // printf(x,y)
 #  define debug1_2(x,y) // printf(x,y)
 #  define debug2(x,y,z) // printf(x,y,z)
-#  define debug_malloc(x) printf(x)
+#  define debug_malloc(x) //printf(x)
 #else
 #  define debug(x)
 #  define debug1(x,y)
@@ -115,7 +115,20 @@ DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
 
-#include <values.h>
+StringTable* stringTableHeadList[16];
+
+
+Env initialenv = {
+    .varname = NULL,
+    .value = NULL,
+    .next = NULL,
+    .prev = (Env*)1,
+};
+
+// .type = 1, since ->type and ->next are inside the same union
+List nil_value = { .next = NULL, .value = NULL };
+
+
 
 DEFLOCATION StringTable* _stringtable;
 
@@ -228,11 +241,22 @@ List* newList(Value node, List* next) {
 
 #define newStringTable_(__stringtable, __str) {      \
     malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stringtable);   \
-    debug_malloc("newStringTable\n");                      \
+    debug_malloc("newStringTable_\n");                      \
     __stringtable->varname = __str;                  \
     __stringtable->lesser = NULL;                    \
     __stringtable->greater = NULL;                   \
 }
+
+StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
+    StringTable* ret;
+    malloc_k_pos(sizeof(StringTable), ret, _edata_stringtable);
+    debug_malloc("newStringTable\n");
+    ret->varname = varname;
+    ret->lesser = lesser;
+    ret->greater = greater;
+    return ret;
+}
+
 
 
 StringTable* stringtable;
@@ -908,6 +932,33 @@ printlist:
 int main (void) {
     str2Atom(t_str);
     true_value = _value;
+
+    stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
+    stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
+    stringTableHeadList[2] = newStringTable(macro_str, NULL, NULL);
+    stringTableHeadList[3] = newStringTable(cons_str, NULL, NULL);
+    stringTableHeadList[4] = newStringTable(t_str, NULL, NULL);
+    stringTableHeadList[5] = NULL;
+    stringTableHeadList[6] = newStringTable(
+        eq_str,
+        newStringTable(car_str, NULL, NULL),
+        newStringTable(progn_str, NULL, NULL)
+    );
+    stringTableHeadList[7] = NULL;
+    stringTableHeadList[8] = newStringTable(eval_str, NULL, NULL);
+    stringTableHeadList[9] = newStringTable(cdr_str, NULL, newStringTable(while_str, NULL, NULL));
+    stringTableHeadList[10] = newStringTable(ast_str, NULL, NULL);
+    stringTableHeadList[11] = newStringTable(
+        define_str,
+        newStringTable(plus_str, NULL, NULL),
+        newStringTable(lambdaast_str, NULL, NULL)
+    );
+    stringTableHeadList[12] = newStringTable(list_str, newStringTable(lt_str, NULL, NULL), NULL);
+    stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
+    stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
+    stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
+
+
     c = getchar();
     do {
         parseExpr(curlist);

@@ -36,3 +36,4 @@ char list_str[] = "list";
 //     _malloc_result = malloc(_malloc_bytes);
 // }
 #define malloc_k(_malloc_bytes, _malloc_result) { _malloc_result = malloc(_malloc_bytes); }
+#define malloc_k_pos(_malloc_bytes, _malloc_result, __edata) { _malloc_result = malloc(_malloc_bytes); }
