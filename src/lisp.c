@@ -396,10 +396,7 @@ getOrSetAtomFromStringTable_setstringtable:
             s1 = _str;
             s2 = buf;
             debug_malloc("parseAtom (new string)\n");
-            for(; *s2; ++s1, ++s2) {
-                *s1 = *s2;
-            }
-            *s1 = 0;
+            for(; (*s1 = *s2); ++s1, ++s2) {}
             newStringTable_(_stringtable, _str);
             *branch = _stringtable;
             goto getOrSetAtomFromStringTable_end;
