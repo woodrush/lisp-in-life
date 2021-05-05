@@ -89,6 +89,8 @@ typedef enum {
     LAMBDA = (unsigned long long)3<<14,
 } Valuetype;
 
+int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
+
 #  define typemaskinv (0b0011111111111111)
 // #define buf ((char*)65352)
 // #define stringTableHeadList ((StringTable**)65336)
@@ -1005,7 +1007,7 @@ int main (void) {
         initlist = initlist->next;
     }
 #ifdef ELVM
-    *((char*)(QFTASM_RAMSTDIN_BUF_STARTPOSITION)) = 0;
+    *((char*)(stdin_startpos)) = 0;
     *(*((char**)QFTASM_STDOUT)) = 0;
 #endif
 }
