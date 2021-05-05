@@ -101,7 +101,10 @@ int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 #define stringTableHeadList ((StringTable**)(stack_head+32))
 // #define _edata_stack ((int*)65385)
 
-#define _edata_stack (*((int*)stack_head+48))
+// #define _edata_stack (*((int*)stack_head+48))
+
+#define _edata_stack (*((int*)872))
+
 // DEFLOCATION int* _edata_stack;
 DEFLOCATION List nil_value;
 
