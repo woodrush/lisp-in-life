@@ -878,20 +878,24 @@ eval_lambda_call:
             _edata = 1780;
         }
 #endif
-        eval((Value)curlambda->definition->next->value);
+    }
+    evalstack.curlist = curlambda->definition;
+    while ((evalstack.curlist = evalstack.curlist->next)) {
+        eval(evalstack.curlist->value);
+    }
+    if (lambdaType(curlambda) == L_MACRO) {
 #ifdef ELVM
         if (evalstack.prev_edata) {
             _edata = evalstack.prev_edata;
             macro_eval = 0;
         }
+        
 #endif
 
         _evalenv = evalstack_env2;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
-    } else {
-        eval((Value)curlambda->definition->next->value);
     }
     _evalenv = evalstack_env2;
     // _evalenv = tempenv;
