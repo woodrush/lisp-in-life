@@ -34,6 +34,7 @@
 
 # # # # # wc -l lisp_opt.qftasm
 
+
 echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
 
 cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm

@@ -66,8 +66,9 @@ typedef struct Env {
 } Env;
 
 typedef struct Lambda {
-    struct List* argnames;
-    struct List* body;
+    // struct List* argnames;
+    // struct List* body;
+    struct List* definition;
     struct Env* env;
     // Lambdatype type;
 } Lambda;
@@ -230,12 +231,11 @@ void _div(int n, int m) {
     _str = (char*) (((unsigned long long)__value) & (~typemask)); \
 }
 
-#define newLambdaData(__target, __argnames, __body, __env, __type) {   \
-    malloc_k(sizeof(Lambda), __target);                                \
-    debug_malloc("lambda 1\n");                                        \
-    _lambda->argnames = __argnames;                                    \
-    _lambda->body = __body;                                            \
-    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
+#define newLambdaData(__target, __definition, __env, __type) {   \
+    malloc_k(sizeof(Lambda), __target);                          \
+    debug_malloc("lambda 1\n");                                  \
+    _lambda->definition = __definition;                          \
+    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type); \
 }
 
 #define lambda2Value(__lambda) {                                 \
@@ -503,6 +503,7 @@ typedef struct {
     };
     union {
         List* arg2list_;
+        List* curlist;
         int n_;
         Env* e;
     };
@@ -709,8 +710,7 @@ eval_while:
 eval_createlambda:
             newLambdaData(
                 _lambda,
-                (List*)(((List*)arg1)->value ? arg1 : NULL),
-                (List*)(arg2list->value),
+                ((List*)node)->next,
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
@@ -826,7 +826,7 @@ eval_lambda_call:
     value2Lambda(_value, node);
     // node = (Value)(_value->lambda);
     // curlambda = _value->lambda;
-    curargname = curlambda->argnames;
+    curargname = curlambda->definition->value;
 
 
     // Th body of the macro should be evaluated in the environment they are called in,
@@ -878,7 +878,7 @@ eval_lambda_call:
             _edata = 1780;
         }
 #endif
-        eval((Value)curlambda->body);
+        eval((Value)curlambda->definition->next->value);
 #ifdef ELVM
         if (evalstack.prev_edata) {
             _edata = evalstack.prev_edata;
@@ -886,12 +886,12 @@ eval_lambda_call:
         }
 #endif
 
-        _evalenv = curenv;
+        _evalenv = evalstack_env2;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
     } else {
-        eval((Value)curlambda->body);
+        eval((Value)curlambda->definition->next->value);
     }
     _evalenv = evalstack_env2;
     // _evalenv = tempenv;
