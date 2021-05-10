@@ -120,6 +120,8 @@ gcc src/lisp.c -Isrc -DGCC && cat fact.lisp | ./a.out #> fact.gcc.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && cat primes.lisp | ./a.out #> primes.gcc.out
 echo ""
+gcc src/lisp.c -Isrc -DGCC && cat backquote.lisp | ./a.out #> primes.gcc.out
+echo ""
 gcc src/lisp.c -Isrc -DGCC && cat objects.lisp | ./a.out #> objects.gcc.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print (lambda () 1))" | ./a.out

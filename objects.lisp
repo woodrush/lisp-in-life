@@ -12,7 +12,7 @@
         ())))))))
 
 (define . (macro (object methodname) (list object (list (quote quote) methodname))))
-(define new (lambda (x) (x)))
+(define new (macro (x) (list x)))
 
 (define counter1 (new counter))
 (define counter2 (new counter))

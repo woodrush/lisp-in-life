@@ -66,9 +66,8 @@ typedef struct Env {
 } Env;
 
 typedef struct Lambda {
-    // struct List* argnames;
-    // struct List* body;
-    struct List* definition;
+    struct List* argnames;
+    struct List* body;
     struct Env* env;
     // Lambdatype type;
 } Lambda;
@@ -97,7 +96,8 @@ int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 // #define buf ((char*)65352)
 // #define stringTableHeadList ((StringTable**)65336)
 
-#define stack_head (65536-QFTASM_STACK_SIZE)
+#define max_address 1024
+#define stack_head (max_address-QFTASM_STACK_SIZE)
 #define buf ((char*)stack_head)
 #define stringTableHeadList ((StringTable**)(stack_head+32))
 
@@ -231,11 +231,12 @@ void _div(int n, int m) {
     _str = (char*) (((unsigned long long)__value) & (~typemask)); \
 }
 
-#define newLambdaData(__target, __definition, __env, __type) {   \
-    malloc_k(sizeof(Lambda), __target);                          \
-    debug_malloc("lambda 1\n");                                  \
-    _lambda->definition = __definition;                          \
-    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type); \
+#define newLambdaData(__target, __argnames, __body, __env, __type) {   \
+    malloc_k(sizeof(Lambda), __target);                                \
+    debug_malloc("lambda 1\n");                                        \
+    _lambda->argnames = __argnames;                                    \
+    _lambda->body = __body;                                            \
+    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
 }
 
 #define lambda2Value(__lambda) {                                 \
@@ -349,7 +350,7 @@ parseExprHead:;
         parseExpr(listTail);
 
         _list = listTail->next;
-        pushTailList(_list ? (Value)_list : nil);
+        pushTailList(_list ? (Value)_list : NULL);
         goto parseExprHead;
     }
 
@@ -503,7 +504,6 @@ typedef struct {
     };
     union {
         List* arg2list_;
-        List* curlist;
         int n_;
         Env* e;
     };
@@ -523,6 +523,11 @@ void eval(Value node) {
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
 #define evalstack_env2 (evalstack.e2)
+
+    if (!node) {
+        _value = NULL;
+        return;
+    }
 
     // If the top bit is 1, it is an integer, so return the value itself
     if (isIntValue(node) || isLambdaValue(node)) {
@@ -644,7 +649,7 @@ eval_list:
             #define initlist _list_eval
             #define curlist node
             if (!arg1) {
-                _value = nil;
+                _value = NULL;
             } else {
                 eval(arg1);
                 initlist = newList(_value, NULL);
@@ -710,7 +715,8 @@ eval_while:
 eval_createlambda:
             newLambdaData(
                 _lambda,
-                ((List*)node)->next,
+                (List*)(arg1),
+                (List*)(arg2list->value),
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
@@ -724,8 +730,8 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
-            if (!n1) { n1 = nil; }
-            if (!n2) { n2 = nil; }
+            // if (!n1) { n1 = nil; }
+            // if (!n2) { n2 = nil; }
             // Nil equality and integer equality, and atom equality.
             // Integers are passed as raw values with a flag at the top bit instead of a
             // pointer to a value, so equal integers always have the same n1 and n2.
@@ -818,7 +824,7 @@ eval_lambda_call:
     #define curargname _list_eval
     #define curarg _list_eval_2
     #define curenv evalstack_env
-    #define curlambda ((Lambda*) node) 
+    #define curlambda ((Lambda*) node)
     // If the head of the list is a list or an atom not any of the above,
     // it is expected for it to evaluate to a lambda.
     curarg = ((List*)node)->next;
@@ -826,7 +832,7 @@ eval_lambda_call:
     value2Lambda(_value, node);
     // node = (Value)(_value->lambda);
     // curlambda = _value->lambda;
-    curargname = curlambda->definition->value;
+    curargname = curlambda->argnames;
 
 
     // Th body of the macro should be evaluated in the environment they are called in,
@@ -839,7 +845,7 @@ eval_lambda_call:
             if (curarg) {
                 _value = curarg->value;
             } else {
-                _value = nil;                
+                _value = NULL;
             }
         } else {
             if (curarg) {
@@ -872,30 +878,26 @@ eval_lambda_call:
     if (lambdaType(curlambda) == L_MACRO) {
         evalstack.prev_edata = 0;
 #ifdef ELVM
-        if (!macro_eval) {
-            macro_eval = 1;
+        // if (!macro_eval) {
+        //     macro_eval = 1;
             evalstack.prev_edata =_edata;
-            _edata = 1780;
-        }
+            _edata = stack_head;
+        // }
 #endif
-    }
-    evalstack.curlist = curlambda->definition;
-    while ((evalstack.curlist = evalstack.curlist->next)) {
-        eval(evalstack.curlist->value);
-    }
-    if (lambdaType(curlambda) == L_MACRO) {
+        eval((Value)curlambda->body);
 #ifdef ELVM
         if (evalstack.prev_edata) {
             _edata = evalstack.prev_edata;
-            macro_eval = 0;
+            // macro_eval = 0;
         }
-        
 #endif
 
         _evalenv = evalstack_env2;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
+    } else {
+        eval((Value)curlambda->body);
     }
     _evalenv = evalstack_env2;
     // _evalenv = tempenv;
@@ -1024,7 +1026,7 @@ int main (void) {
     ((List*)nil)->next = NULL;
     while (initlist) {
         eval(initlist->value);
-        // 
+        //
         // _value = initlist->value;
         // printValue();
         initlist = initlist->next;
