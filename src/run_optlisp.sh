@@ -1,6 +1,6 @@
-# # ../elvm/out/8cc -S -DELVM -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+# # ../elvm/out/8cc -S -DQFT -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
 
-# ../elvm/out/8cc -S -DELVM -Dskip_precalculation -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+# ../elvm/out/8cc -S -DQFT -Dskip_precalculation -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
 
 
 # echo "" > tmp.eir

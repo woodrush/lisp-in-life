@@ -1,7 +1,3 @@
-#ifndef GCC
-#  define QFT
-#endif
-
 #ifdef QFT
 #  define DEFLOCATION extern
 #  define BITSIZE 16
@@ -18,8 +14,6 @@ DEFLOCATION int j;
 DEFLOCATION unsigned long long k;
 DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
-// Used only in QFT
-extern int evalhash;
 
 
 
@@ -88,7 +82,6 @@ typedef enum {
 } Valuetype;
 
 
-// ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 #ifdef QFT
     int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 
@@ -97,7 +90,6 @@ typedef enum {
     // #define stringTableHeadList ((StringTable**)65336)
 
     // TODO: hand-fold these to constants
-    #define max_address 1023
     #define stack_head (max_address+1 - QFTASM_STACK_SIZE)
     #define buf ((char*)stack_head)
     #define stringTableHeadList ((StringTable**)(stack_head+32))
@@ -515,7 +507,7 @@ void eval(Value node);
 typedef struct {
     union {
         char c_eval_;
-        List* _list_eval_;
+        List* list;
         Value _value_eval;
         int* prev_edata;
     };
@@ -544,7 +536,7 @@ void eval(Value node) {
     debug("entering eval...\n");
 
 #define _value_eval (evalstack._value_eval)
-#define _list_eval (evalstack._list_eval_)
+#define _list_eval (evalstack.list)
 #define _list_eval_2 (evalstack._list_eval_2)
 #define arg1 (evalstack.arg1_)
 #define arg2list (evalstack.arg2list_)
@@ -552,13 +544,7 @@ void eval(Value node) {
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
 
-    if (!node) {
-        _value = NULL;
-        return;
-    }
-
-    // If the top bit is 1, it is an integer, so return the value itself
-    if (isIntValue(node) || isLambdaValue(node)) {
+    if (!node || isIntValue(node) || isLambdaValue(node)) {
         _value = node;
         return;
     }
@@ -573,13 +559,6 @@ void eval(Value node) {
                 return;
             }
         } while ((_env = _env->next));
-        _value = NULL;
-        return;
-    }
-    // Is a list
-
-    // Is ()
-    if (!(((List*)node)->value)) {
         _value = NULL;
         return;
     }
@@ -601,15 +580,12 @@ void eval(Value node) {
                 arg2list = ((List*)node)->next->next;
             }
         }
-        if (_str == macroast_str) {goto eval_createlambda;}
+
 #ifdef QFT
-    goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
+    goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1))));
 #else
-
-        void* test__[2] = {&&eval_define, &&eval_if};
-
-             if (_str == define_str) {goto *test__[0];}
-        else if (_str == if_str) {goto *test__[1];}
+             if (_str == define_str) goto eval_define;
+        else if (_str == if_str) goto eval_if;
         else if (_str == quote_str) goto eval_quote;
         else if (_str == car_str) goto eval_car;
         else if (_str == cdr_str) goto eval_cdr;
@@ -626,7 +602,7 @@ void eval(Value node) {
         else if (_str == list_str) goto eval_list;
         else goto eval_lambda_call;
 #endif
-        // if (_str == define_str) {
+
 eval_define:;
             eval(arg2list->value);
             _env = _evalenv;
@@ -638,41 +614,35 @@ eval_define:;
                 }
             } while(_env->next && (_env = _env->next));
             _env3 = _env;
-            debug("appending to global environment...\n");
+            debug("appending to the global environment...\n");
 
             // Append to the global environment
-            // _str = arg1->str;
-            // atom2Str(arg1);
             _env = NULL;
             _env3->next = newEnv();
-            debug("appended to global environment.\n");
+            debug("appended to the global environment.\n");
             return;
-        // }
-        // if (_str == if_str) {
+
 eval_if:
             #define condition _value
             eval(arg1);
             eval(condition ? arg2list->value : arg2list->next->value);
             return;
             #undef condition
-        // }
-        // if (_str == car_str) {
+
 eval_car:
             eval(arg1);
             if (_value) {
                 _value = ((List*)_value)->value;
             }
             return;
-        // }
-        // if (_str == cdr_str) {
+
 eval_cdr:
             eval(arg1);
             if (_value) {
                 _value = (Value)((List*)_value)->next;
             }
             return;
-        // }
-        // if (_str == list_str) {
+
 eval_list:
             #define initlist _list_eval
             #define curlist node
@@ -693,19 +663,16 @@ eval_list:
             return;
             #undef initlist
             #undef curlist
-        // }
-        // if (_str == cons_str) {
+
 eval_cons:
             #define car node
             eval(arg1);
             car = _value;
             eval(arg2list->value);
             _value = (Value)newList(car, (List*)_value);
-            // _value = newListNode();
             return;
             #undef car
-        // }
-        // if (_str == print_str) {
+
 eval_print:
             eval(arg1);
             _list_eval = (List*)_value;
@@ -715,23 +682,12 @@ eval_print:
             }
             _value = (Value)_list_eval;
             return;
-        // }
-        // if (_str == progn_str) {
+
 eval_progn:
-            #define curlist _list_eval
             progn(((List*)node)->next);
-            // curlist = ((List*)node)->next;
-            // _value = NULL;
-            // while (curlist) {
-            //     eval(curlist->value);
-            //     curlist = curlist->next;
-            // }
             return;
-            #undef curlist
-        // }
-        // if (_str == while_str) {
+
 eval_while:
-            // _value = NULL;
             _value_eval = NULL;
             while (eval(arg1), _value) {
                 progn(arg2list);
@@ -739,8 +695,7 @@ eval_while:
             }
             _value = _value_eval;
             return;
-        // }
-        // if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) {
+
 eval_createlambda:
             newLambdaData(
                 _lambda,
@@ -750,16 +705,13 @@ eval_createlambda:
             );
             lambda2Value(_lambda);
             return;
-        // }
-        // if (_str == eq_str) {
+
 eval_eq:
             eval(arg1);
             node = _value;
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
-            // if (!n1) { n1 = nil; }
-            // if (!n2) { n2 = nil; }
             // Nil equality and integer equality, and atom equality.
             // Integers are passed as raw values with a flag at the top bit instead of a
             // pointer to a value, so equal integers always have the same n1 and n2.
@@ -768,8 +720,7 @@ eval_eq:
             return;
             #undef n1
             #undef n2
-        // }
-        // if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) {
+
 eval_arith:
             c_eval = headstr[0];
 
@@ -798,8 +749,7 @@ eval_arith:
             #undef nextlist
             newIntValue();
             return;
-        // }
-        // if (_str == lt_str || _str == gt_str) {
+
 eval_cmp:
             c_eval = headstr[0];
             _value = arg2list->value;
@@ -826,24 +776,20 @@ eval_cmp:
             j = (int)i < (int)n_;
             _value = (c_eval == '<' ? j : !j) ? true_value : NULL;
             return;
-        // }
-        // if (_str == quote_str) {
+
 eval_quote:
             _value = arg1;
             return;
-        // }
-        // if (_str == atom_str) {
+
 eval_atom:
             eval(arg1);
             _value = !_value || (isIntValue(_value)) || (isAtomValue(_value)) ? true_value : NULL;
             return;
-        // }
-        // if (_str == eval_str) {
+
 eval_eval:
             eval(arg1);
             eval(_value);
             return;
-        // }
         #undef headstr
     }
 
@@ -942,25 +888,22 @@ eval_lambda_call:
 void printValue() {
     List* list;
     if (!_value) {
-        debug("<nil1>");
+        debug("<nil>");
         goto printlist;
     }
 
     if (isIntValue(_value)) {
         debug("<int>");
         k = ((unsigned long long)_value) & (~typemask);
-        // debug1_2("[%lld]\n", k);
 #ifndef QFT
         k &= valuemask_14;
 #endif
         debug1_2("[%lld]", (unsigned long long)_value);
         debug1_2("[%lld]", k);
-        // debug1_2("[%lld]\n", k);
         if (k > 8191) {
             putchar('-');
             k = 16384-k;
         }
-        // debug1_2("[%lld]\n", k);
         _str = buf + 7;
         *_str = '\0';
         do {
@@ -1000,7 +943,7 @@ printlist:
 }
 
 int main (void) {
-#ifdef GCC
+#ifndef QFT
     str2Atom(t_str);
     true_value = _value;
     initialenv.value = true_value;
@@ -1019,13 +962,10 @@ int main (void) {
     } while((curlist = curlist->next));
 
     debug_malloc("==== end of parsing phase ====\n");
-    // initlist = ((List*)nil)->next;
-    // ((List*)nil)->next = NULL;
 
     curlist = initlist.next;
     while (curlist) {
         eval(curlist->value);
-        //
         // _value = initlist->value;
         // printValue();
         curlist = curlist->next;

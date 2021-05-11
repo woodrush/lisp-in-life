@@ -1,5 +1,7 @@
 #define QFTASM_RAMSTDIN_BUF_STARTPOSITION 350
 #define QFTASM_STACK_SIZE 223
+#define max_address 1023
+
 
 #define QFTASM_STDOUT 2
 #define NULL 0
@@ -9,6 +11,8 @@
 #define EOF -1
 #define isEOF(x) (x == EOF)
 #define isNotEOF(x) (x != EOF)
+
+extern int evalhash;
 
 //====================================================================================
 #define num_ops 24
