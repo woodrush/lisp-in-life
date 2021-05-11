@@ -68,10 +68,10 @@ curlist:
 macro_eval:
     .long 0
     .long eval_arith
-# blank
+stringtable:
     .long 0
     .long eval_arith
-# blank
+branch:
     .long 0
     .long eval_eval
 initlist: # Uses 2 bytes of memory

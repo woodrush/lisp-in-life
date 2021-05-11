@@ -12,7 +12,7 @@
         ())))))))
 
 (define . (macro* (object methodname) (list object (list (quote quote) methodname))))
-(define new (macro* (x) (list x)))
+(define new (lambda (x) (x)))
 
 (define counter1 (new counter))
 (define counter2 (new counter))
@@ -20,7 +20,7 @@
 ((. counter1 set) 0)
 ((. counter2 set) 8)
 
-;; (print x t) prints the value with a newline
+;; `(print x t)` prints the value with a newline
 (print ((. counter1 inc)) t)
 (print ((. counter1 inc)) t)
 (print ((. counter1 inc)) t)

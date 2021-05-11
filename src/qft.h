@@ -56,8 +56,8 @@ extern int* _edata;
 }
 
 #define malloc_k_pos(_malloc_bytes, _malloc_result, __edata) { \
-    _malloc_result = (int)__edata;                 \
-    __edata += _malloc_bytes;                      \
+    _malloc_result = (int)__edata;                             \
+    __edata += _malloc_bytes;                                  \
 }
 
 void _div(int n, int m);

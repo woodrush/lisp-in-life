@@ -1,11 +1,13 @@
 #ifndef GCC
-#define QFT
+#  define QFT
 #endif
 
 #ifdef QFT
-#    define DEFLOCATION extern
+#  define DEFLOCATION extern
+#  define BITSIZE 16
 #else
-#    define DEFLOCATION
+#  define DEFLOCATION
+#  define BITSIZE 64
 #endif
 
 DEFLOCATION char* _str;
@@ -27,21 +29,20 @@ extern int evalhash;
 #include "lisp.h"
 #endif
 
-// #define QFTASM_HEAP_MEM_MAX 2846
 
-#ifndef QFT
-#include <stdio.h>
-#  define debug(x)      // printf(x)
-#  define debug1(x,y)   // printf(x,y)
-#  define debug1_2(x,y) // printf(x,y)
-#  define debug2(x,y,z) // printf(x,y,z)
-#  define debug_malloc(x) // printf(x)
-#else
+#ifdef QFT
 #  define debug(x)
 #  define debug1(x,y)
 #  define debug1_2(x,y)
 #  define debug2(x,y,z)
 #  define debug_malloc(x)
+#else
+#  include <stdio.h>
+#  define debug(x)      // printf(x)
+#  define debug1(x,y)   // printf(x,y)
+#  define debug1_2(x,y) // printf(x,y)
+#  define debug2(x,y,z) // printf(x,y,z)
+#  define debug_malloc(x) // printf(x)
 #endif
 
 
@@ -80,23 +81,24 @@ DEFLOCATION char* s3;
 
 DEFLOCATION int macro_eval;
 
+typedef enum {
+    ATOM   = (unsigned long long)1<<(BITSIZE-2),
+    INT    = (unsigned long long)2<<(BITSIZE-2),
+    LAMBDA = (unsigned long long)3<<(BITSIZE-2),
+} Valuetype;
+
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 #ifdef QFT
-    typedef enum {
-        ATOM   = (unsigned long long)1<<14,
-        INT    = (unsigned long long)2<<14,
-        LAMBDA = (unsigned long long)3<<14,
-    } Valuetype;
-
     int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 
-    #  define typemaskinv (0b0011111111111111)
+    #define typemaskinv (0b0011111111111111)
     // #define buf ((char*)65352)
     // #define stringTableHeadList ((StringTable**)65336)
 
-    #define max_address 1024
-    #define stack_head (max_address-QFTASM_STACK_SIZE)
+    // TODO: hand-fold these to constants
+    #define max_address 1023
+    #define stack_head (max_address+1 - QFTASM_STACK_SIZE)
     #define buf ((char*)stack_head)
     #define stringTableHeadList ((StringTable**)(stack_head+32))
 
@@ -111,19 +113,33 @@ DEFLOCATION int macro_eval;
     // DEFLOCATION int* _edata_stack;
     DEFLOCATION List initlist;
 
-#else
-    typedef enum {
-        ATOM   = (unsigned long long)1<<62,
-        INT    = (unsigned long long)2<<62,
-        LAMBDA = (unsigned long long)3<<62,
-    } Valuetype;
 
-    #  define typemaskinv (~LAMBDA)
-    #  define valuemask_14 (((unsigned long long)1<<14)-1)
+    Value true_value = t_str ^ ATOM;
+    Env initialenv = {
+        .varname = t_str,
+        .prev = (Env*)1,
+        .value = t_str ^ ATOM,
+        .next = NULL,
+    };
+    DEFLOCATION Env* _evalenv;
+    DEFLOCATION List* curlist;
+
+#else
+    #define typemaskinv (~LAMBDA)
+    #define valuemask_14 (((unsigned long long)1<<14)-1)
     char buf[32];
-    // .type = 1, since ->type and ->next are inside the same union
     List initlist = { .next = NULL, .value = NULL };
     StringTable* stringTableHeadList[16];
+
+    Value true_value;
+    Env initialenv = {
+        .varname = t_str,
+        .prev = (Env*)1,
+        .value = NULL,
+        .next = NULL,
+    };
+    DEFLOCATION Env* _evalenv = &initialenv;
+    DEFLOCATION List* curlist = &initlist;
 
 #endif
 
@@ -155,35 +171,14 @@ DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
 
-#ifdef QFT
-    Value true_value = t_str ^ ATOM;
-    Env initialenv = {
-        .varname = t_str,
-        .prev = (Env*)1,
-        .value = t_str ^ ATOM,
-        .next = NULL,
-    };
-    DEFLOCATION Env* _evalenv;
-    DEFLOCATION List* curlist;
-#else
-    Value true_value;
-    Env initialenv = {
-        .varname = t_str,
-        .prev = (Env*)1,
-        .value = NULL,
-        .next = NULL,
-    };
-    DEFLOCATION Env* _evalenv = &initialenv;
-    DEFLOCATION List* curlist = &initlist;
-#endif
-
-
-
 
 DEFLOCATION Value _value;
 DEFLOCATION List* _list;
 
 DEFLOCATION int sthash;
+
+DEFLOCATION StringTable* stringtable;
+DEFLOCATION StringTable** branch;
 
 
 #define sthash_mod16() { sthash = sthash &~ 0b1111111111110000; }
@@ -251,15 +246,13 @@ void _div(int n, int m) {
 
 
 List* newList(Value node, List* next) {
-#define ret _list
     // _malloc_bytes = sizeof(Value);
-    malloc_k(sizeof(List), ret);
+    malloc_k(sizeof(List), _list);
     // ret = (Value) _malloc_result;
     debug_malloc("newList\n");
-    ret->value = node;
-    ret->next = next;
-    return ret;
-#undef ret
+    _list->value = node;
+    _list->next = next;
+    return _list;
 }
 
 
@@ -316,10 +309,6 @@ void buildStringTable () {
     stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
 }
 #endif
-
-
-StringTable* stringtable;
-StringTable** branch;
 
 
 // j : sign
@@ -387,7 +376,6 @@ parseExprHead:;
         goto parseExprHead;
     }
 
-    // Parse as an atom
     if (c == ')') {
         debug1("popping list...\n%s", "");
 
@@ -395,6 +383,7 @@ parseExprHead:;
         return;
     }
 
+    // Parse as an atom
     i = 0;
     sthash = 0;
     while (isNotEOF(c) && c != ' ' && c != '\n' && c != ')' && c != '(' && c != ';') {
