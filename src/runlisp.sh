@@ -68,17 +68,20 @@ wc -l lisp.qftasm
 # echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 
-# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-#   --stdin-pos 350 \
-#   --stdout-pos 823 \
+cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 213 \
 
-# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-#   --stdin-pos 350 \
-#   --stdout-pos 823 \
+cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 213 \
 
-# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-#   --stdin-pos 350 \
-#   --stdout-pos 823 \
+cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 213 \
 
 
 cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
@@ -90,11 +93,11 @@ cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   --max-steps 300000 \
   -i lisp.qftasm
 
-# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-#   --stdin-pos 350 \
-#   --stdout-pos 799 \
-#   --stack-size 213 \
-#   --debug-ramdump \
-#   --debug-plot-memdist \
-#   --max-steps 3000000 \
-#   -i lisp.qftasm
+cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 213 \
+  --debug-ramdump \
+  --debug-plot-memdist \
+  --max-steps 3000000 \
+  -i lisp.qftasm

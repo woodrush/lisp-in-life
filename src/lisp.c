@@ -500,15 +500,23 @@ typedef struct {
     union {
         Value arg1_;
         List* _list_eval_2;
-        Env* e2;
+        Env* env2;
     };
     union {
         List* arg2list_;
+        List* curbody;
         int n_;
         Env* e;
     };
 } EvalStack;
 
+void progn (List* list) {
+    _value = NULL;
+    while (list) {
+        eval(list->value);
+        list = list->next;
+    }
+}
 
 void eval(Value node) {
     EvalStack evalstack;
@@ -522,7 +530,6 @@ void eval(Value node) {
 #define c_eval (evalstack.c_eval_)
 #define n_ (evalstack.n_)
 #define evalstack_env (evalstack.e)
-#define evalstack_env2 (evalstack.e2)
 
     if (!node) {
         _value = NULL;
@@ -691,12 +698,13 @@ eval_print:
         // if (_str == progn_str) {
 eval_progn:
             #define curlist _list_eval
-            curlist = ((List*)node)->next;
-            _value = NULL;
-            while (curlist) {
-                eval(curlist->value);
-                curlist = curlist->next;
-            }
+            progn(((List*)node)->next);
+            // curlist = ((List*)node)->next;
+            // _value = NULL;
+            // while (curlist) {
+            //     eval(curlist->value);
+            //     curlist = curlist->next;
+            // }
             return;
             #undef curlist
         // }
@@ -716,7 +724,7 @@ eval_createlambda:
             newLambdaData(
                 _lambda,
                 (List*)(arg1),
-                (List*)(arg2list->value),
+                arg2list,
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
@@ -868,7 +876,7 @@ eval_lambda_call:
     // Env* tempenv = _evalenv;
     // Env* temp2 = curenv;
     // _evalenv = temp2;
-    evalstack_env2 = _evalenv;
+    evalstack.env2 = _evalenv;
     _evalenv = curenv;
 
     if (lambdaType(curlambda) == L_MACRO) {
@@ -883,7 +891,12 @@ eval_lambda_call:
             #endif
         }
 
-        eval((Value)curlambda->body);
+        progn(curlambda->body);
+        // evalstack.curbody = curlambda->body;
+        // while (evalstack.curbody) {
+        //     eval(evalstack.curbody->value);
+        //     evalstack.curbody = evalstack.curbody->next;
+        // }
 
         if (evalstack.prev_edata) {
             #ifdef ELVM
@@ -892,13 +905,13 @@ eval_lambda_call:
             macro_eval = 0;
         }
 
-        _evalenv = evalstack_env2;
+        _evalenv = evalstack.env2;
         // _evalenv = curlambda->env;
         // _evalenv = temp2;
         eval(_value);
     } else {
-        eval((Value)curlambda->body);
-        _evalenv = evalstack_env2;
+        progn(curlambda->body);
+        _evalenv = evalstack.env2;
     }
     // _evalenv = tempenv;
     #undef curargname
@@ -914,7 +927,7 @@ eval_lambda_call:
 #undef c_eval
 #undef n_
 #undef evalstack_env
-#undef evalstack_env2
+
 
 void printValue() {
     List* list;
