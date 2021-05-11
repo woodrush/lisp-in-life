@@ -20,6 +20,7 @@
 ((. counter1 set) 0)
 ((. counter2 set) 8)
 
+;; (print x ()) prints the value with a newline
 (print ((. counter1 inc)) ())
 (print ((. counter1 inc)) ())
 (print ((. counter1 inc)) ())

@@ -89,4 +89,5 @@ initlist: # Uses 2 bytes of memory
 .data
 macroast_str:
 	.string "macro*"
+
 .data

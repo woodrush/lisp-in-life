@@ -10,7 +10,7 @@ echo "" >> tmp.eir
 cat tmp_.eir >> tmp.eir
 ../elvm/out/elc -qftasm \
   --qftasm-stdin-pos 350 \
-  --qftasm-stdout-pos 809 \
+  --qftasm-stdout-pos 799 \
   tmp.eir > tmp.qftasmpp   # elc outputs code that requires post-processing
 
 wc -l tmp.qftasmpp
@@ -68,37 +68,40 @@ wc -l lisp.qftasm
 # echo "(print (quote ()))"             | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
 # echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
 
-cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-  --stdin-pos 350 \
-  --stdout-pos 809 \
-  --stack-size 213 \
 
-cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-  --stdin-pos 350 \
-  --stdout-pos 809 \
-  --stack-size 213 \
+# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 223 \
 
-cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-  --stdin-pos 350 \
-  --stdout-pos 809 \
-  --stack-size 213 \
-  --debug-plot-memdist \
+# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 223 \
+
+# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 223 \
+# #   --debug-plot-memdist \
 
 
-cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  --stdin-pos 350 \
-  --stdout-pos 809 \
-  --stack-size 213 \
-  --debug-ramdump \
-  --debug-plot-memdist \
-  --max-steps 300000 \
-  -i lisp.qftasm
+# cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 223 \
+#   --debug-ramdump \
+#   -i lisp.qftasm \
+#   --debug-plot-memdist \
 
-cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  --stdin-pos 350 \
-  --stdout-pos 809 \
-  --stack-size 213 \
-  --debug-ramdump \
-  --debug-plot-memdist \
-  --max-steps 3000000 \
-  -i lisp.qftasm
+# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 223 \
+#   --debug-ramdump \
+#   -i lisp.qftasm \
+#   --debug-plot-memdist \
+
+echo "(print t)"              | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
+echo "(print (eval t))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
+echo "(print (eval (eval t)))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm

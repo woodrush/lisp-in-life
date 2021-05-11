@@ -1,8 +1,7 @@
-(define defun
-  (macro (fname varlist body)
-    (list
-      (quote define) fname
-      (list (quote lambda*) varlist body))))
+(define defun (macro (fname varlist body)
+  (list
+    (quote define) fname
+    (list (quote lambda*) varlist body))))
 
 (defun append (l item)
   (if l
@@ -20,11 +19,11 @@
            (define ret ()))
          ()))
      ret)
-   () 1))
+   () t))
 
 (define n 2)
 (define nmax 20)
-(define primelist (cons 2 ()))
+(define primelist (quote (2)))
 
 (while (< n nmax)
   (define n (+ 1 n))

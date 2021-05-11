@@ -133,3 +133,9 @@ echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print (quote ()))" | ./a.out
 echo ""
 gcc src/lisp.c -Isrc -DGCC && echo "(print (atom (quote (1 2 3))))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print t)" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (eval t))" | ./a.out
+echo ""
+gcc src/lisp.c -Isrc -DGCC && echo "(print (eval (eval t)))" | ./a.out

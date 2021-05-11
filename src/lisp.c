@@ -144,15 +144,6 @@ typedef enum {
 
 
 
-Env initialenv = {
-    .varname = NULL,
-    .value = NULL,
-    .next = NULL,
-    .prev = (Env*)1,
-};
-
-
-
 
 DEFLOCATION StringTable* _stringtable;
 
@@ -162,21 +153,30 @@ DEFLOCATION Env* _env;
 DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
+
 #ifdef ELVM
-    DEFLOCATION Env* _evalenv;
-    // DEFLOCATION Value nil;
-    // DEFLOCATION List* initlist;
-    DEFLOCATION List* curlist;
-    // true_value is hardcoded in memheader.eir for ELVM
     Value true_value = t_str ^ ATOM;
+    Env initialenv = {
+        .varname = t_str,
+        .prev = (Env*)1,
+        .value = t_str ^ ATOM,
+        .next = NULL,
+    };
+    DEFLOCATION Env* _evalenv;
+    DEFLOCATION List* curlist;
 #else
-    DEFLOCATION Env* _evalenv = &initialenv;
-    // DEFLOCATION Value nil = (Value)&nil_value;
-    // DEFLOCATION List* initlist = &initlist_value;
-    DEFLOCATION List* curlist = &initlist;
-    // true_value is hardcoded in memheader.eir for ELVM
     Value true_value;
+    Env initialenv = {
+        .varname = t_str,
+        .prev = (Env*)1,
+        .value = NULL,
+        .next = NULL,
+    };
+    DEFLOCATION Env* _evalenv = &initialenv;
+    DEFLOCATION List* curlist = &initlist;
 #endif
+
+
 
 
 DEFLOCATION Value _value;
@@ -839,7 +839,7 @@ eval_lambda_call:
     curargname = curlambda->definition->value;
 
 
-    // Th body of the macro should be evaluated in the environment they are called in,
+    // The body of the macro should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
     curenv = (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) ? _evalenv : lambdaEnv(curlambda);
 
@@ -877,14 +877,11 @@ eval_lambda_call:
 
     if (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) {
         evalstack.prev_edata = NULL;
-        if (lambdaType(curlambda) == L_TEMPMACRO && !macro_eval) {
-            macro_eval = 1;
+        if (lambdaType(curlambda) == L_TEMPMACRO) {
             #ifdef ELVM
                 evalstack.prev_edata = _edata;
                 // _edata = stack_head;
-                _edata = 810;
-            #else
-                evalstack.prev_edata = (int*) 1;
+                // _edata = 810;
             #endif
         }
 
@@ -894,7 +891,6 @@ eval_lambda_call:
             #ifdef ELVM
                 _edata = evalstack.prev_edata;
             #endif
-            macro_eval = 0;
         }
 
         _evalenv = evalstack.env2;
@@ -985,6 +981,7 @@ int main (void) {
 #ifdef GCC
     str2Atom(t_str);
     true_value = _value;
+    initialenv.value = true_value;
 #endif
 
 #ifndef skip_precalculation
