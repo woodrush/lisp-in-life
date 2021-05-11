@@ -1,56 +1,43 @@
-../elvm/out/8cc -S -DQFT -I. -Isrc -o tmp_.eir src/lisp.c
+ramdump_csv=./src/ramdump.csv
+lisp_opt_qftasm=./src/lisp_opt.qftasm
 
-# ../elvm/out/8cc -S -DQFT -Dskip_precalculation -I. -Ilibc -Iout -Isrc -o tmp_.eir src/lisp.c
+#================================================================
+# Run the final code
+#================================================================
+echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+  --initial-ramvalues $ramdump_csv \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 223 \
+  --debug-ramdump \
+  --debug-plot-memdist \
+  -i $lisp_opt_qftasm \
 
-
-echo "" > tmp.eir
-cat ./src/memheader.eir >> tmp.eir
-cat tmp_.eir >> tmp.eir
-../elvm/out/elc -qftasm \
-  --qftasm-stdin-pos 350 \
-  --qftasm-stdout-pos 799 \
-  tmp.eir > tmp.qftasmpp   # elc outputs code that requires post-processing
-
-# wc -l tmp.qftasmpp
-python ./src/qftasmopt.py tmp.qftasmpp > opt.qftasmpp    && wc -l opt.qftasmpp
-python ./src/qftasmopt.py opt.qftasmpp > opt2.qftasmpp   && wc -l opt2.qftasmpp
-python ./src/qftasmopt.py opt2.qftasmpp > opt3.qftasmpp  && wc -l opt3.qftasmpp
-python ./src/qftasmopt.py opt3.qftasmpp > opt4.qftasmpp  && wc -l opt4.qftasmpp
-python ./src/qftasmopt.py opt4.qftasmpp > opt5.qftasmpp  && wc -l opt5.qftasmpp
-python ./src/qftasmopt.py opt5.qftasmpp > opt6.qftasmpp  && wc -l opt6.qftasmpp
-python ./src/qftasmopt.py opt6.qftasmpp > opt7.qftasmpp  && wc -l opt7.qftasmpp
-python ./src/qftasmopt.py opt7.qftasmpp > opt8.qftasmpp  && wc -l opt8.qftasmpp
-python ./src/qftasmopt.py opt8.qftasmpp > opt9.qftasmpp  && wc -l opt9.qftasmpp
-diff opt8.qftasmpp opt9.qftasmpp | wc -l
-
-
-# python ../elvm/tools/qftasm/qftasm_pp.py opt9.qftasmpp > lisp_opt_nomemory.qftasm
+# TODO: Use XOR for not
 
 
 
-python ../elvm/tools/qftasm/qftasm_pp.py opt9.qftasmpp > lisp_opt.qftasm
-
-# # # # # wc -l lisp_opt.qftasm
-
-
-# # echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp_opt.qftasm
-
-cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp_opt.qftasm \
+cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py -i $lisp_opt_qftasm \
+  --initial-ramvalues $ramdump_csv \
   --debug-ramdump \
   --suppress-address-overflow-warning \
 
-cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp_opt.qftasm \
+cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py -i $lisp_opt_qftasm \
+  --initial-ramvalues $ramdump_csv \
   --debug-ramdump \
   --suppress-address-overflow-warning \
 
-cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp_opt.qftasm \
+cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py -i $lisp_opt_qftasm \
+  --initial-ramvalues $ramdump_csv \
   --debug-ramdump \
   --suppress-address-overflow-warning \
 
-cat fact.lisp      | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp_opt.qftasm \
+cat fact.lisp      | python ../elvm/tools/qftasm/qftasm_interpreter.py -i $lisp_opt_qftasm \
+  --initial-ramvalues $ramdump_csv \
   --debug-ramdump \
   --suppress-address-overflow-warning \
 
-cat primes.lisp    | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp_opt.qftasm \
+cat primes.lisp    | python ../elvm/tools/qftasm/qftasm_interpreter.py -i $lisp_opt_qftasm \
+  --initial-ramvalues $ramdump_csv \
   --debug-ramdump \
   --suppress-address-overflow-warning \
