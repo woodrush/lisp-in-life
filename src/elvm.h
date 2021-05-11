@@ -38,7 +38,9 @@
 #define slash_str 108
 #define atom_str 110
 
-#define last_op atom_str
+#define macroast_str 166
+
+#define last_op macroast_str
 
 //====================================================================================
 

@@ -1,9 +1,7 @@
-(define i (macro (b) b))
-
 (define defun
   (macro (fname varlist body)
     (list
-      (quote define) (i fname)
+      (quote define) fname
       (list (quote lambda*) varlist body))))
 
 (defun append (l item)
@@ -11,8 +9,8 @@
     (cons (car l) (append (cdr l) item))
     (cons item ())))
 
-(defun isprime (n)
-  ((lambda* (primelist p ret)
+(defun isprime (n primelist)
+  ((lambda* (p ret)
      (while primelist
        (define p (car primelist))
        (define primelist (cdr primelist))
@@ -22,7 +20,7 @@
            (define ret ()))
          ()))
      ret)
-   primelist () 1))
+   () 1))
 
 (define n 2)
 (define nmax 20)
@@ -30,7 +28,7 @@
 
 (while (< n nmax)
   (define n (+ 1 n))
-  (if (isprime n)
+  (if (isprime n primelist)
     (define primelist (append primelist n))
     ()))
 

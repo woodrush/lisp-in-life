@@ -87,3 +87,6 @@ initlist: # Uses 2 bytes of memory
     .long eval_arith
     .long eval_atom
 .data
+macroast_str:
+	.string "macro*"
+.data

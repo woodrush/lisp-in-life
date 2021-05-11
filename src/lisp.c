@@ -77,7 +77,7 @@ DEFLOCATION char* s1;
 DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
-DEFLOCATION int* macro_eval;
+DEFLOCATION int macro_eval;
 
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
@@ -135,7 +135,8 @@ DEFLOCATION int* macro_eval;
 typedef enum {
     L_LAMBDA  = ATOM,
     L_MACRO   = INT,
-    L_CLOSURE = LAMBDA
+    L_CLOSURE = LAMBDA,
+    L_TEMPMACRO = 0,
 } Lambdatype;
 
 #define lambdaType(lambda) (((unsigned long long)((lambda)->env)) &~ typemaskinv)
@@ -232,7 +233,7 @@ void _div(int n, int m) {
 #define newLambdaData(__target, __definition, __env, __type) {   \
     malloc_k(sizeof(Lambda), __target);                                \
     debug_malloc("lambda 1\n");                                        \
-    _lambda->definition = __definition;                                    \
+    _lambda->definition = __definition;                                \
     _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
 }
 
@@ -576,7 +577,7 @@ void eval(Value node) {
                 arg2list = ((List*)node)->next->next;
             }
         }
-
+        if (_str == macroast_str) {goto eval_createlambda;}
 #ifdef ELVM
     goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
 #else
@@ -721,7 +722,7 @@ eval_createlambda:
                 _lambda,
                 ((List*)node)->next,
                 _evalenv,
-                (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
+                (headstr[0] == 'm' ? (headstr[5] == '*' ? L_TEMPMACRO :  L_MACRO) : headstr[6] == '*' ? L_LAMBDA : L_CLOSURE)
             );
             lambda2Value(_lambda);
             return;
@@ -840,11 +841,11 @@ eval_lambda_call:
 
     // Th body of the macro should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
-    curenv = (lambdaType(curlambda) == L_MACRO) ? _evalenv : lambdaEnv(curlambda);
+    curenv = (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) ? _evalenv : lambdaEnv(curlambda);
 
     while (curargname) {
         if (curarg) {
-            if (lambdaType(curlambda) == L_MACRO) {
+            if (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) {
                 _value = curarg->value;
             } else {
                 eval(curarg->value);
@@ -874,19 +875,20 @@ eval_lambda_call:
     evalstack.env2 = _evalenv;
     _evalenv = curenv;
 
-    if (lambdaType(curlambda) == L_MACRO) {
-        evalstack.prev_edata = 0;
-        if (macro_eval > 0) {
-            macro_eval = (int*)1;
+    if (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) {
+        evalstack.prev_edata = NULL;
+        if (lambdaType(curlambda) == L_TEMPMACRO && !macro_eval) {
+            macro_eval = 1;
             #ifdef ELVM
                 evalstack.prev_edata = _edata;
-                _edata = stack_head;
+                // _edata = stack_head;
+                _edata = 810;
             #else
                 evalstack.prev_edata = (int*) 1;
             #endif
         }
 
-        progn(curlambda->definition->next);
+        progn(_str == ast_str ? curlambda->definition->next->next : curlambda->definition->next);
 
         if (evalstack.prev_edata) {
             #ifdef ELVM
@@ -958,7 +960,7 @@ void printValue() {
         k = lambdaType((Lambda*)_value);
         putchar('#');
         putchar('<');
-        _str = (k == L_LAMBDA) ? "Lambda>" : (k == L_MACRO) ? "Macro>" : "Closure>";
+        _str = (k == L_LAMBDA) ? "Lambda>" : (k == L_MACRO || k == L_TEMPMACRO) ? "Macro>" : "Closure>";
     } else {
         debug("<list>");
 printlist:
@@ -1010,7 +1012,10 @@ int main (void) {
         newStringTable(plus_str, NULL, NULL),
         newStringTable(lambdaast_str, NULL, NULL)
     );
-    stringTableHeadList[12] = newStringTable(list_str, newStringTable(lt_str, NULL, NULL), NULL);
+    stringTableHeadList[12] = newStringTable(list_str,
+        newStringTable(lt_str, NULL, NULL),
+        newStringTable(macroast_str, NULL, NULL)
+    );
     stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
     stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
     stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);

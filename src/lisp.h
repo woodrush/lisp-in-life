@@ -31,6 +31,7 @@ char gt_str[] = ">";
 char t_str[] = "t";
 char list_str[] = "list";
 
+char macroast_str[] = "macro*";
 
 // void malloc_k() {
 //     _malloc_result = malloc(_malloc_bytes);

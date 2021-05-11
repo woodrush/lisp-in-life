@@ -11,8 +11,8 @@
         (lambda (m) (define n m))
         ())))))))
 
-(define . (macro (object methodname) (list object (list (quote quote) methodname))))
-(define new (macro (x) (list x)))
+(define . (macro* (object methodname) (list object (list (quote quote) methodname))))
+(define new (macro* (x) (list x)))
 
 (define counter1 (new counter))
 (define counter2 (new counter))
@@ -20,6 +20,7 @@
 ((. counter1 set) 0)
 ((. counter2 set) 8)
 
+(print ((. counter1 inc)) ())
 (print ((. counter1 inc)) ())
 (print ((. counter1 inc)) ())
 (print ((. counter2 inc)) ())
