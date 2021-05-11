@@ -9,6 +9,7 @@
     (cons item ())))
 
 (defun isprime (n primelist)
+  ;; Define local variables p and ret.
   ((lambda* (p ret)
      (while primelist
        (define p (car primelist))

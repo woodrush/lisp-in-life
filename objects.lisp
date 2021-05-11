@@ -20,11 +20,11 @@
 ((. counter1 set) 0)
 ((. counter2 set) 8)
 
-;; (print x ()) prints the value with a newline
-(print ((. counter1 inc)) ())
-(print ((. counter1 inc)) ())
-(print ((. counter1 inc)) ())
-(print ((. counter2 inc)) ())
-(print ((. counter2 dec)) ())
-(print ((. counter1 inc)) ())
-(print ((. counter2 inc)) ())
+;; (print x t) prints the value with a newline
+(print ((. counter1 inc)) t)
+(print ((. counter1 inc)) t)
+(print ((. counter1 inc)) t)
+(print ((. counter2 inc)) t)
+(print ((. counter2 dec)) t)
+(print ((. counter1 inc)) t)
+(print ((. counter2 inc)) t)

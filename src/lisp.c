@@ -1,8 +1,8 @@
 #ifndef GCC
-#define ELVM
+#define QFT
 #endif
 
-#ifdef ELVM
+#ifdef QFT
 #    define DEFLOCATION extern
 #else
 #    define DEFLOCATION
@@ -16,19 +16,20 @@ DEFLOCATION int j;
 DEFLOCATION unsigned long long k;
 DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
+// Used only in QFT
 extern int evalhash;
 
 
 
-#ifdef ELVM
-#include "elvm.h"
+#ifdef QFT
+#include "qft.h"
 #else
 #include "lisp.h"
 #endif
 
 // #define QFTASM_HEAP_MEM_MAX 2846
 
-#ifndef ELVM
+#ifndef QFT
 #include <stdio.h>
 #  define debug(x)      // printf(x)
 #  define debug1(x,y)   // printf(x,y)
@@ -81,7 +82,7 @@ DEFLOCATION int macro_eval;
 
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
-#ifdef ELVM
+#ifdef QFT
     typedef enum {
         ATOM   = (unsigned long long)1<<14,
         INT    = (unsigned long long)2<<14,
@@ -154,7 +155,7 @@ DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
 
-#ifdef ELVM
+#ifdef QFT
     Value true_value = t_str ^ ATOM;
     Env initialenv = {
         .varname = t_str,
@@ -282,7 +283,7 @@ StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* gre
 }
 
 void buildStringTable () {
-    #ifdef ELVM
+    #ifdef QFT
         _edata_stack = stack_head + 49;
     #endif
 
@@ -600,7 +601,7 @@ void eval(Value node) {
         // headstr = node->value->str;
         atom2Str(((List*)node)->value);
 
-#ifdef ELVM
+#ifdef QFT
         if ((int)last_op < (int)headstr) {
             goto eval_lambda_call;
         }
@@ -612,7 +613,7 @@ void eval(Value node) {
             }
         }
         if (_str == macroast_str) {goto eval_createlambda;}
-#ifdef ELVM
+#ifdef QFT
     goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1) )));
 #else
 
@@ -628,7 +629,7 @@ void eval(Value node) {
         else if (_str == print_str) goto eval_print;
         else if (_str == progn_str) goto eval_progn;
         else if (_str == while_str) goto eval_while;
-        else if (_str == lambda_str || _str == macro_str || _str == lambdaast_str) goto eval_createlambda;
+        else if (_str == lambda_str || _str == macro_str || _str == lambdaast_str || _str == macroast_str) goto eval_createlambda;
         else if (_str == eval_str) goto eval_eval;
         else if (_str == eq_str) goto eval_eq;
         else if (_str == plus_str || _str == minus_str || _str == ast_str || _str == slash_str || _str == mod_str) goto eval_arith;
@@ -814,7 +815,7 @@ eval_cmp:
             c_eval = headstr[0];
             _value = arg2list->value;
             evalAsInt();
-#ifndef ELVM
+#ifndef QFT
             i &= valuemask_14;
 #endif
             debug1_2("[arg2:%lld]\n", i);
@@ -825,7 +826,7 @@ eval_cmp:
             n_ = i;
             _value = arg1;
             evalAsInt();
-#ifndef ELVM
+#ifndef QFT
             i &= valuemask_14;
 #endif
             debug1_2("[arg1:%lld]\n", i);
@@ -911,7 +912,7 @@ eval_lambda_call:
     k = lambdaType(curlambda);
     if (k == L_MACRO || k == L_TEMPMACRO) {
         if (k == L_TEMPMACRO) {
-            #ifdef ELVM
+            #ifdef QFT
                 evalstack.prev_edata = _edata;
                 // _edata = stack_head;
                 // _edata = 800;
@@ -923,7 +924,7 @@ eval_lambda_call:
         progn(curlambda->definition->next);
 
         if (evalstack.prev_edata) {
-            #ifdef ELVM
+            #ifdef QFT
                 _edata = evalstack.prev_edata;
             #endif
         }
@@ -960,7 +961,7 @@ void printValue() {
         debug("<int>");
         k = ((unsigned long long)_value) & (~typemask);
         // debug1_2("[%lld]\n", k);
-#ifndef ELVM
+#ifndef QFT
         k &= valuemask_14;
 #endif
         debug1_2("[%lld]", (unsigned long long)_value);
@@ -1040,7 +1041,7 @@ int main (void) {
         // printValue();
         curlist = curlist->next;
     }
-#ifdef ELVM
+#ifdef QFT
     // Clear out the stdin, for aesthetic reasons.
     // Since the stdin will be overwritten during runtime,
     // this will prevent the stdin viewer from viewing overwritten data.

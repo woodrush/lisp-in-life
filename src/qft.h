@@ -36,11 +36,11 @@
 #define lt_str 104
 #define gt_str 106
 #define slash_str 108
-#define atom_str 110
+#define macroast_str 110
+#define atom_str 117
 
-#define macroast_str 166
 
-#define last_op macroast_str
+#define last_op atom_str
 
 //====================================================================================
 

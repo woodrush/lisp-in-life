@@ -15,7 +15,7 @@
               (list (`-helper (cdr body)))))))))
     (list (quote eval) (list (quote quote) (`-helper body)))))))
 
-;; Since we don't have reader macros, the syntax is slightly different
+;; Since we don't have reader macros, the syntax for ` is slightly different
 (define printquote (macro (body)
   (` (print (quote (~ body))))))
 
