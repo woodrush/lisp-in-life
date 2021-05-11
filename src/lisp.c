@@ -280,6 +280,40 @@ StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* gre
     ret->greater = greater;
     return ret;
 }
+
+void buildStringTable () {
+    #ifdef ELVM
+        _edata_stack = stack_head + 49;
+    #endif
+
+    stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
+    stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
+    stringTableHeadList[2] = newStringTable(macro_str, NULL, NULL);
+    stringTableHeadList[3] = newStringTable(cons_str, NULL, NULL);
+    stringTableHeadList[4] = newStringTable(t_str, NULL, NULL);
+    stringTableHeadList[5] = NULL;
+    stringTableHeadList[6] = newStringTable(
+        eq_str,
+        newStringTable(car_str, NULL, NULL),
+        newStringTable(progn_str, NULL, NULL)
+    );
+    stringTableHeadList[7] = NULL;
+    stringTableHeadList[8] = newStringTable(eval_str, NULL, NULL);
+    stringTableHeadList[9] = newStringTable(cdr_str, NULL, newStringTable(while_str, NULL, NULL));
+    stringTableHeadList[10] = newStringTable(ast_str, NULL, NULL);
+    stringTableHeadList[11] = newStringTable(
+        define_str,
+        newStringTable(plus_str, NULL, NULL),
+        newStringTable(lambdaast_str, NULL, NULL)
+    );
+    stringTableHeadList[12] = newStringTable(list_str,
+        newStringTable(lt_str, NULL, NULL),
+        newStringTable(macroast_str, NULL, NULL)
+    );
+    stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
+    stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
+    stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
+}
 #endif
 
 
@@ -841,11 +875,13 @@ eval_lambda_call:
 
     // The body of the macro should be evaluated in the environment they are called in,
     // instead of the environment they were defined in
-    curenv = (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) ? _evalenv : lambdaEnv(curlambda);
+    k = lambdaType(curlambda);
+    curenv = (k == L_MACRO || k == L_TEMPMACRO) ? _evalenv : lambdaEnv(curlambda);
 
     while (curargname) {
         if (curarg) {
-            if (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) {
+            k = lambdaType(curlambda);
+            if (k == L_MACRO || k == L_TEMPMACRO) {
                 _value = curarg->value;
             } else {
                 eval(curarg->value);
@@ -869,23 +905,22 @@ eval_lambda_call:
     }
 
     // For macros, evaluate the result before returning it
-    // Env* tempenv = _evalenv;
-    // Env* temp2 = curenv;
-    // _evalenv = temp2;
     evalstack.env2 = _evalenv;
     _evalenv = curenv;
 
-    if (lambdaType(curlambda) == L_MACRO || lambdaType(curlambda) == L_TEMPMACRO) {
-        evalstack.prev_edata = NULL;
-        if (lambdaType(curlambda) == L_TEMPMACRO) {
+    k = lambdaType(curlambda);
+    if (k == L_MACRO || k == L_TEMPMACRO) {
+        if (k == L_TEMPMACRO) {
             #ifdef ELVM
                 evalstack.prev_edata = _edata;
                 // _edata = stack_head;
-                // _edata = 810;
+                // _edata = 800;
             #endif
+        } else {
+            evalstack.prev_edata = NULL;
         }
 
-        progn(_str == ast_str ? curlambda->definition->next->next : curlambda->definition->next);
+        progn(curlambda->definition->next);
 
         if (evalstack.prev_edata) {
             #ifdef ELVM
@@ -894,14 +929,11 @@ eval_lambda_call:
         }
 
         _evalenv = evalstack.env2;
-        // _evalenv = curlambda->env;
-        // _evalenv = temp2;
         eval(_value);
     } else {
         progn(curlambda->definition->next);
         _evalenv = evalstack.env2;
     }
-    // _evalenv = tempenv;
     #undef curargname
     #undef curarg
     #undef curenv
@@ -985,37 +1017,7 @@ int main (void) {
 #endif
 
 #ifndef skip_precalculation
-#   ifdef ELVM
-    _edata_stack = stack_head+49;
-#   endif
-
-    stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
-    stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
-    stringTableHeadList[2] = newStringTable(macro_str, NULL, NULL);
-    stringTableHeadList[3] = newStringTable(cons_str, NULL, NULL);
-    stringTableHeadList[4] = newStringTable(t_str, NULL, NULL);
-    stringTableHeadList[5] = NULL;
-    stringTableHeadList[6] = newStringTable(
-        eq_str,
-        newStringTable(car_str, NULL, NULL),
-        newStringTable(progn_str, NULL, NULL)
-    );
-    stringTableHeadList[7] = NULL;
-    stringTableHeadList[8] = newStringTable(eval_str, NULL, NULL);
-    stringTableHeadList[9] = newStringTable(cdr_str, NULL, newStringTable(while_str, NULL, NULL));
-    stringTableHeadList[10] = newStringTable(ast_str, NULL, NULL);
-    stringTableHeadList[11] = newStringTable(
-        define_str,
-        newStringTable(plus_str, NULL, NULL),
-        newStringTable(lambdaast_str, NULL, NULL)
-    );
-    stringTableHeadList[12] = newStringTable(list_str,
-        newStringTable(lt_str, NULL, NULL),
-        newStringTable(macroast_str, NULL, NULL)
-    );
-    stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
-    stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
-    stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
+    buildStringTable();
 #endif
 #ifdef precalculation_run
     return 0;
@@ -1039,7 +1041,12 @@ int main (void) {
         curlist = curlist->next;
     }
 #ifdef ELVM
+    // Clear out the stdin, for aesthetic reasons.
+    // Since the stdin will be overwritten during runtime,
+    // this will prevent the stdin viewer from viewing overwritten data.
     *((char*)(stdin_startpos)) = 0;
+
+    // This is required - this inserts a terminal symbol to the end of the stdout buffer. 
     *(*((char**)QFTASM_STDOUT)) = 0;
 #endif
 }

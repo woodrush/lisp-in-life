@@ -94,14 +94,14 @@ wc -l lisp.qftasm
 #   -i lisp.qftasm \
 #   --debug-plot-memdist \
 
-# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-#   --stdin-pos 350 \
-#   --stdout-pos 799 \
-#   --stack-size 223 \
-#   --debug-ramdump \
-#   -i lisp.qftasm \
-#   --debug-plot-memdist \
+cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 223 \
+  --debug-ramdump \
+  -i lisp.qftasm \
+  --debug-plot-memdist \
 
-echo "(print t)"              | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
-echo "(print (eval t))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
-echo "(print (eval (eval t)))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
+# echo "(print t)"              | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
+# echo "(print (eval t))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
+# echo "(print (eval (eval t)))"       | python ../elvm/tools/qftasm/qftasm_interpreter.py -i lisp.qftasm
