@@ -62,22 +62,23 @@ r:
 sthash:
     .long 0
     .long eval_eq
-initlist:
-    .long nil_value
-    .long eval_cons
 curlist:
-    .long nil_value
-    .long eval_arith
-nil:
-    .long nil_value
-    .long eval_arith
+    .long initlist
+    .long eval_cons
 macro_eval:
     .long 0
+    .long eval_arith
+# blank
+    .long 0
+    .long eval_arith
+# blank
+    .long 0
     .long eval_eval
-nil_value: # Uses 2 bytes of memory
+initlist: # Uses 2 bytes of memory
     .long 0
     .long 0
     .long eval_cdr
+# blank
     .long 0
     .long eval_arith
     .long eval_arith

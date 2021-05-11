@@ -9,8 +9,8 @@ cat ./src/memheader.eir > tmp.eir
 echo "" >> tmp.eir
 cat tmp_.eir >> tmp.eir
 ../elvm/out/elc -qftasm \
-  --qftasm-stdin-pos 500 \
-  --qftasm-stdout-pos 823 \
+  --qftasm-stdin-pos 350 \
+  --qftasm-stdout-pos 799 \
   tmp.eir > tmp.qftasmpp   # elc outputs code that requires post-processing
 
 wc -l tmp.qftasmpp
@@ -68,29 +68,32 @@ wc -l lisp.qftasm
 # echo "(print (quote ()))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 # echo "(print (atom (quote (1 2 3))))" | python ../elvm/tools/qftasm/qftasm_interpreter.py lisp.qftasm
 
-cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-  --stdin-pos 500 \
-  --stdout-pos 823 \
-
-cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
-  --stdin-pos 500 \
-  --stdout-pos 823 \
-
-# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm
-cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  --stdin-pos 500 \
-  --stdout-pos 823 \
-  --memory-wrap 1024 \
-  --debug-ramdump \
-  --debug-plot-memdist \
-  --max-steps 300000 \
-  -i lisp.qftasm
-
-# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+# cat print.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
 #   --stdin-pos 350 \
 #   --stdout-pos 823 \
-#   --memory-wrap 2048 \
+
+# cat fact.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+#   --stdin-pos 350 \
+#   --stdout-pos 823 \
+
+# cat objects.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py --debug-ramdump -i lisp.qftasm \
+#   --stdin-pos 350 \
+#   --stdout-pos 823 \
+
+
+# cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   --stdin-pos 350 \
+#   --stdout-pos 823 \
 #   --debug-ramdump \
 #   --debug-plot-memdist \
-#   --max-steps 3000000 \
+#   --max-steps 300000 \
 #   -i lisp.qftasm
+
+cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+  --stdin-pos 350 \
+  --stdout-pos 799 \
+  --stack-size 213 \
+  --debug-ramdump \
+  --debug-plot-memdist \
+  --max-steps 3000000 \
+  -i lisp.qftasm

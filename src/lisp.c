@@ -79,52 +79,52 @@ DEFLOCATION char* s1;
 DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
+DEFLOCATION int* macro_eval;
 
 
 // ATOM=1, since .type and .next of Value is a union, and .next is usually set to NULL
 #ifdef ELVM
-typedef enum {
-    ATOM   = (unsigned long long)1<<14,
-    INT    = (unsigned long long)2<<14,
-    LAMBDA = (unsigned long long)3<<14,
-} Valuetype;
+    typedef enum {
+        ATOM   = (unsigned long long)1<<14,
+        INT    = (unsigned long long)2<<14,
+        LAMBDA = (unsigned long long)3<<14,
+    } Valuetype;
 
-DEFLOCATION macro_eval;
-int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
+    int stdin_startpos = QFTASM_RAMSTDIN_BUF_STARTPOSITION;
 
-#  define typemaskinv (0b0011111111111111)
-// #define buf ((char*)65352)
-// #define stringTableHeadList ((StringTable**)65336)
+    #  define typemaskinv (0b0011111111111111)
+    // #define buf ((char*)65352)
+    // #define stringTableHeadList ((StringTable**)65336)
 
-#define max_address 1024
-#define stack_head (max_address-QFTASM_STACK_SIZE)
-#define buf ((char*)stack_head)
-#define stringTableHeadList ((StringTable**)(stack_head+32))
+    #define max_address 1024
+    #define stack_head (max_address-QFTASM_STACK_SIZE)
+    #define buf ((char*)stack_head)
+    #define stringTableHeadList ((StringTable**)(stack_head+32))
 
-int* _edata_stack_ptr = stack_head + 48;
+    int* _edata_stack_ptr = stack_head + 48;
 
-// #define _edata_stack ((int*)65385)
+    // #define _edata_stack ((int*)65385)
 
-// #define _edata_stack (*((int*)stack_head+48))
+    // #define _edata_stack (*((int*)stack_head+48))
 
-#define _edata_stack (*_edata_stack_ptr)
+    #define _edata_stack (*_edata_stack_ptr)
 
-// DEFLOCATION int* _edata_stack;
-DEFLOCATION List nil_value;
+    // DEFLOCATION int* _edata_stack;
+    DEFLOCATION List initlist;
 
 #else
-typedef enum {
-    ATOM   = (unsigned long long)1<<62,
-    INT    = (unsigned long long)2<<62,
-    LAMBDA = (unsigned long long)3<<62,
-} Valuetype;
+    typedef enum {
+        ATOM   = (unsigned long long)1<<62,
+        INT    = (unsigned long long)2<<62,
+        LAMBDA = (unsigned long long)3<<62,
+    } Valuetype;
 
-#  define typemaskinv (~LAMBDA)
-#  define valuemask_14 (((unsigned long long)1<<14)-1)
-char buf[32];
-// .type = 1, since ->type and ->next are inside the same union
-List nil_value = { .next = NULL, .value = NULL };
-StringTable* stringTableHeadList[16];
+    #  define typemaskinv (~LAMBDA)
+    #  define valuemask_14 (((unsigned long long)1<<14)-1)
+    char buf[32];
+    // .type = 1, since ->type and ->next are inside the same union
+    List initlist = { .next = NULL, .value = NULL };
+    StringTable* stringTableHeadList[16];
 
 #endif
 
@@ -164,19 +164,19 @@ DEFLOCATION Env* _env2;
 DEFLOCATION Env* _env3;
 
 #ifdef ELVM
-DEFLOCATION Env* _evalenv;
-DEFLOCATION Value nil;
-DEFLOCATION List* initlist;
-DEFLOCATION List* curlist;
-// true_value is hardcoded in memheader.eir for ELVM
-Value true_value = t_str ^ ATOM;
+    DEFLOCATION Env* _evalenv;
+    // DEFLOCATION Value nil;
+    // DEFLOCATION List* initlist;
+    DEFLOCATION List* curlist;
+    // true_value is hardcoded in memheader.eir for ELVM
+    Value true_value = t_str ^ ATOM;
 #else
-DEFLOCATION Env* _evalenv = &initialenv;
-DEFLOCATION Value nil = (Value)&nil_value;
-DEFLOCATION List* initlist = &nil_value;
-DEFLOCATION List* curlist = &nil_value;
-// true_value is hardcoded in memheader.eir for ELVM
-Value true_value;
+    DEFLOCATION Env* _evalenv = &initialenv;
+    // DEFLOCATION Value nil = (Value)&nil_value;
+    // DEFLOCATION List* initlist = &initlist_value;
+    DEFLOCATION List* curlist = &initlist;
+    // true_value is hardcoded in memheader.eir for ELVM
+    Value true_value;
 #endif
 
 
@@ -840,20 +840,16 @@ eval_lambda_call:
     curenv = (lambdaType(curlambda) == L_MACRO) ? _evalenv : lambdaEnv(curlambda);
 
     while (curargname) {
-        // Set argument to nil if there are no arguments
-        if (lambdaType(curlambda) == L_MACRO) {
-            if (curarg) {
+        if (curarg) {
+            if (lambdaType(curlambda) == L_MACRO) {
                 _value = curarg->value;
             } else {
-                _value = NULL;
+                eval(curarg->value);
             }
         } else {
-            if (curarg) {
-                eval(curarg->value);
-            } else {
-                _value = NULL;
-            }
+            _value = NULL;
         }
+
         // _str = curargname->value->str;
         atom2Str(curargname->value);
         _env = curenv;
@@ -877,20 +873,24 @@ eval_lambda_call:
 
     if (lambdaType(curlambda) == L_MACRO) {
         evalstack.prev_edata = 0;
-#ifdef ELVM
-        // if (!macro_eval) {
-        //     macro_eval = 1;
-            evalstack.prev_edata =_edata;
-            _edata = stack_head;
-        // }
-#endif
-        eval((Value)curlambda->body);
-#ifdef ELVM
-        if (evalstack.prev_edata) {
-            _edata = evalstack.prev_edata;
-            // macro_eval = 0;
+        if (macro_eval > 0) {
+            macro_eval = (int*)1;
+            #ifdef ELVM
+                evalstack.prev_edata = _edata;
+                _edata = stack_head;
+            #else
+                evalstack.prev_edata = (int*) 1;
+            #endif
         }
-#endif
+
+        eval((Value)curlambda->body);
+
+        if (evalstack.prev_edata) {
+            #ifdef ELVM
+                _edata = evalstack.prev_edata;
+            #endif
+            macro_eval = 0;
+        }
 
         _evalenv = evalstack_env2;
         // _evalenv = curlambda->env;
@@ -898,8 +898,8 @@ eval_lambda_call:
         eval(_value);
     } else {
         eval((Value)curlambda->body);
+        _evalenv = evalstack_env2;
     }
-    _evalenv = evalstack_env2;
     // _evalenv = tempenv;
     #undef curargname
     #undef curarg
@@ -1022,14 +1022,16 @@ int main (void) {
     } while((curlist = curlist->next));
 
     debug_malloc("==== end of parsing phase ====\n");
-    initlist = ((List*)nil)->next;
-    ((List*)nil)->next = NULL;
-    while (initlist) {
-        eval(initlist->value);
+    // initlist = ((List*)nil)->next;
+    // ((List*)nil)->next = NULL;
+
+    curlist = initlist.next;
+    while (curlist) {
+        eval(curlist->value);
         //
         // _value = initlist->value;
         // printValue();
-        initlist = initlist->next;
+        curlist = curlist->next;
     }
 #ifdef ELVM
     *((char*)(stdin_startpos)) = 0;

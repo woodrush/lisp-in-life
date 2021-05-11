@@ -1,7 +1,9 @@
+(define i (macro (b) b))
+
 (define defun
   (macro (fname varlist body)
     (list
-      (quote define) fname
+      (quote define) (i fname)
       (list (quote lambda*) varlist body))))
 
 (defun append (l item)
