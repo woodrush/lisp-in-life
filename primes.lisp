@@ -13,15 +13,15 @@
 
 (defun isprime (n)
   ((lambda* (primelist p ret)
-      (while primelist
-        (define p (car primelist))
-        (define primelist (cdr primelist))
-        (if (eq 0 (mod n p))
-          (progn
-            (define primelist ())
-            (define ret ()))
-          ()))
-      ret)
+     (while primelist
+       (define p (car primelist))
+       (define primelist (cdr primelist))
+       (if (eq 0 (mod n p))
+         (progn
+           (define primelist ())
+           (define ret ()))
+         ()))
+     ret)
    primelist () 1))
 
 (define n 2)

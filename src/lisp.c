@@ -66,10 +66,8 @@ typedef struct Env {
 } Env;
 
 typedef struct Lambda {
-    struct List* argnames;
-    struct List* body;
+    struct List* definition;
     struct Env* env;
-    // Lambdatype type;
 } Lambda;
 
 
@@ -231,11 +229,10 @@ void _div(int n, int m) {
     _str = (char*) (((unsigned long long)__value) & (~typemask)); \
 }
 
-#define newLambdaData(__target, __argnames, __body, __env, __type) {   \
+#define newLambdaData(__target, __definition, __env, __type) {   \
     malloc_k(sizeof(Lambda), __target);                                \
     debug_malloc("lambda 1\n");                                        \
-    _lambda->argnames = __argnames;                                    \
-    _lambda->body = __body;                                            \
+    _lambda->definition = __definition;                                    \
     _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
 }
 
@@ -504,7 +501,6 @@ typedef struct {
     };
     union {
         List* arg2list_;
-        List* curbody;
         int n_;
         Env* e;
     };
@@ -723,8 +719,7 @@ eval_while:
 eval_createlambda:
             newLambdaData(
                 _lambda,
-                (List*)(arg1),
-                arg2list,
+                ((List*)node)->next,
                 _evalenv,
                 (headstr[0] == 'm' ? L_MACRO : headstr[6] == '*' ? L_LAMBDA :  L_CLOSURE)
             );
@@ -840,7 +835,7 @@ eval_lambda_call:
     value2Lambda(_value, node);
     // node = (Value)(_value->lambda);
     // curlambda = _value->lambda;
-    curargname = curlambda->argnames;
+    curargname = curlambda->definition->value;
 
 
     // Th body of the macro should be evaluated in the environment they are called in,
@@ -891,12 +886,7 @@ eval_lambda_call:
             #endif
         }
 
-        progn(curlambda->body);
-        // evalstack.curbody = curlambda->body;
-        // while (evalstack.curbody) {
-        //     eval(evalstack.curbody->value);
-        //     evalstack.curbody = evalstack.curbody->next;
-        // }
+        progn(curlambda->definition->next);
 
         if (evalstack.prev_edata) {
             #ifdef ELVM
@@ -910,7 +900,7 @@ eval_lambda_call:
         // _evalenv = temp2;
         eval(_value);
     } else {
-        progn(curlambda->body);
+        progn(curlambda->definition->next);
         _evalenv = evalstack.env2;
     }
     // _evalenv = tempenv;

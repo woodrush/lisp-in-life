@@ -22,7 +22,6 @@
 
 (print ((. counter1 inc)) ())
 (print ((. counter1 inc)) ())
-(print ((. counter1 inc)) ())
 (print ((. counter2 inc)) ())
 (print ((. counter2 dec)) ())
 (print ((. counter1 inc)) ())
