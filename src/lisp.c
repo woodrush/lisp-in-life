@@ -713,7 +713,7 @@ eval_while:
             // _value = NULL;
             _value_eval = NULL;
             while (eval(arg1), _value) {
-                eval(arg2list->value);
+                progn(arg2list);
                 _value_eval = _value;
             }
             _value = _value_eval;
