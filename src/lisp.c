@@ -712,10 +712,6 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
-            // Nil equality and integer equality, and atom equality.
-            // Integers are passed as raw values with a flag at the top bit instead of a
-            // pointer to a value, so equal integers always have the same n1 and n2.
-            // Atoms are the same except the raw values are constant string pointers.
             _value = ((unsigned long long)n1 == (unsigned long long)n2) ? true_value : NULL;
             return;
             #undef n1
@@ -966,7 +962,7 @@ int main (void) {
     curlist = initlist.next;
     while (curlist) {
         eval(curlist->value);
-        // _value = initlist->value;
+        // _value = curlist->value;
         // printValue();
         curlist = curlist->next;
     }

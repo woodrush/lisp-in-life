@@ -1,8 +1,8 @@
-# ../elvm/out/8cc -S -DQFT -Dprecalculation_run -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
+# ../elvm/out/8cc -S -DQFT -Dprecalculation_run -I. -Isrc -o tmp_.eir src/lisp.c
 
-# ../elvm/out/8cc -S -DQFT -Dskip_precalculation -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
+# ../elvm/out/8cc -S -DQFT -Dskip_precalculation -I. -Isrc -o tmp_.eir src/lisp.c
 
-../elvm/out/8cc -S -DQFT -I. -I../elvm/libc -Iout -Isrc -o tmp_.eir src/lisp.c
+../elvm/out/8cc -S -DQFT -I. -Isrc -o tmp_.eir src/lisp.c
 
 
 cat ./src/memheader.eir > tmp.eir
