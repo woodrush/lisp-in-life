@@ -81,19 +81,20 @@ wc -l lisp.qftasm
 #   --stdout-pos 823 \
 
 
-# cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-#   --stdin-pos 350 \
-#   --stdout-pos 823 \
-#   --debug-ramdump \
-#   --debug-plot-memdist \
-#   --max-steps 300000 \
-#   -i lisp.qftasm
-
-cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   --stdin-pos 350 \
   --stdout-pos 799 \
   --stack-size 213 \
   --debug-ramdump \
   --debug-plot-memdist \
-  --max-steps 3000000 \
+  --max-steps 300000 \
   -i lisp.qftasm
+
+# cat primes.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   --stdin-pos 350 \
+#   --stdout-pos 799 \
+#   --stack-size 213 \
+#   --debug-ramdump \
+#   --debug-plot-memdist \
+#   --max-steps 3000000 \
+#   -i lisp.qftasm
