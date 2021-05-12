@@ -12,7 +12,7 @@ QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 # Pass 1
 #================================================================
 echo "Pass 1: Obtain the ramdump for the precalculations"
-../elvm/out/8cc -S -DQFT -Dprecalculation_run -I. -Isrc -o tmp_.eir src/lisp.c
+../elvm/out/8cc -S -DQFT -Dprecalculation_run -Isrc -o tmp_.eir src/lisp.c
 
 cat ./src/memheader.eir > tmp.eir
 echo "" >> tmp.eir
@@ -31,14 +31,14 @@ echo "" | python ../elvm/tools/qftasm/qftasm_interpreter.py -i tmp.qftasm \
   --debug-ramdump-verbose > $ramdump_stack_csv
 
 echo "Created ${ramdump_stack_csv}."
-
+echo ""
 
 #================================================================
 # Pass 2
 #================================================================
 echo "Pass 2: Obtain the optimized ROM, with the memory initializations at the footer"
 
-../elvm/out/8cc -S -DQFT -Dskip_precalculation -I. -Isrc -o tmp_.eir src/lisp.c
+../elvm/out/8cc -S -DQFT -Dskip_precalculation -Isrc -o tmp_.eir src/lisp.c
 
 cat ./src/memheader.eir > tmp.eir
 echo "" >> tmp.eir
@@ -84,7 +84,7 @@ python ../elvm/tools/qftasm/qftasm_pp.py $final > $target
 echo "Done."
 echo "Created ${target}."
 wc -l $target
-
+echo ""
 
 #================================================================
 # Pass 3
@@ -100,7 +100,7 @@ echo "Created ${ramdump_stack_csv}."
 cat $ramdump_heap_csv <(head -n $ramdump_stack_csv_headlines $ramdump_stack_csv) > $ramdump_csv
 
 echo "Created ${ramdump_csv}."
-
+echo ""
 
 #================================================================
 # Pass 4
@@ -109,3 +109,4 @@ echo "Pass 4: Omit the heap and register initialization settings and create $lis
 head -n $(expr $initline - 1) $target > $lisp_opt_qftasm
 
 echo "Created $lisp_opt_qftasm."
+echo ""

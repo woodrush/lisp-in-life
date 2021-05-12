@@ -15,8 +15,6 @@
 extern int evalhash;
 
 //====================================================================================
-#define num_ops 24
-
 #define lambda_str 11
 #define print_str 18
 #define define_str 24

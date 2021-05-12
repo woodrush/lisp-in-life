@@ -1,9 +1,9 @@
 #ifdef QFT
-#  define DEFLOCATION extern
-#  define BITSIZE 16
+    #define DEFLOCATION extern
+    #define BITSIZE 16
 #else
-#  define DEFLOCATION
-#  define BITSIZE 64
+    #define DEFLOCATION
+    #define BITSIZE 64
 #endif
 
 DEFLOCATION char* _str;
@@ -16,27 +16,20 @@ DEFLOCATION int _malloc_bytes;
 DEFLOCATION void* _malloc_result;
 
 
-
 #ifdef QFT
-#include "qft.h"
+    #include "qft.h"
+    #define debug(x)
+    #define debug1(x,y)
+    #define debug1_2(x,y)
+    #define debug2(x,y,z)
+    #define debug_malloc(x)
 #else
-#include "lisp.h"
-#endif
-
-
-#ifdef QFT
-#  define debug(x)
-#  define debug1(x,y)
-#  define debug1_2(x,y)
-#  define debug2(x,y,z)
-#  define debug_malloc(x)
-#else
-#  include <stdio.h>
-#  define debug(x)      // printf(x)
-#  define debug1(x,y)   // printf(x,y)
-#  define debug1_2(x,y) // printf(x,y)
-#  define debug2(x,y,z) // printf(x,y,z)
-#  define debug_malloc(x) // printf(x)
+    #include "lisp.h"
+    #define debug(x)      // printf(x)
+    #define debug1(x,y)   // printf(x,y)
+    #define debug1_2(x,y) // printf(x,y)
+    #define debug2(x,y,z) // printf(x,y,z)
+    #define debug_malloc(x) // printf(x)
 #endif
 
 
@@ -141,10 +134,10 @@ typedef enum {
 #define isLambdaValue(x) ((((unsigned long long)(x)) &~ typemaskinv) == LAMBDA)
 
 typedef enum {
-    L_LAMBDA  = ATOM,
-    L_MACRO   = INT,
-    L_CLOSURE = LAMBDA,
-    L_TEMPMACRO = 0,
+    L_LAMBDA     = LAMBDA,
+    L_MACRO      = INT,
+    L_TEMPLAMBDA = ATOM,
+    L_TEMPMACRO  = 0,
 } Lambdatype;
 
 #define lambdaType(lambda) (((unsigned long long)((lambda)->env)) &~ typemaskinv)
@@ -207,8 +200,8 @@ void _div(int n, int m) {
 // Parser
 //================================================================================
 
-#define str2Atom(__str) {                                   \
-    debug("str2Atom\n");                                    \
+#define str2Atom(__str) {                                  \
+    debug("str2Atom\n");                                   \
     _value = (Value) (((unsigned long long)__str) ^ ATOM); \
 }
 
@@ -218,23 +211,21 @@ void _div(int n, int m) {
 }
 
 #define newLambdaData(__target, __definition, __env, __type) {   \
-    malloc_k(sizeof(Lambda), __target);                                \
-    debug_malloc("lambda 1\n");                                        \
-    _lambda->definition = __definition;                                \
-    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type);       \
+    malloc_k(sizeof(Lambda), __target);                          \
+    debug_malloc("lambda 1\n");                                  \
+    _lambda->definition = __definition;                          \
+    _lambda->env = (Env*)(((unsigned long long)__env) ^ __type); \
 }
 
 #define lambda2Value(__lambda) {                                 \
     debug("lambda2Value\n");                                     \
-    _value = (Value) (((unsigned long long)__lambda) ^ LAMBDA); \
+    _value = (Value) (((unsigned long long)__lambda) ^ LAMBDA);  \
 }
 
 #define value2Lambda(__value, __outvalue) {                              \
     debug("value2Lambda\n");                                             \
-    __outvalue = (Value) (((unsigned long long)__value) & (~typemask)); \
+    __outvalue = (Value) (((unsigned long long)__value) & (~typemask));  \
 }
-
-
 
 List* newList(Value node, List* next) {
     // _malloc_bytes = sizeof(Value);
@@ -246,59 +237,63 @@ List* newList(Value node, List* next) {
     return _list;
 }
 
+#define newIntValue() {                                             \
+    debug("newIntValue\n");                                         \
+    _value = (Value) (((unsigned long long)(i &~ typemask)) ^ INT); \
+}
 
-#define newStringTable_(__stringtable, __str) {      \
-    malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stack);   \
-    debug_malloc("newStringTable_\n");                      \
-    __stringtable->varname = __str;                  \
-    __stringtable->lesser = NULL;                    \
-    __stringtable->greater = NULL;                   \
+#define newStringTable_(__stringtable, __str) {                      \
+    malloc_k_pos(sizeof(StringTable), __stringtable, _edata_stack);  \
+    debug_malloc("newStringTable_\n");                               \
+    __stringtable->varname = __str;                                  \
+    __stringtable->lesser = NULL;                                    \
+    __stringtable->greater = NULL;                                   \
 }
 
 #ifndef skip_precalculation
-StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
-    StringTable* ret;
-    malloc_k_pos(sizeof(StringTable), ret, _edata_stack);
-    debug_malloc("newStringTable\n");
-    ret->varname = varname;
-    ret->lesser = lesser;
-    ret->greater = greater;
-    return ret;
-}
+    StringTable* newStringTable(char* varname, StringTable* lesser, StringTable* greater) {
+        StringTable* ret;
+        malloc_k_pos(sizeof(StringTable), ret, _edata_stack);
+        debug_malloc("newStringTable\n");
+        ret->varname = varname;
+        ret->lesser = lesser;
+        ret->greater = greater;
+        return ret;
+    }
 
-void buildStringTable () {
-    #ifdef QFT
+    void buildStringTable () {
+#ifdef QFT
         _edata_stack = stack_head + 49;
-    #endif
+#endif
 
-    stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
-    stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
-    stringTableHeadList[2] = newStringTable(macro_str, NULL, NULL);
-    stringTableHeadList[3] = newStringTable(cons_str, NULL, NULL);
-    stringTableHeadList[4] = newStringTable(t_str, NULL, NULL);
-    stringTableHeadList[5] = NULL;
-    stringTableHeadList[6] = newStringTable(
-        eq_str,
-        newStringTable(car_str, NULL, NULL),
-        newStringTable(progn_str, NULL, NULL)
-    );
-    stringTableHeadList[7] = NULL;
-    stringTableHeadList[8] = newStringTable(eval_str, NULL, NULL);
-    stringTableHeadList[9] = newStringTable(cdr_str, NULL, newStringTable(while_str, NULL, NULL));
-    stringTableHeadList[10] = newStringTable(ast_str, NULL, NULL);
-    stringTableHeadList[11] = newStringTable(
-        define_str,
-        newStringTable(plus_str, NULL, NULL),
-        newStringTable(lambdaast_str, NULL, NULL)
-    );
-    stringTableHeadList[12] = newStringTable(list_str,
-        newStringTable(lt_str, NULL, NULL),
-        newStringTable(macroast_str, NULL, NULL)
-    );
-    stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
-    stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
-    stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
-}
+        stringTableHeadList[0] = newStringTable(mod_str, NULL, NULL);
+        stringTableHeadList[1] = newStringTable(lambda_str, newStringTable(atom_str, NULL, NULL), NULL);
+        stringTableHeadList[2] = newStringTable(macro_str, NULL, NULL);
+        stringTableHeadList[3] = newStringTable(cons_str, NULL, NULL);
+        stringTableHeadList[4] = newStringTable(t_str, NULL, NULL);
+        stringTableHeadList[5] = NULL;
+        stringTableHeadList[6] = newStringTable(
+            eq_str,
+            newStringTable(car_str, NULL, NULL),
+            newStringTable(progn_str, NULL, NULL)
+        );
+        stringTableHeadList[7] = NULL;
+        stringTableHeadList[8] = newStringTable(eval_str, NULL, NULL);
+        stringTableHeadList[9] = newStringTable(cdr_str, NULL, newStringTable(while_str, NULL, NULL));
+        stringTableHeadList[10] = newStringTable(ast_str, NULL, NULL);
+        stringTableHeadList[11] = newStringTable(
+            define_str,
+            newStringTable(plus_str, NULL, NULL),
+            newStringTable(lambdaast_str, NULL, NULL)
+        );
+        stringTableHeadList[12] = newStringTable(list_str,
+            newStringTable(lt_str, NULL, NULL),
+            newStringTable(macroast_str, NULL, NULL)
+        );
+        stringTableHeadList[13] = newStringTable(print_str, newStringTable(minus_str, NULL, NULL), NULL);
+        stringTableHeadList[14] = newStringTable(quote_str, newStringTable(gt_str, NULL, NULL), NULL);
+        stringTableHeadList[15] = newStringTable(if_str, NULL, NULL);
+    }
 #endif
 
 
@@ -321,12 +316,6 @@ void buildStringTable () {
     i = j ? i : -i;                  \
 }
 
-
-#define newIntValue() {                                \
-    debug("newIntValue\n");                            \
-    _value = (Value) (((unsigned long long)(i &~ typemask)) ^ INT); \
-}
-
 #define pushTailList(__value) {      \
     _list = newList(__value, NULL);  \
     listTail->next = _list;          \
@@ -334,12 +323,8 @@ void buildStringTable () {
 }
 
 void parseExpr(List* listTail) {
-parseExprHead:;
+parseExprHead:
     // Remove whitespace
-// space:;
-    // if (!c) {
-    //     c = getchar();
-    // }
     while (c == ' ' || c == '\n') {
         c = getchar();
     }
@@ -405,6 +390,7 @@ parseExprHead:;
         branch = (stringTableHeadList + sthash);
         goto getOrSetAtomFromStringTable_setstringtable;
     }
+
 getOrSetAtomFromStringTableHead:
     s1 = buf;
     s2 = stringtable->varname;
@@ -419,6 +405,7 @@ getOrSetAtomFromStringTableHead:
                 debug("Continuing search...\n");
                 goto getOrSetAtomFromStringTableHead;
             }
+
 getOrSetAtomFromStringTable_setstringtable:
             debug("Creating new stringtable entry with a new string pointer...\n");
 
@@ -439,7 +426,6 @@ getOrSetAtomFromStringTable_setstringtable:
     _str = stringtable->varname;
 
 getOrSetAtomFromStringTable_end:
-
     str2Atom(_str);
     pushTailList(_value);
     goto parseExprHead;
@@ -491,10 +477,6 @@ Env* newEnv() {
     }                                                                             \
 }
 
-void printValue();
-
-
-
 void eval(Value node);
 #define evalAsInt() {                                                         \
     if (!isIntValue(_value)) {                                                \
@@ -529,6 +511,8 @@ void progn (List* list) {
         list = list->next;
     }
 }
+
+void printValue();
 
 void eval(Value node) {
     EvalStack evalstack;
@@ -581,7 +565,7 @@ void eval(Value node) {
         }
 
 #ifdef QFT
-    goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1))));
+        goto *((void*)*((int*)((int)&evalhash + (((int)_str) >> 1))));
 #else
              if (_str == define_str) goto eval_define;
         else if (_str == if_str) goto eval_if;
@@ -602,7 +586,7 @@ void eval(Value node) {
         else goto eval_lambda_call;
 #endif
 
-eval_define:;
+eval_define:
             eval(arg2list->value);
             _env = _evalenv;
             atom2Str(arg1);
@@ -700,7 +684,7 @@ eval_createlambda:
                 _lambda,
                 ((List*)node)->next,
                 _evalenv,
-                (headstr[0] == 'm' ? (headstr[5] == '*' ? L_TEMPMACRO :  L_MACRO) : headstr[6] == '*' ? L_LAMBDA : L_CLOSURE)
+                (headstr[0] == 'm' ? (headstr[5] == '*' ? L_TEMPMACRO :  L_MACRO) : headstr[6] == '*' ? L_TEMPLAMBDA : L_LAMBDA)
             );
             lambda2Value(_lambda);
             return;
@@ -711,6 +695,8 @@ eval_eq:
             eval(arg2list->value);
             #define n1 node
             #define n2 _value
+            // Works for nil, atoms, integers, and lambdas.
+            // Since atoms with the same string always carry the same string pointers, this works for atoms as well.
             _value = ((unsigned long long)n1 == (unsigned long long)n2) ? true_value : NULL;
             return;
             #undef n1
@@ -799,8 +785,6 @@ eval_lambda_call:
     curarg = ((List*)node)->next;
     eval(((List*)node)->value);
     value2Lambda(_value, node);
-    // node = (Value)(_value->lambda);
-    // curlambda = _value->lambda;
     curargname = curlambda->definition->value;
 
 
@@ -821,10 +805,9 @@ eval_lambda_call:
             _value = NULL;
         }
 
-        // _str = curargname->value->str;
         atom2Str(curargname->value);
         _env = curenv;
-        if (lambdaType(curlambda) == L_CLOSURE) {
+        if (lambdaType(curlambda) == L_LAMBDA) {
             curenv = newEnv();
         } else {
             prependTemporaryEnv(curenv);
@@ -842,10 +825,10 @@ eval_lambda_call:
     k = lambdaType(curlambda);
     if (k == L_MACRO || k == L_TEMPMACRO) {
         if (k == L_TEMPMACRO) {
-            #ifdef QFT
+#ifdef QFT
                 evalstack.prev_edata = _edata;
                 // _edata = stack_head;
-            #endif
+#endif
         } else {
             evalstack.prev_edata = NULL;
         }
@@ -853,9 +836,9 @@ eval_lambda_call:
         progn(curlambda->definition->next);
 
         if (evalstack.prev_edata) {
-            #ifdef QFT
+#ifdef QFT
                 _edata = evalstack.prev_edata;
-            #endif
+#endif
         }
 
         _evalenv = evalstack.env2;
@@ -915,7 +898,7 @@ void printValue() {
         k = lambdaType((Lambda*)_value);
         putchar('#');
         putchar('<');
-        _str = (k == L_LAMBDA) ? "Lambda>" : (k == L_MACRO || k == L_TEMPMACRO) ? "Macro>" : "Closure>";
+        _str = (k == L_LAMBDA || k == L_TEMPLAMBDA) ? "Closure>" : "Macro>";
     } else {
         debug("<list>");
 printlist:
