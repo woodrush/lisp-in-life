@@ -65,13 +65,13 @@ sthash:
 curlist:
     .long initlist
     .long eval_cons
-macro_eval:
+branch:
     .long 0
     .long eval_arith
 stringtable:
     .long 0
     .long eval_arith
-branch:
+# blank
     .long 0
     .long eval_eval
 initlist: # Uses 2 bytes of memory

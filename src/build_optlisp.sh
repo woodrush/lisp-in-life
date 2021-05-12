@@ -3,7 +3,9 @@ ramdump_stack_csv=./src/ramdump_stack.csv
 ramdump_csv=./src/ramdump.csv
 lisp_opt_qftasm=./src/lisp_opt.qftasm
 
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=340
+ramdump_stack_csv_headlines=180
+
+QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 
 #================================================================
@@ -95,7 +97,7 @@ tail -n +$initline $target | sed -E 's/^[0-9]+\. MNZ [0-9]+ ([0-9]+) ([0-9]+);.*
 echo "Created ${ramdump_stack_csv}."
 
 # Omit the function call stack
-cat $ramdump_heap_csv <(head -n 180 $ramdump_stack_csv) > $ramdump_csv
+cat $ramdump_heap_csv <(head -n $ramdump_stack_csv_headlines $ramdump_stack_csv) > $ramdump_csv
 
 echo "Created ${ramdump_csv}."
 

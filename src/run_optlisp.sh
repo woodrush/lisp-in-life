@@ -1,7 +1,12 @@
-ramdump_csv=./src/ramdump.csv
-lisp_opt_qftasm=./src/lisp_opt.qftasm
+if [ $# -eq 0 ]; then
+    lisp_opt_qftasm=./src/lisp_opt.qftasm
+else
+    lisp_opt_qftasm=$1
+fi
 
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=340
+ramdump_csv=./src/ramdump.csv
+
+QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 QFTASM_STACK_SIZE=233
 
@@ -15,7 +20,6 @@ echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.p
   --stack-size $QFTASM_STACK_SIZE \
   --debug-ramdump \
   -i $lisp_opt_qftasm \
-#   --suppress-address-overflow-warning \
 
 
 cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
@@ -59,7 +63,7 @@ cat fact.lisp      | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   --stack-size $QFTASM_STACK_SIZE \
   --debug-ramdump \
-  --debug-plot-memdist \
+--debug-plot-memdist \
 
 mv memdist.png memdist_fact.png
 

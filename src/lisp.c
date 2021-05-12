@@ -73,7 +73,6 @@ DEFLOCATION char* s1;
 DEFLOCATION char* s2;
 DEFLOCATION char* s3;
 
-DEFLOCATION int macro_eval;
 
 typedef enum {
     ATOM   = (unsigned long long)1<<(BITSIZE-2),
