@@ -3,6 +3,9 @@ ramdump_stack_csv=./src/ramdump_stack.csv
 ramdump_csv=./src/ramdump.csv
 lisp_opt_qftasm=./src/lisp_opt.qftasm
 
+QFTASM_RAMSTDIN_BUF_STARTPOSITION=340
+QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
+
 #================================================================
 # Pass 1
 #================================================================
@@ -13,8 +16,8 @@ cat ./src/memheader.eir > tmp.eir
 echo "" >> tmp.eir
 cat tmp_.eir >> tmp.eir
 ../elvm/out/elc -qftasm \
-  --qftasm-stdin-pos 350 \
-  --qftasm-stdout-pos 799 \
+  --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+  --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   tmp.eir > tmp.qftasmpp
 
 python ../elvm/tools/qftasm/qftasm_pp.py tmp.qftasmpp > tmp.qftasm
@@ -39,8 +42,8 @@ cat ./src/memheader.eir > tmp.eir
 echo "" >> tmp.eir
 cat tmp_.eir >> tmp.eir
 ../elvm/out/elc -qftasm \
-  --qftasm-stdin-pos 350 \
-  --qftasm-stdout-pos 799 \
+  --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+  --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   --qftasm-memory-at-footer \
   tmp.eir > tmp.qftasmpp
 
@@ -72,18 +75,19 @@ echo "Done."
 final=opt9.qftasmpp
 # final=opt2.qftasmpp
 
+target=lisp_opt_tmp.qftasm
+
 echo "Running the qftasm preprocessor.."
-python ../elvm/tools/qftasm/qftasm_pp.py $final > lisp_opt_tmp.qftasm
+python ../elvm/tools/qftasm/qftasm_pp.py $final > $target
 echo "Done."
-echo "Created lisp_opt_tmp.qftasm."
-wc -l lisp_opt_tmp.qftasm
+echo "Created ${target}."
+wc -l $target
 
 
 #================================================================
 # Pass 3
 #================================================================
 echo "Pass 3: Obtain the heap memory and register initialization settings"
-target=lisp_opt_tmp.qftasm
 initline=$(grep -E '^[0-9]+\..*Register initialization \(stdin buffer pointer\)' $target | grep -oE '^[0-9]+')
 initline=$(expr 1 + $initline)
 tail -n +$initline $target | sed -E 's/^[0-9]+\. MNZ [0-9]+ ([0-9]+) ([0-9]+);.*/\2,\1/g' > $ramdump_heap_csv
@@ -100,6 +104,6 @@ echo "Created ${ramdump_csv}."
 # Pass 4
 #================================================================
 echo "Pass 4: Omit the heap and register initialization settings and create $lisp_opt_qftasm"
-head -n $initline lisp_opt_tmp.qftasm > $lisp_opt_qftasm
+head -n $(expr $initline - 1) $target > $lisp_opt_qftasm
 
 echo "Created $lisp_opt_qftasm."

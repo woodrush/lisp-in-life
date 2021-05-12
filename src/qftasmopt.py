@@ -2,6 +2,8 @@ from pyparsing import *
 import sys
 import re
 
+MNZ_MOV_CONST = 128
+
 class Parser(object):
     def __init__(self):
         addressing_mode = Optional(Char("ABC")).setParseAction(
@@ -83,21 +85,21 @@ for i_inst, inst in enumerate(rom):
 
     if opcode == "ADD" or opcode == "XOR":
         if mode_1 == 0 and d1 == 0:
-            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+            rom[i_inst] = lineno, "MNZ", (0, MNZ_MOV_CONST), (mode_2, d2), (mode_3, d3), comment
         elif mode_2 == 0 and d2 == 0:
-            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_1, d1), (mode_3, d3), comment
+            rom[i_inst] = lineno, "MNZ", (0, MNZ_MOV_CONST), (mode_1, d1), (mode_3, d3), comment
 
     elif opcode == "SUB":
         if mode_2 == 0 and d2 == 0:
-            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_1, d1), (mode_3, d3), comment
+            rom[i_inst] = lineno, "MNZ", (0, MNZ_MOV_CONST), (mode_1, d1), (mode_3, d3), comment
 
     elif opcode == "MNZ":
         if mode_1 == 0 and d1 != 0:
-            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+            rom[i_inst] = lineno, "MNZ", (0, MNZ_MOV_CONST), (mode_2, d2), (mode_3, d3), comment
 
     elif opcode == "MLZ":
         if mode_1 == 0 and ((d1 < 0) or (d1 >= (1 << 15))):
-            rom[i_inst] = lineno, "MNZ", (0, 32768), (mode_2, d2), (mode_3, d3), comment
+            rom[i_inst] = lineno, "MNZ", (0, MNZ_MOV_CONST), (mode_2, d2), (mode_3, d3), comment
 
 
 # Constant folding and Mov folding (no dereferences)
@@ -259,7 +261,7 @@ for i_inst, inst in enumerate(rom):
         and (mode_3, d3) == (0, 3)
         and compare_inst(rom[i_inst+1], ("MNZ", (1,3), (0,1), (0,3)))
         and compare_inst(rom[i_inst+2], ("XOR", (0,1), (1,3), (0,3)))
-        and compare_inst(rom[i_inst+3], ("MNZ", (0,32768), (0,1), (0,9)))
+        and compare_inst(rom[i_inst+3], ("MNZ", (0,MNZ_MOV_CONST), (0,1), (0,9)))
         and compare_inst(rom[i_inst+4], ("MNZ", (1,3), (0,0), (0,9)))
         and tuple(readinst(rom[i_inst+5])[2]) == (1,9) and tuple(readinst(rom[i_inst+5])[4]) == (0,0)
     ):

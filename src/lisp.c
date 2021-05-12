@@ -90,7 +90,7 @@ typedef enum {
     // #define stringTableHeadList ((StringTable**)65336)
 
     // TODO: hand-fold these to constants
-    #define stack_head (max_address+1 - QFTASM_STACK_SIZE)
+    #define stack_head (QFTASM_RAM_SIZE - QFTASM_STACK_SIZE)
     #define buf ((char*)stack_head)
     #define stringTableHeadList ((StringTable**)(stack_head+32))
 
@@ -846,7 +846,6 @@ eval_lambda_call:
             #ifdef QFT
                 evalstack.prev_edata = _edata;
                 // _edata = stack_head;
-                // _edata = 800;
             #endif
         } else {
             evalstack.prev_edata = NULL;
