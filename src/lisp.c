@@ -921,8 +921,8 @@ void printValue() {
 printlist:
         list = (List*)_value;
         putchar('(');
-        while(list && (_value = list->value)) {
-            // _value = list->value;
+        while(list) {
+            _value = list->value;
             printValue();
             if ((list = list->next)) {
                 putchar(' ');
