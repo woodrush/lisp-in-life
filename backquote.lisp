@@ -8,11 +8,10 @@
         (list (quote quote) body)
         (if (eq (quote ~) (car body))
           (car (cdr body))
-          (cons
+          (list
             (quote cons)
-            (cons
-              (`-helper (car body))
-              (list (`-helper (cdr body)))))))))
+            (`-helper (car body))
+            (`-helper (cdr body)))))))
     (list (quote eval) (list (quote quote) (`-helper body)))))))
 
 ;; Since we don't have reader macros, the syntax for ` is slightly different

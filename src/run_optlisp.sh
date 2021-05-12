@@ -22,7 +22,7 @@ echo "(print (lambda (n) 1))" | python ../elvm/tools/qftasm/qftasm_interpreter.p
   -i $lisp_opt_qftasm \
 
 
-cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+cat backquote-splice.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   -i $lisp_opt_qftasm \
   --initial-ramvalues $ramdump_csv \
   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
@@ -31,49 +31,58 @@ cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   --debug-ramdump \
   --debug-plot-memdist \
 
-mv memdist.png memdist_print.png
+# cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   -i $lisp_opt_qftasm \
+#   --initial-ramvalues $ramdump_csv \
+#   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --stack-size $QFTASM_STACK_SIZE \
+#   --debug-ramdump \
+#   --debug-plot-memdist \
+
+# mv memdist.png memdist_print.png
 
 
-cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  -i $lisp_opt_qftasm \
-  --initial-ramvalues $ramdump_csv \
-  --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  --stack-size $QFTASM_STACK_SIZE \
-  --debug-ramdump \
-  --debug-plot-memdist \
+# cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   -i $lisp_opt_qftasm \
+#   --initial-ramvalues $ramdump_csv \
+#   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --stack-size $QFTASM_STACK_SIZE \
+#   --debug-ramdump \
+#   --debug-plot-memdist \
 
-mv memdist.png memdist_objects.png
+# mv memdist.png memdist_objects.png
 
-cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  -i $lisp_opt_qftasm \
-  --initial-ramvalues $ramdump_csv \
-  --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  --stack-size $QFTASM_STACK_SIZE \
-  --debug-ramdump \
-  --debug-plot-memdist \
+# cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   -i $lisp_opt_qftasm \
+#   --initial-ramvalues $ramdump_csv \
+#   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --stack-size $QFTASM_STACK_SIZE \
+#   --debug-ramdump \
+#   --debug-plot-memdist \
 
-mv memdist.png memdist_backquote.png
+# mv memdist.png memdist_backquote.png
 
-cat fact.lisp      | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  -i $lisp_opt_qftasm \
-  --initial-ramvalues $ramdump_csv \
-  --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  --stack-size $QFTASM_STACK_SIZE \
-  --debug-ramdump \
---debug-plot-memdist \
+# cat fact.lisp      | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   -i $lisp_opt_qftasm \
+#   --initial-ramvalues $ramdump_csv \
+#   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --stack-size $QFTASM_STACK_SIZE \
+#   --debug-ramdump \
+# --debug-plot-memdist \
 
-mv memdist.png memdist_fact.png
+# mv memdist.png memdist_fact.png
 
-cat primes.lisp    | python ../elvm/tools/qftasm/qftasm_interpreter.py \
-  -i $lisp_opt_qftasm \
-  --initial-ramvalues $ramdump_csv \
-  --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  --stack-size $QFTASM_STACK_SIZE \
-  --debug-ramdump \
-  --debug-plot-memdist \
+# cat primes.lisp    | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+#   -i $lisp_opt_qftasm \
+#   --initial-ramvalues $ramdump_csv \
+#   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --stack-size $QFTASM_STACK_SIZE \
+#   --debug-ramdump \
+#   --debug-plot-memdist \
 
-mv memdist.png memdist_primes.png
+# mv memdist.png memdist_primes.png
