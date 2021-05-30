@@ -1,19 +1,17 @@
 digraph G {
-    C [label="C code"]
+    rankdir="LR"
 
-    C->ELC
+    C [label="Lisp Interpreter\nwritten in C"]
+
+    C->eli [label="ELC"]
+
     subgraph cluster_0 {
         label = "ELVM Toolchain"
         labeljust = "r"
-        ELC [shape="rect"]
-        elvmunl [label="ELVM Unlambda Backend" shape="rect"]
-        elvmothers [label="..." shape="none"]
         
-        eli [label="ELVM Assembly"]
-        ELC->eli
-        eli->elvmunl
-        eli->elvmothers [style=invis]
-        elvmqftasm [label="ELVM QFTASM Backend" shape="rect" color="red" penwidth=2]
+        eli [label="ELVM\nAssembly"]
+
+        elvmqftasm [label="Extended\nELVM QFTASM Backend" shape="rect" color="red" penwidth=2]
         eli->elvmqftasm [color="red" penwidth=2]
     } [label="ELVM"]
 
@@ -22,13 +20,20 @@ digraph G {
         labeljust = "r"
         lheight = "10.0"
   
-        QFTASM [label="QFT Assembly"]
-        elvmqftasm->QFTASM [color="red" penwidth=2]
+        QFTASMPP [label="QFTASMPP\nAssembly"]
+        elvmqftasm->QFTASMPP [color="red" penwidth=2]
 
-        QFTex [label="QFT Architecture (Varlife)"]
+        QFTASMPPopt [label="QFTASM Optimizer\nand Preprocessor" shape="rect" color="red" penwidth=2]
+        QFTASMPP->QFTASMPPopt
+
+        QFTASM [label="QFTASM\nAssembly"]
+        QFTASMPPopt->QFTASM [color="red" penwidth=2]
+
+
+        QFTex [label="QFT Architecture\n(Varlife)"]
         QFTASM -> QFTex [label="ROM Tiling"]
     }
-    QFTgol [label="QFT Architecture (Game of Life)"]
+    QFTgol [label="QFT Architecture\n(Game of Life)"]
     QFTex -> QFTgol [taillabel="Metafier"]
 
 }

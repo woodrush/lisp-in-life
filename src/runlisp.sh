@@ -34,7 +34,7 @@ cat print.lisp     | python ../elvm/tools/qftasm/qftasm_interpreter.py \
 mv memdist.png memdist_print.png
 
 
-cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py \
+cat object-oriented-like.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   -i $lisp_opt_qftasm \
   --initial-ramvalues $ramdump_csv \
   --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
@@ -43,7 +43,7 @@ cat objects.lisp   | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   --debug-ramdump \
   --debug-plot-memdist \
 
-mv memdist.png memdist_objects.png
+mv memdist.png memdist_object-oriented-like.png
 
 cat backquote.lisp | python ../elvm/tools/qftasm/qftasm_interpreter.py \
   -i $lisp_opt_qftasm \

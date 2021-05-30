@@ -21,10 +21,10 @@
 ((. counter2 set) 8)
 
 ;; `(print x t)` prints the value with a newline
-(print ((. counter1 inc)) t)
-(print ((. counter1 inc)) t)
-(print ((. counter1 inc)) t)
-(print ((. counter2 inc)) t)
-(print ((. counter2 dec)) t)
-(print ((. counter1 inc)) t)
-(print ((. counter2 inc)) t)
+(print ((. counter1 inc)) t) ;; => 1
+(print ((. counter1 inc)) t) ;; => 2
+(print ((. counter1 inc)) t) ;; => 3
+(print ((. counter2 inc)) t) ;; => 9
+(print ((. counter2 dec)) t) ;; => 8
+(print ((. counter1 inc)) t) ;; => 4
+(print ((. counter2 inc)) t) ;; => 9

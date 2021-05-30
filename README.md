@@ -1,30 +1,147 @@
 # Lisp in Conway's Game of Life
 
-This repository is an ongoing project to make a Lisp interpreter run in Conway's Game of Life, based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project.
+It's not Conway's Game of Life implemented in Lisp - it's Lisp implemented in Conway's Game of Life.
 
-## The Current Status
+The entire pattern is viewable [here]().
 
-Done:
+This repository contains a Conway's Game of Life (GoL) pattern that runs a Lisp interpreter. The pattern is configurable and can load and run your own lisp code that is up to 1000 characters. The program is loaded into the pattern by writing the ASCII representation of the program into the RAM module, by editing certain cells within the pattern. The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-- I have made a Game-of-Life-like cellular automaton pattern which I have verified that successfully runs Lisp. The rule used in the pattern is Varlife, a Life-like rule defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) project.
-  - The Varlife pattern is available [here](./patterns/lisp_512B_ram_printstdin_QFT.mc).
-  - The pattern took 1,308,622,784 generations to finish running, which took 7 minutes to run on a 32GB RAM machine. The final pattern after 1,308,622,784 generations is also available [here](./patterns/lisp_512B_ram_printstdin_results_QFT.mc).
-  - A Varlife pattern with a blank stdin buffer for experimenting is available [here](./patterns/lisp_512B_ram_blankstdin_QFT.mc).
+The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project.
 
-Ongoing:
 
-- As explained in the [Stack Exchange post for Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life), any Varlife pattern can be systematically transformed into a Conway's Game of Life (GoL) pattern that has an isomorphic behavior.
-  - Therefore, the fact that the Varlife pattern runs Lisp gives a strong support that the corresponding GoL pattern can also run Lisp.
-  - However, since I felt that it's necessary to run the actual GoL pattern in the GoL rule for actual verification, I am currently taking some time to run the pattern in the GoL rule.
-  - The transformed GoL pattern is available [here](./patterns/lisp_512B_ram_printstdin_GoL_QFT.mc).
+## How is it Done?
 
-Addendum:
+![The toolchain used for this project](./img/toolchain.png)
 
-- The computer in the Varlife-verified pattern has only 512 bytes (1 byte is 16 bits in the computer architecture used to run Lisp) of RAM space, so the class of programs that it can run is limited. Using the [QFT Devkit](https://github.com/woodrush/QFT-devkit), it is possible to expand the ram up to 65536 bytes, which gives room for larger programs to run on.
-  - A 5000-byte RAM Varlife pattern that finds prime numbers up to 20 is available [here](./patterns/lisp_5000B_ram_primestdin_QFT.mc).
-  - The GoL version of this pattern is available [here](./patterns/lisp_5000B_ram_primestdin_GoL_QFT.mc).
-  - A Varlife version with a blank stdin buffer is available [here](./patterns/lisp_5000B_ram_blankstdin_QFT.mc).
-  - However, expanding the RAM makes even Varlife patterns to run slow on Golly, so I haven't been able to verify patterns that have a significantly larger RAM space.
+### Porting C code to Conway's Game of Life
+The final Game of Life pattern for the lisp interpreter is created by porting C code into a Game of Life pattern. The most important step for accomplishing this was to create a module that would provide a link between two existing works, [ELVM](https://github.com/shinh/elvm) and [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT).
+
+[ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) is a toolchain intended to compile C programs to various target languages. It consists of a frontend and a backend, where the frontend compiles C code to the ELVM assembly language, and the backend compiles the ELVM assembly language to the target language.
+
+[The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT) is a collaborative project that creates a computer that runs Tetris in the Game of Life. The computer is created by first defining a virtual Harvard architecture RISC CPU (which I will refer to as the QFT architecture, or simply QFT) that runs an assembly language called QFTASM. The project is explained in detail in this [Stack Exchange post](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life).
+
+In this project, starting from these two existing works, the first largest step in accomplishing the creation of the final pattern was writing the [ELVM QFTASM backend](https://github.com/shinh/elvm/tree/master/tools/qftasm), which compiles ELVM assembly to QFTASM. This step allowed to create a pathway for compiling C code and porting it to the Game of Life. I therefore then wrote the Lisp interpreter in C, which is finally ported into the Game of Life pattern.
+
+
+### Game of Life-Specific Optimizations
+However, simply compiling the Lisp interpreter and porting it to QFT resulted in a Game of Life pattern that consumed too much computational resources to run in a practical time. I therefore 
+
+A more detailed list
+
+#### The C Compiler layer
+- Added the computed goto feature to ELVM
+- Modified the compiler to preserve and output memory address symbols and program address symbols, for their usage in the compiler optimization tool in the QFTASM layer
+
+#### The QFTASM layer
+- Created a compiler optimization tool to reduce the QFTASM assembly size
+
+#### The Varlife layer (the computer architecture)
+- Recreated the ROM module with a cascaded hash table structure for the ROM module to save space
+- Added new optimized instructions to the ALU, and removed unused ones
+- Optimizations based on the fact that the absence of signals represents 0
+- Reduced the ROM word size from 58 bits to 45 bits
+- Extended the ROM and RAM address space from 9,7-bit to 12,10-bit
+
+#### The Game of Life layer
+- Improved the metafier script so that it could handle large patterns, by improving the memory usage of the memoization procedure
+- Aligned the pattern to 8x8 Varlife cells, to reduce the resulting [Macrocell](https://www.conwaylife.com/wiki/Macrocell) format output (Since the Macrocell format is the data structure used for the [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm, I believe this serves for optimization in the Hashlife layer)
+
+Since the C compiler proided in ELVM is designed to be compact, it lacks rich compiler optimization features. Therefore, various optimization methods are used in the C layer as well, such as:
+- Extensive use of global variables, which leads to prevention of indirect references
+- Specially defined structs and unions for the stack region of the main evaluation function
+
+
+
+The largest parts of accomplishing the this was writing the following tools:
+- The extended ELVM QFTASM backend
+- The QFTASM optimizer and preprocessor
+
+
+
+The extended ELVM QFTASM backend is a part of the ELVM toolchain. [ELVM](https://github.com/shinh/elvm) is a toolchain intended to compile C programs to various target languages. I first wrote the [ELVM QFTASM backend](https://github.com/shinh/elvm/tree/master/tools/qftasm), The target language is QFTASM, the assembly language for the computer architecture built in Conway's Game of Life (GoL). I will refer to the GoL computer architecture as the QFT architecture, or simply QFT.
+
+The first step for this project was to create a link between two existing works, [ELVM](https://github.com/shinh/elvm) and [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT). Making the resulting pattern runnable in a practical amount of time required lots of optimizations in all layers, such as the C compilation layer, the interpreter layer, the Varlife layer, the Game of Life layer, and the Lisp program layer, was done as well.
+
+## Sample Lisp Programs
+
+- print.lisp
+- object-oriented-like.lisp
+- primes.lisp
+- backquote-splice.lisp
+
+### print.lisp
+This program is short enough to be actually run in a computer in the Game of Life format. It took 6 hours to run on a 32GB-RAM computer (the Hashlife algorithm used for the simulation consumes a lot of memory space) on [Golly](https://en.wikipedia.org/wiki/Golly_(program)). Note that this pattern runs in XX minutes in the Varlife rule, the abtraction layer used when creating the final pattern - details will be explained later.
+
+
+### object-oriented-like.lisp
+This program is a demonstration of a program writen in an Object-Oriented-Programming-like style, with user-defined classes. Multiple objects can be instantiated, where each object is allocated with distinct memory spaces for their field variables, which can be individually manipulated. Objects are represented as lexical closures over the field variables of the class. This program also features the use of macros to introduce the `.` syntax, dynamically extending the interpreter for expressing programs in a more OOP-like style.
+
+<!-- This program runs in XX minutes in the Varlife layer, but the running time in the Game of Life layer is unconfirmed, since it takes too long to run. -->
+
+<!-- The entire source code is as follows:
+
+```lisp
+(define counter
+  (lambda (n)
+    (lambda (methodname)
+      (if (eq methodname (quote inc))
+        (lambda () (define n (+ n 1)))
+      (if (eq methodname (quote dec))
+        (lambda () (define n (- n 1)))
+      (if (eq methodname (quote get))
+        (lambda () n)
+      (if (eq methodname (quote set))
+        (lambda (m) (define n m))
+        ())))))))
+
+(define . (macro* (object methodname) (list object (list (quote quote) methodname))))
+(define new (lambda (x) (x)))
+
+(define counter1 (new counter))
+(define counter2 (new counter))
+
+((. counter1 set) 0)
+((. counter2 set) 8)
+
+;; `(print x t)` prints the value with a newline
+(print ((. counter1 inc)) t) ;; => 1
+(print ((. counter1 inc)) t) ;; => 2
+(print ((. counter1 inc)) t) ;; => 3
+(print ((. counter2 inc)) t) ;; => 9
+(print ((. counter2 dec)) t) ;; => 8
+(print ((. counter1 inc)) t) ;; => 4
+(print ((. counter2 inc)) t) ;; => 5
+``` -->
+
+
+### primes.lisp
+This program calculates and prints a list of prime numbers up to 20.
+
+
+### backquote-splice.lisp
+This program implements the [backquote macro](http://cl-cookbook.sourceforge.net/macros.html#LtohTOCentry-2), which supports the unquote and unquote-splice operations. Unquote and unquote-splice are each written as `~` and `~@`.
+
+
+## The Source Code for the Lisp Interpreter
+The original C code used to create the GoL pattern is available in this repository under `./src`. When writing `lisp.c`, I referenced some C implementation techniques from [lisp.c in the ELVM repository](https://github.com/shinh/elvm/blob/master/test/lisp.c). Some parts of `elvm.h` are copied from the header files of ELVM's library. Otherwise, the source code was written by the author of this repository from scratch.
+
+### Compiling with GCC
+The code can also be compiled with GCC to test on a usual computer. To do this, use gcc under the `./src` directory, or use the `-I` option to include `./src` to let gcc find `lisp.h` when compiling.
+
+### Compiling on ELVM
+Although compiling on ELVM can be done in the same way as GCC, switching the header file to `elvm.h` will allow the resulting QFTASM code to be smaller. This can be done by adding the following options:
+
+- `-DELVM`, for 8cc (which is the C compiler used for ELVM) to switch the header file to `elvm.h`, and
+- `-I[path to ./src]`, for including the header file `elvm.h`.
+
+Also, the compiler configurations in `./target/qftasm.c` in the ELVM repository must be changed according to the following table:
+
+| Architecture  | QFTASM_RAMSTDIN_BUF_STARTPOSITION | QFTASM_RAMSTDIN_BUF_STARTPOSITION | QFTASM_MEM_OFFSET | 
+| ------------- | --------------------------------- | --------------------------------- | ----------------- | 
+| 512-byte RAM  | 503                               | 511                               | 170               | 
+| 5000-byte RAM | 4499                              | 4999                              | 1024              | 
+
+
 
 ## Screenshots
 ![An animation of the RAM module of the QFT computer in the Varlife rule, while it is running.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
@@ -46,14 +163,17 @@ The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in b
 The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running. Each "cell" visible here is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP) zoomed far away.
 
 
+
 ## The Approach
 ![The toolchain used for this project](./img/toolchain.png)
 
-Basically, I created a link between two existing works, [ELVM](https://github.com/shinh/elvm) and [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT). There was also lots of work done on the QFT side to actually create a working pattern, obtain the GoL pattern from the Varlife pattern, etc.
+The first step for this project was to create a link between two existing works, [ELVM](https://github.com/shinh/elvm) and [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT). Making the resulting pattern runnable in a practical amount of time required lots of optimizations in all layers, such as the C compilation layer, the interpreter layer, the Varlife layer, the Game of Life layer, and the Lisp program layer, was done as well.
+
+Here I will first explain the original two projects, ELVM and QFT, and then will explain the details of this project.
 
 
 ### ELVM
-[ELVM](https://github.com/shinh/elvm), the Esoteric Language Virtual Machine, is a project inspired by LLVM, which can be used to port C code to [Esoteric Programming Languates](https://en.wikipedia.org/wiki/Esoteric_programming_language) such as [Unlambda](https://en.wikipedia.org/wiki/Unlambda) and [Piet](https://en.wikipedia.org/wiki/Esoteric_programming_language#Piet). It is done by first compiling C code to an assembly language targeted for a virtual RISC architecture, and then porting the assembly language to the target Esoteric Language. The latter step is called as the backend of ELVM. In this project, one of the main works I have done is to create a QFTASM backend for ELVM.
+[ELVM](https://github.com/shinh/elvm), the Esoteric Language Virtual Machine, is a project inspired by LLVM, which can be used to port C code to [Esoteric Programming Languages](https://en.wikipedia.org/wiki/Esoteric_programming_language) such as [Unlambda](https://en.wikipedia.org/wiki/Unlambda) and [Piet](https://en.wikipedia.org/wiki/Esoteric_programming_language#Piet). It is done by first compiling C code to an assembly language targeted for a virtual RISC architecture, and then porting the assembly language to the target Esoteric Language. The latter step is called as the backend of ELVM. In this project, one of the main works I have done is to create a QFTASM backend for ELVM.
 
 ### The Quest For Tetris 
 [The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT) is a collaborative project that was aimed to run Tetris in the Game of Life. The project is explained in detail in this [Stack Exchange post](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life).
@@ -66,7 +186,9 @@ Finally, the Varlife pattern is metafied to obtain the final GoL pattern, to obt
 
 
 ### This Project
-The main work done for this project is to create a [QFTASM backend for ELVM](https://github.com/woodrush/elvm/tree/add-qftasm/tools/qftasm). This allows one to use ELVM to compile C code to QFTASM, which can be ported to the QFT computer, and metafied into a GoL pattern.
+I first started by creating a [QFTASM backend for ELVM](https://github.com/woodrush/elvm/tree/add-qftasm/tools/qftasm). From there, I have done lots of optimizations in various layers:
+
+This allows one to use ELVM to compile C code to QFTASM, which can be ported to the QFT computer, and metafied into a GoL pattern.
 
 I have also done the following on the QFT side as well:
 
@@ -74,26 +196,6 @@ I have also done the following on the QFT side as well:
 - The next obstacle was extending the metafier to transform Varlife patterns to GoL patterns in the original QFT repository ([MetafierV2.py](https://github.com/QuestForTetris/QFT/blob/master/MetafierV2.py)) so that it could handle large patterns. For this, I studied the Macrocell format (*.mc) and the Hashlife algorithm. The example that ultimately led me to understanding the format was the pattern mentioned by Adam P. Goucher in the first post in [this thread](https://sourceforge.net/p/golly/mailman/golly-test/thread/983116CEB3464154AF26245F052EFB36%40adamspackard/). [Golly's page](http://golly.sourceforge.net/Help/formats.html#mc) and the [Life Lexicon's page](https://www.conwaylife.com/ref/lexicon/lex_m.htm#macrocell) was also informative. For Hashlife, [this writing](https://github.com/mafm/HashLife) let me understand the algorithm.
 
 These tools are all summarized and available in the [QFT-devkit](https://github.com/woodrush/QFT-devkit) repository.
-
-
-## The Source Code for the Lisp Interpreter
-The original C code used to create the GoL pattern is available in this repository under `./src`. When writing `lisp.c`, I referenced some C implementation techniques from [lisp.c in the ELVM repository](https://github.com/shinh/elvm/blob/master/test/lisp.c). Some parts of `elvm.h` are copied from the header files of ELVM's library. Otherwise, the source code was written by the author of this repository from scratch.
-
-### Compiling with GCC
-The code can also be compiled with GCC to test on a usual computer. To do this, use gcc under the `./src` directory, or use the `-I` option to include `./src` to let gcc find `lisp.h` when compiling.
-
-### Compiling on ELVM
-Although compiling on ELVM can be done in the same way as GCC, switching the header file to `elvm.h` will allow the resulting QFTASM code to be smaller. This can be done by adding the following options:
-
-- `-DELVM`, for 8cc (which is the C compiler used for ELVM) to switch the header file to `elvm.h`, and
-- `-I[path to ./src]`, for including the header file `elvm.h`.
-
-Also, the compiler configurations in `./target/qftasm.c` in the ELVM repository must be changed according to the following table:
-
-| Architecture  | QFTASM_RAMSTDIN_BUF_STARTPOSITION | QFTASM_RAMSTDIN_BUF_STARTPOSITION | QFTASM_MEM_OFFSET | 
-| ------------- | --------------------------------- | --------------------------------- | ----------------- | 
-| 512-byte RAM  | 503                               | 511                               | 170               | 
-| 5000-byte RAM | 4499                              | 4999                              | 1024              | 
 
 
 ## Details of the Lisp Interpreter
@@ -246,3 +348,31 @@ Since the metafication is done using OTCAMPs, the number of required GoL generat
 Since the 512byte-RAM pattern is verified to run Lisp on the Varlife rule, this provides a strong support that the corresponding GoL pattern can run Lisp as well, since an arbitrary Varlife pattern can systematically be transformed into a GoL pattern. However, since I feel that it's necessary to actually run the GoL pattern in the GoL rule on Golly for true verification, I'm currently running the GoL pattern on Golly.
 
 On the other hand, the 5000byte-RAM pattern is taking too much time to run on Golly, even for the Varlife pattern. Since the ROM on this pattern is derived from the same C source code as the 512byte-RAM pattern, and the derived ROM is verified on a QFTASM interpreter, I believe that both the Varlife and GoL patterns of the 5000byte-RAM version is capable of running Lisp as well.
+
+
+----
+### anonymous-recursion.lisp
+This source code features [Anonymous Recursion](https://en.wikipedia.org/wiki/Anonymous_recursion), to feature the power of lexical closures of the Lisp interpreter. The factorial function is defined entirely by lambda expressions that does not use the global variable namespace.
+
+An equivalent JavaScript code is:
+
+```javascript
+console.log(
+  (function (f) {
+    return ((function (x) { return f(function(v){ return x(x)(v); }) })
+            (function (x) { return f(function(v){ return x(x)(v); }) }));
+  })(function (fact){
+    return function (n) {
+      return n == 0 ? 1 : n * fact(n-1);
+    };
+  })(5)
+);
+```
+
+Although the Lisp interpreter supports defining recursive functions in a named way as in usual languages (which is done in primes.lisp), this source code rather uses this method for the purpose of the demonstrating the use of lambda expressions. The source code can also be written in alternatively as follows, in a more simple way:
+
+```lisp
+(define fact (lambda (n)
+  (if (eq n 0) 1 (* n (fact (- n 1))))))
+(print (fact 5))
+```

@@ -122,7 +122,7 @@ gcc src/lisp.c -Isrc && cat primes.lisp | ./a.out #> primes.gcc.out
 echo ""
 gcc src/lisp.c -Isrc && cat backquote.lisp | ./a.out #> primes.gcc.out
 echo ""
-gcc src/lisp.c -Isrc && cat objects.lisp | ./a.out #> objects.gcc.out
+gcc src/lisp.c -Isrc && cat object-oriented-like.lisp | ./a.out #> objects.gcc.out
 echo ""
 gcc src/lisp.c -Isrc && echo "(print (lambda () 1))" | ./a.out
 echo ""
