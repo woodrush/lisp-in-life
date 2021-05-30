@@ -1,9 +1,3 @@
-if [ $# -eq 0 ]; then
-    lisp_opt_qftasm=./src/lisp_opt.qftasm
-else
-    lisp_opt_qftasm=$1
-fi
-
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 QFTASM_STACK_SIZE=233

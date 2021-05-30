@@ -24,4 +24,6 @@
 (define lambdasplice (macro (args blist)
   (` (lambda (~ args) (~@ blist)))))
 
-((lambdasplice (n) ((print n) (print (+ 1 n)))) 7)
+((lambdasplice (n)
+   ((print n) (print (+ 1 n))))
+ 7)
