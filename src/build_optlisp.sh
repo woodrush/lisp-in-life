@@ -1,7 +1,16 @@
+lisp_src=./src/lisp.c
+ramdump_stack_csv_headlines=180
+memheader_eir=./src/memheader.eir
+lisp_opt_qftasm=./out/lisp_opt.qftasm
+
+QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
+QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
+
+
+#================================================================
 ramdump_heap_csv=./build/ramdump_heap.csv
 ramdump_stack_csv=./build/ramdump_stack.csv
 ramdump_csv=./build/ramdump.csv
-lisp_opt_qftasm=./build/lisp_opt.qftasm
 
 tmp_eir=./build/tmp.eir
 tmp2_eir=./build/tmp2.eir
@@ -12,18 +21,14 @@ final2=./build/opt9.qftasmpp
 final=./build/opt9.qftasmpp
 target=./build/lisp_opt_tmp.qftasm
 
-ramdump_stack_csv_headlines=180
-
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
-QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
-
 #================================================================
 # Pass 1
 #================================================================
 mkdir -p build
+mkdir -p out
 
 echo "Pass 1: Obtain the ramdump for the precalculations"
-../elvm/out/8cc -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir src/lisp.c
+../elvm/out/8cc -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir $lisp_src
 
 cat ./src/memheader.eir > $tmp_eir
 echo "" >> $tmp_eir
@@ -49,7 +54,7 @@ echo ""
 #================================================================
 echo "Pass 2: Obtain the optimized ROM, with the memory initializations at the footer"
 
-../elvm/out/8cc -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir src/lisp.c
+../elvm/out/8cc -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
 
 cat ./src/memheader.eir > $tmp_eir
 echo "" >> $tmp_eir

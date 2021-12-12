@@ -1,7 +1,7 @@
 digraph G {
     rankdir="LR"
 
-    C [label="Lisp Interpreter\nwritten in C"]
+    C [label="Lisp Interpreter\nwritten in C" color="red" penwidth=2]
 
     C->eli [label="ELC"]
 
@@ -30,7 +30,7 @@ digraph G {
         QFTASMPPopt->QFTASM [color="red" penwidth=2]
 
 
-        QFTex [label="QFT Architecture\n(Varlife)"]
+        QFTex [label="QFT Architecture\n(VarLife)"]
         QFTASM -> QFTex [label="ROM Tiling"]
     }
     QFTgol [label="QFT Architecture\n(Game of Life)"]

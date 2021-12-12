@@ -1,4 +1,4 @@
-LISP_OPT=./build/lisp_opt.qftasm
+LISP_OPT=./out/lisp_opt.qftasm
 
 all:
 	make $(LISP_OPT)
