@@ -1,20 +1,24 @@
 LISP_OPT=./out/lisp_opt.qftasm
 
-all:
-	make $(LISP_OPT)
+all: ./elvm/8cc/8cc
+	$(MAKE) $(LISP_OPT)
 
 run:
-	make run_gcc
-	make run_qft
+	$(MAKE) run_gcc
+	$(MAKE) run_qft
 
-$(LISP_OPT):
-	bash src/build_optlisp.sh
+$(LISP_OPT): ./elvm/8cc/8cc
+	./src/build_optlisp.sh
 
 run_qft:
-	bash src/runlisp.sh $(LISP_OPT)
+	./src/runlisp.sh $(LISP_OPT)
 
 build_gcc:
 	gcc src/lisp.c -Isrc
 
 run_gcc:
-	bash src/runlisp_gcc.sh
+	./src/runlisp_gcc.sh
+
+./elvm/8cc/8cc:
+	git submodule update --init --recursive
+	cd elvm && $(MAKE)
