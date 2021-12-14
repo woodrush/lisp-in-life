@@ -1,3 +1,6 @@
+#!/usr/local/bin/bash
+set -e
+
 lisp_src=./src/lisp.c
 ramdump_stack_csv_headlines=180
 memheader_eir=./src/memheader.eir
@@ -5,6 +8,11 @@ lisp_opt_qftasm=./out/lisp_opt.qftasm
 
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
+
+EIGHTCC=./elvm/out/8cc
+ELC=./elvm/out/elc
+QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
+QFTASM_INTERPRETER=./elvm/tools/qftasm/qftasm_interpreter.py
 
 
 #================================================================
@@ -28,19 +36,19 @@ mkdir -p build
 mkdir -p out
 
 echo "Pass 1: Obtain the ramdump for the precalculations"
-../elvm/out/8cc -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir $lisp_src
+$EIGHTCC -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir $lisp_src
 
 cat ./src/memheader.eir > $tmp_eir
 echo "" >> $tmp_eir
 cat $tmp2_eir >> $tmp_eir
-../elvm/out/elc -qftasm \
+$ELC -qftasm \
   --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
   --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   $tmp_eir > $tmp_qftasmpp
 
-python ../elvm/tools/qftasm/qftasm_pp.py $tmp_qftasmpp > tmp.qftasm
+python $QFTASM_PP $tmp_qftasmpp > tmp.qftasm
 
-echo "" | python ../elvm/tools/qftasm/qftasm_interpreter.py -i tmp.qftasm \
+echo "" | python $QFTASM_INTERPRETER -i tmp.qftasm \
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
@@ -54,12 +62,12 @@ echo ""
 #================================================================
 echo "Pass 2: Obtain the optimized ROM, with the memory initializations at the footer"
 
-../elvm/out/8cc -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
+$EIGHTCC -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
 
 cat ./src/memheader.eir > $tmp_eir
 echo "" >> $tmp_eir
 cat $tmp2_eir >> $tmp_eir
-../elvm/out/elc -qftasm \
+$ELC -qftasm \
   --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
   --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   --qftasm-memory-at-footer \
@@ -88,7 +96,7 @@ fi
 echo "Done."
 
 echo "Running the qftasm preprocessor.."
-python ../elvm/tools/qftasm/qftasm_pp.py $final > $target
+python $QFTASM_PP $final > $target
 echo "Done."
 echo "Created ${target}."
 wc -l $target
