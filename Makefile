@@ -14,8 +14,8 @@ $(LISP_OPT):
 run_qft:
 	./src/runlisp.sh $(LISP_OPT)
 
-build_gcc:
-	gcc src/lisp.c -Isrc
+./lisp:
+	gcc src/lisp.c -Isrc -o lisp
 
-run_gcc:
+run_gcc: ./lisp
 	./src/runlisp_gcc.sh

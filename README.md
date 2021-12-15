@@ -91,8 +91,8 @@ A more detailed view of the optimizations done in this project is available in [
 ### Building the Game of Life Pattern from Source
 Instructions for building the Game of Life pattern from the C source ([lisp.c](./src/lisp.c)) is available in [build.md](./build.md).
 
-### Compiling with GCC
-The source code used for building the Game of Life pattern can also be compiled on GCC. The details for this are available in [build.md](./build.md) as well.
+### Compiling the Lisp Interpreter with GCC
+The source code used for building the Game of Life pattern can also be compiled with GCC. The details for this are available in [build.md](./build.md) as well.
 
 
 ## Sample Lisp Programs
