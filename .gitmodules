@@ -1,3 +1,6 @@
 [submodule "elvm"]
 	path = elvm
 	url = https://github.com/woodrush/elvm
+[submodule "QFT-devkit"]
+	path = QFT-devkit
+	url = https://github.com/woodrush/QFT-devkit

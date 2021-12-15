@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 set -e
 
 # gcc src/lisp.c -Isrc && echo "(print (< -5 0))" | ./a.out && hy -c "(print (< -5 0))"

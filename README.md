@@ -6,7 +6,9 @@ The entire pattern is viewable on the browser [here]().
 
 This repository contains a Conway's Game of Life pattern that runs a Lisp interpreter. The pattern is configurable and can load and run your own lisp code up to 1000 characters. The program is loaded into the pattern by writing the ASCII representation of the program into the pattern's RAM module, expressed by editing certain cells in the pattern. The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project.
+The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project. The [Lisp interpreter](./src/lisp.c), written in C, is compiled using the Game of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) - I have implemented the Game of Life backend for ELVM myself for this project. (A modified branch used for this project is available [here](TODO).)
+
+Using the toolchains in this project, you can compile any C code compatible with C11 and run in on Conway's Game of Life. This requires pre-compilation of the C code on a host computer before pre-loading it into the pattern. I took a step further and let the Game of Life pattern *interpret* Lisp code, provided as ASCII characters loaded into the pattern.
 
 
 ## Pattern Files
@@ -20,6 +22,10 @@ The patterns can be simulted on the Game of Life simulator [Golly](https://en.wi
 | object-oriented-like.lisp    | [lisp_varlife_object-oriented-like.mc]()    | [lisp_b3s23_object-oriented-like.mc]() |
 | primes.lisp                  | [lisp_varlife_primes.mc]()                  | [lisp_b3s23_primes.mc]()               |
 | backquote-splice.lisp        | [lisp_varlife_backquote-splice.mc]()        | [lisp_b3s23_backquote-splice.mc]()     |
+
+
+## Loading and Running Your Own Lisp Program
+You can load your own Lisp program into the pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
 
 ### What is VarLife?
 VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project. It is used as an intermediate layer to generate the final Conway's Game of Life pattern; the computer is first created in VarLife, and then converted to a Game of Life pattern.

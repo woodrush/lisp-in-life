@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 set -e
 
 lisp_src=./src/lisp.c
@@ -110,10 +110,12 @@ initline=$(grep -E '^[0-9]+\..*Register initialization \(stdin buffer pointer\)'
 initline=$(expr 1 + $initline)
 tail -n +$initline $target | sed -E 's/^[0-9]+\. MNZ [0-9]+ ([0-9]+) ([0-9]+);.*/\2,\1/g' > $ramdump_heap_csv
 
-echo "Created ${ramdump_stack_csv}."
+echo "Created ${ramdump_heap_csv}."
 
 # Omit the function call stack
-cat $ramdump_heap_csv <(head -n $ramdump_stack_csv_headlines $ramdump_stack_csv) > $ramdump_csv
+cat $ramdump_heap_csv <(echo "") <(head -n $ramdump_stack_csv_headlines $ramdump_stack_csv) > $ramdump_csv
+sed '/^$/d' $ramdump_csv > ${ramdump_csv}.tmp
+mv ${ramdump_csv}.tmp $ramdump_csv
 
 echo "Created ${ramdump_csv}."
 echo ""
