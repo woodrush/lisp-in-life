@@ -23,19 +23,17 @@ ramdump_csv=./build/ramdump.csv
 tmp_eir=./build/tmp.eir
 tmp2_eir=./build/tmp2.eir
 tmp_qftasmpp=./build/tmp.qftasmpp
+opt_qftasmpp=./build/opt.qftasmpp
 
-final1=./build/opt8.qftasmpp
-final2=./build/opt9.qftasmpp
-final=./build/opt9.qftasmpp
 target=./build/lisp_opt_tmp.qftasm
 
 #================================================================
-# Pass 1
+# Step 1
 #================================================================
 mkdir -p build
 mkdir -p out
 
-echo "Pass 1: Obtain the ramdump for the precalculations"
+echo "Step 1: Obtain the ramdump for the precalculations"
 $EIGHTCC -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir $lisp_src
 
 cat ./src/memheader.eir > $tmp_eir
@@ -58,9 +56,9 @@ echo "Created ${ramdump_stack_csv}."
 echo ""
 
 #================================================================
-# Pass 2
+# Step 2
 #================================================================
-echo "Pass 2: Obtain the optimized ROM, with the memory initializations at the footer"
+echo "Step 2: Obtain the optimized ROM, with the memory initializations at the footer"
 
 $EIGHTCC -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
 
@@ -77,35 +75,30 @@ $ELC -qftasm \
 echo "Running compiler optimizations on ${tmp_qftasmpp}..."
 
 wc -l $tmp_qftasmpp
-python ./src/qftasmopt.py $tmp_qftasmpp         > ./build/opt.qftasmpp   && wc -l ./build/opt.qftasmpp
-python ./src/qftasmopt.py ./build/opt.qftasmpp  > ./build/opt2.qftasmpp  && wc -l ./build/opt2.qftasmpp
-python ./src/qftasmopt.py ./build/opt2.qftasmpp > ./build/opt3.qftasmpp  && wc -l ./build/opt3.qftasmpp
-python ./src/qftasmopt.py ./build/opt3.qftasmpp > ./build/opt4.qftasmpp  && wc -l ./build/opt4.qftasmpp
-python ./src/qftasmopt.py ./build/opt4.qftasmpp > ./build/opt5.qftasmpp  && wc -l ./build/opt5.qftasmpp
-python ./src/qftasmopt.py ./build/opt5.qftasmpp > ./build/opt6.qftasmpp  && wc -l ./build/opt6.qftasmpp
-python ./src/qftasmopt.py ./build/opt6.qftasmpp > ./build/opt7.qftasmpp  && wc -l ./build/opt7.qftasmpp
-python ./src/qftasmopt.py ./build/opt7.qftasmpp > ./build/opt8.qftasmpp  && wc -l ./build/opt8.qftasmpp
-python ./src/qftasmopt.py ./build/opt8.qftasmpp > ./build/opt9.qftasmpp  && wc -l ./build/opt9.qftasmpp
-
-if [ $(diff $final1 $final2 | wc -l) -ne 0 ]; then
-    echo "Files ${final1} and ${final2} do not match!"
-    exit
-else
-    echo "Files ${final1} and ${final2} match."
-fi
+while true; do
+  python ./src/qftasmopt.py $tmp_qftasmpp > $opt_qftasmpp
+  wc -l $opt_qftasmpp
+  if [ $(diff $tmp_qftasmpp $opt_qftasmpp | wc -l) -ne 0 ]; then
+      mv $opt_qftasmpp $tmp_qftasmpp
+      continue
+  else
+      echo "Files ${tmp_qftasmpp} and ${opt_qftasmpp} match."
+      break
+  fi
+done
 echo "Done."
 
 echo "Running the qftasm preprocessor.."
-python $QFTASM_PP $final > $target
+python $QFTASM_PP $opt_qftasmpp > $target
 echo "Done."
 echo "Created ${target}."
 wc -l $target
 echo ""
 
 #================================================================
-# Pass 3
+# Step 3
 #================================================================
-echo "Pass 3: Obtain the heap memory and register initialization settings"
+echo "Step 3: Obtain the heap memory and register initialization settings"
 initline=$(grep -E '^[0-9]+\..*Register initialization \(stdin buffer pointer\)' $target | grep -oE '^[0-9]+')
 initline=$(expr 1 + $initline)
 tail -n +$initline $target | sed -E 's/^[0-9]+\. MNZ [0-9]+ ([0-9]+) ([0-9]+);.*/\2,\1/g' > $ramdump_heap_csv
@@ -121,9 +114,9 @@ echo "Created ${ramdump_csv}."
 echo ""
 
 #================================================================
-# Pass 4
+# Step 4
 #================================================================
-echo "Pass 4: Omit the heap and register initialization settings and create $lisp_opt_qftasm"
+echo "Step 4: Omit the heap and register initialization settings and create $lisp_opt_qftasm"
 head -n $(expr $initline - 1) $target > $lisp_opt_qftasm
 
 echo "Created $lisp_opt_qftasm."

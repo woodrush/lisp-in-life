@@ -1,14 +1,16 @@
-# Building the Lisp in Life Pattern
+# Building and Running the Lisp in Life Pattern
 
-This file explains how to load the Lisp interpreter (written in C) to the Game of Life pattern, and how to load a custom Lisp program into the pattern to run it on Game of Life.
+This file explains how to load the Lisp interpreter (written in C) to the Game of Life pattern, and also how to load a custom Lisp program into the pattern to run it on Game of Life.
 
-The build process uses a custom Life-like rule called Varlife, defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project as an intermediate representation for creating a working Conway's Game of Life pattern. Once you obtain the Game of Life pattern with the Lisp program loaded into the RAM, the pattern can be run on the Conway's Game of Life rule. The values of the RAM module of a running Game of Life pattern can also be read out any time. There is a work-in-progress script to also write a given program into a pattern with a blank RAM module, which allows one to load and run Lisp programs with operations closed in the Game of Life space.
+The build process uses a custom Life-like rule called Varlife, defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project, as an intermediate representation for creating a working Conway's Game of Life pattern. Once you obtain the Game of Life pattern with the Lisp program loaded into the RAM, the pattern can be run on the Conway's Game of Life rule. The values of the RAM module of a running Game of Life pattern can also be read out any time. There is a work-in-progress script to also write a given program into a pattern with a blank RAM module, which allows one to load and run Lisp programs with operations closed in the Game of Life space.
 
 
 ## Requirements
 - Golly (version 4.0)
 - Python 3.*
   - pyparsing>=2.3.1
+  - numpy
+  - matplotlib (optional, required for creating memory access plots)
 - git, gcc, make
 
 
@@ -47,6 +49,7 @@ Open the directory, and copy [./QFT-devkit/Varlife.rule](./QFT-devkit/Varlife.ru
      int QFTASM_RAMSTDOUT_BUF_STARTPOSITION = 790;
      ```
      This is where the standard output is written in the RAM. This address will be placed at the very bottom of the RAM module pattern (each byte in the RAM can be ordered arbitrarily in this architecture).
+     The same value appears in `./src/runlisp.sh` and `./src/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the next prompt for the "negative RAM buffer size," use 233. This is 1023-790.
    - After a while, the ROM and the RAM patterns will be created.
 5. Save the resulting pattern under `./QFT-devkit`. This file should match with `./QFT-devkit/QFT_hashedrom_v11_interpreter.mc`.
@@ -63,6 +66,7 @@ If you've skipped Steps 1 and 2, follow the first and second instructions in Ste
      int QFTASM_RAMSTDIN_BUF_STARTPOSITION = 290;
      ```
      This is where the standard input, i.e. the Lisp program (expressed as an ASCII string) is written into the RAM.
+     The same value appears in `./src/runlisp.sh` and `./src/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the "stdout buffer starting address," use the same value as "the maximum RAM address" in Step 2. THis should be 790.
    - Next, a prompt to load the CSV for the initial RAM values will appear. From the repository's root directory, select `./build/ramdump.csv`. When a message that says the values were successfullly written to the RAM, press OK.
    - Next, a prompt to load the text file to write to the stdin buffer will appear. Select the Lisp program to load to the RAM. When a message that says the values were successfullly written to the RAM, press OK.
@@ -104,15 +108,19 @@ Methods for running and viewing the results is basically the same for Varlife, e
 When using `QFT_ram_reader_metafied.py`, you will be prompted to input the coordinates of a certain cell within the pattern. This cell is located in the most top-left RAM cell, in the RAM's bit storage meta-cells, in the top-left corner of the OTCA metapixel where there is a [beehive](https://www.conwaylife.com/wiki/Beehive) pattern (shown below). Below is a map to find the specific cell required for the input prompt. Use Golly to find the coordinates of this cell, and input it in the prompt.
 
 ![Map 1](./img/metafied_map_1.png)
+
 The most top-left RAM cell.
 
 ![Map 2](./img/metafied_map_2.png)
+
 The RAM bit storage meta-cells. Use the coordinates for the left meta-cell.
 
 ![Map 3](./img/metafied_map_3.png)
+
 The top-left corner of the OTCA metapixel for the bit storage meta-cell. There is a [beehive](https://www.conwaylife.com/wiki/Beehive) pattern (also shown below) in the specified region.
 
 ![Map 4](./img/metafied_map_4.png)
+
 The beehive pattern. Use the coordinates for the top pixel, marked in this figure.
 
 
@@ -123,16 +131,36 @@ The beehive pattern. Use the coordinates for the top pixel, marked in this figur
 ## Compiling the Lisp Interpreter with GCC
 The Lisp interpreter [./src/lisp.c](./src/lisp.c) can be compiled with GCC and be run on a usual computer as well.
 
-Run
+First, compile the Lisp interpreter and create `./lisp` by running:
 
 ```sh
 make ./lisp 
 ```
 
-To compile the Lisp interpreter and create `./lisp`. To run some lisp programs and expressions, run
+To run some lisp programs and expressions by executing `./src/runlisp_gcc.sh`, run:
 
 ```sh
 make run_gcc
 ```
 
-which will execute `./src/runlisp_gcc.sh`.
+
+## Running the Lisp Programs on a QFTASM Interpreter (Emulator)
+The Lisp programs can be tested by using a QFTASM interpreter (emulator) on the host computer.
+
+This can be done by running
+
+```sh
+make run_qft
+```
+
+You can also plot the number of times a byte was written into for each byte in the RAM module. This can be done by running
+
+```sh
+make run_qft_memdist
+```
+
+This requires installing the Python package matplotlib, by running
+
+```sh
+pip install matplotlib
+```
