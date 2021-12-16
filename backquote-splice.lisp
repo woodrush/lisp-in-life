@@ -20,6 +20,7 @@
     (list (quote eval) (list (quote quote) (`-helper body)))))))
 
 (print (` (1 2 (~@ (quote (3 4))) 5 6)))
+;; => (1 2 3 4 5 6)
 
 (define lambdasplice (macro (args blist)
   (` (lambda (~ args) (~@ blist)))))
@@ -27,3 +28,4 @@
 ((lambdasplice (n)
    ((print n) (print (+ 1 n))))
  7)
+;; => 78

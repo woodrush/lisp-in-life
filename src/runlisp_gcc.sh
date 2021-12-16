@@ -2,7 +2,7 @@
 set -e
 
 function lisp_interpreter () {
-    ./lisp < /dev/stdin
+    ./out/lisp < /dev/stdin
     echo ""
 }
 
@@ -75,7 +75,7 @@ echo "(print (eval t))" | lisp_interpreter
 echo "(print (eval (eval t)))" | lisp_interpreter
 
 cat print.lisp | lisp_interpreter
-cat fact.lisp | lisp_interpreter
+cat z-combinator.lisp | lisp_interpreter
 cat primes.lisp | lisp_interpreter
 cat backquote.lisp | lisp_interpreter
 cat object-oriented-like.lisp | lisp_interpreter

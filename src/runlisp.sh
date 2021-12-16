@@ -51,5 +51,5 @@ cat print.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_print.p
 cat object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_object-oriented-like.png
 cat backquote.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_backquote.png
 cat backquote-splice.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_backquote-splice.png
-cat fact.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_fact.png
+cat z-combinator.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_fact.png
 cat primes.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_primes.png
