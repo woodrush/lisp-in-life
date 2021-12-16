@@ -17,8 +17,8 @@ run_qft:
 run_qft_memdist:
 	./src/runlisp.sh $(LISP_OPT) --plot-memdist
 
-./lisp:
-	gcc src/lisp.c -Isrc -o lisp
+./out/lisp:
+	gcc src/lisp.c -Isrc -o ./out/lisp
 
-run_gcc: ./lisp
+run_gcc: ./out/lisp
 	./src/runlisp_gcc.sh

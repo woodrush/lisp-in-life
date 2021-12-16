@@ -1,0 +1,4 @@
+.DS_Store
+out/
+build/
+memdist/

@@ -131,10 +131,10 @@ The beehive pattern. Use the coordinates for the top pixel, marked in this figur
 ## Compiling the Lisp Interpreter with GCC
 The Lisp interpreter [./src/lisp.c](./src/lisp.c) can be compiled with GCC and be run on a usual computer as well.
 
-First, compile the Lisp interpreter and create `./lisp` by running:
+First, compile the Lisp interpreter and create `./out/lisp` by running:
 
 ```sh
-make ./lisp 
+make ./out/lisp 
 ```
 
 To run some lisp programs and expressions by executing `./src/runlisp_gcc.sh`, run:
