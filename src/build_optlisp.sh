@@ -52,8 +52,7 @@ echo "" | python $QFTASM_INTERPRETER -i tmp.qftasm \
   --suppress-address-overflow-warning \
   --debug-ramdump-verbose > $ramdump_stack_csv
 
-echo "Created ${ramdump_stack_csv}."
-echo ""
+echo "Created ${ramdump_stack_csv}.\n"
 
 #================================================================
 # Step 2
@@ -74,19 +73,7 @@ $ELC -qftasm \
 
 echo "Running compiler optimizations on ${tmp_qftasmpp}..."
 
-wc -l $tmp_qftasmpp
-while true; do
-  python ./src/qftasmopt.py $tmp_qftasmpp > $opt_qftasmpp
-  wc -l $opt_qftasmpp
-  if [ $(diff $tmp_qftasmpp $opt_qftasmpp | wc -l) -ne 0 ]; then
-      mv $opt_qftasmpp $tmp_qftasmpp
-      continue
-  else
-      echo "Files ${tmp_qftasmpp} and ${opt_qftasmpp} match."
-      break
-  fi
-done
-echo "Done."
+./src/optimize_qftasmpp.sh $tmp_qftasmpp $opt_qftasmpp
 
 echo "Running the qftasm preprocessor.."
 python $QFTASM_PP $opt_qftasmpp > $target
@@ -110,8 +97,7 @@ cat $ramdump_heap_csv <(echo "") <(head -n $ramdump_stack_csv_headlines $ramdump
 sed '/^$/d' $ramdump_csv > ${ramdump_csv}.tmp
 mv ${ramdump_csv}.tmp $ramdump_csv
 
-echo "Created ${ramdump_csv}."
-echo ""
+echo "Created ${ramdump_csv}.\n"
 
 #================================================================
 # Step 4
@@ -120,4 +106,3 @@ echo "Step 4: Omit the heap and register initialization settings and create $lis
 head -n $(expr $initline - 1) $target > $lisp_opt_qftasm
 
 echo "Created $lisp_opt_qftasm."
-echo ""
