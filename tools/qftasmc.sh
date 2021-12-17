@@ -47,12 +47,12 @@ done
 shift $((OPTIND-1))
 
 echo "qftasmc options:"
-echo $c_src
-echo $eightcc_opts
-echo $elc_opts
-echo $memheader_eir
-echo $target
-echo $qftasm_optimize
+echo "i: $c_src"
+echo "o: $target"
+echo "h: $memheader_eir"
+echo "8: $eightcc_opts"
+echo "e: $elc_opts"
+echo "p: $qftasm_optimize"
 echo ""
 
 if [ ! -f "$c_src" ]; then
@@ -104,7 +104,6 @@ echo "Done."
 if [ "$qftasm_optimize" != "" ]; then
     echo "Running compiler optimizations on ${linked_eir_qftasmpp}..."
     $OPTIMIZE_QFTASMPP $linked_eir_qftasmpp $optimized_qftasmpp
-    echo "Done."
 
     qftasmpp_source=$optimized_qftasmpp
 else

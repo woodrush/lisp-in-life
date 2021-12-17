@@ -53,7 +53,7 @@ Open the directory, and copy [./QFT-devkit/Varlife.rule](./QFT-devkit/Varlife.ru
      int QFTASM_RAMSTDOUT_BUF_STARTPOSITION = 790;
      ```
      This is where the standard output is written in the RAM. This address will be placed at the very bottom of the RAM module pattern (each byte in the RAM can be ordered arbitrarily in this architecture).
-     The same value appears in `./tools/runlisp.sh` and `./tools/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
+     The same value appears in `./tools/runlisp.sh`, `./tools/build_optlisp.sh`, and `./src/qft.h`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the next prompt for the "negative RAM buffer size," use 233. This is 1023-790.
    - After a while, the ROM and the RAM patterns will be created.
 5. Save the resulting pattern under `./QFT-devkit`. This file should match with `./QFT-devkit/QFT_hashedrom_v11_interpreter.mc`.
@@ -70,7 +70,7 @@ If you've skipped Steps 1 and 2, follow the first and second instructions in Ste
      int QFTASM_RAMSTDIN_BUF_STARTPOSITION = 290;
      ```
      This is where the standard input, i.e. the Lisp program (expressed as an ASCII string) is written into the RAM.
-     The same value appears in `./tools/runlisp.sh` and `./tools/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
+     The same value appears in `./tools/runlisp.sh`, `./tools/build_optlisp.sh`, and `./src/qft.h`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the "stdout buffer starting address," use the same value as "the maximum RAM address" in Step 2. THis should be 790.
    - Next, a prompt to load the CSV for the initial RAM values will appear. From the repository's root directory, select `./build/ramdump.csv`. When a message that says the values were successfullly written to the RAM, press OK.
    - Next, a prompt to load the text file to write to the stdin buffer will appear. Select the Lisp program to load to the RAM. When a message that says the values were successfullly written to the RAM, press OK.

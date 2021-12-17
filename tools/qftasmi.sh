@@ -2,8 +2,9 @@
 set -e
 
 function show_usage_exit() {
-    echo "Usage: ./qftasmi.sh -i input-file.qftasm [-m ramdump.csv] [-n int] [-t int] [-s int] -p \"interpreter options\"]
+    echo "Usage: ./qftasmi.sh -i input-file.qftasm [-u string] [-m ramdump.csv] [-n int] [-t int] [-s int] -p \"interpreter options\"]
     -i: Input qftasm file
+    -u: Standard input to provide to the QFTASM program (optional)
     -m: Memory initialization values to be used before execution (optional)
     -n: QFTASM_RAMSTDIN_BUF_STARTPOSITION (memory address of the beginning of the standard input)
     -t: QFTASM_RAMSTDOUT_BUF_STARTPOSITION (memory address of the beginning of the standard output)
@@ -20,11 +21,15 @@ input_qftasm=""
 ramdump_csv=""
 interpreter_options=""
 ramdump_args=""
+qftasm_stdin=""
 
-while getopts ":i:m:n:t:s:p:" o; do
+while getopts ":i:u:m:n:t:s:p:" o; do
     case "${o}" in
         i)
             input_qftasm=${OPTARG}
+            ;;
+        u)
+            qftasm_stdin=${OPTARG}
             ;;
         m)
             ramdump_csv=${OPTARG}
@@ -57,11 +62,10 @@ if [ -f "$ramdump_csv" ]; then
 fi
 
 
-python ./elvm/tools/qftasm/qftasm_interpreter.py \
+echo "${qftasm_stdin}" | python ./elvm/tools/qftasm/qftasm_interpreter.py \
     -i $input_qftasm \
     --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
     --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
     --stack-size $QFTASM_STACK_SIZE \
     $ramdump_args \
-    $interpreter_options \
-    $@ < /dev/stdin
+    $interpreter_options

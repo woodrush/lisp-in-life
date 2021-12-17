@@ -12,10 +12,14 @@ if [ ! -f $lisp_qftasm ] || [ ! -f $ramdump_csv ]; then
 fi
 
 if [ "$1" = "--test-executable" ]; then
-    LISP=$qftasm_executable
+    function runlisp () {
+        echo "$1" | $qftasm_executable
+    }
     engine_name="Executable"
 else
-    LISP="$QFTASM_INTERPRETER -i ${lisp_qftasm} -m ${ramdump_csv}"
+    function runlisp () {
+        $QFTASM_INTERPRETER -i $lisp_qftasm -m $ramdump_csv -u "$1"
+    }
     engine_name="QFTASM    "
 fi
 
@@ -29,7 +33,7 @@ function runlisp_expect () {
     expected=$2
 
     echo "Case ${case}:"
-    result_qft=$(echo "$1" | $LISP)
+    result_qft=$(runlisp "$1")
     echo "${engine_name}: ${result_qft}"
     echo "Expected  : ${expected}"
 
@@ -43,7 +47,7 @@ function runlisp_expect () {
 
 function run_and_compare_with_hy () {
     echo "Case ${1}:"
-    result_qft=$(echo "$1" | $LISP)
+    result_qft=$(runlisp "$1")
     echo "${engine_name}: ${result_qft}"
 
     result_hy=$(hy -c "$1")

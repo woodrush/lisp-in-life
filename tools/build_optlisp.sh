@@ -45,7 +45,7 @@ $QFTASMC \
     -h ./src/memheader.eir
 
 echo "Running the compiled qftasm to obtain the ramdump for the string hash table precalculations..."
-echo "" | $QFTASM_INTERPRETER -i $tmp_qftasm -m "" -p "\
+$QFTASM_INTERPRETER -i $tmp_qftasm -u "" -m "" -p "\
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \

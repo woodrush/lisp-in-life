@@ -5,8 +5,6 @@
 
 #define QFTASM_STDOUT 2
 #define NULL 0
-// #define isEOF(x) (!x)
-// #define isNotEOF(x) (x)
 
 #define EOF -1
 #define isEOF(x) (x == EOF)
