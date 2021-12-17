@@ -12,7 +12,7 @@ QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 EIGHTCC=./elvm/out/8cc
 ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
-QFTASM_INTERPRETER=./elvm/tools/qftasm/qftasm_interpreter.py
+QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
 OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
 
 
@@ -48,7 +48,7 @@ $ELC -qftasm \
 
 python $QFTASM_PP $tmp_qftasmpp > $tmp_qftasm
 
-echo "" | python $QFTASM_INTERPRETER -i $tmp_qftasm \
+./tools/runlisp_qftasm_interpreter.sh "" -i $tmp_qftasm \
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
