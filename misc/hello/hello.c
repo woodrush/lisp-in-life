@@ -3,9 +3,6 @@
 void print_number (int n) {
     for (int j=1; j<=n; j++) {
         putchar('*');
-        if(j % 5 == 0) {
-            putchar(' ');
-        }
     }
 }
 
@@ -26,7 +23,7 @@ void print_primes (int n_max) {
 }
 
 int main(void) {
-    printf("Hello world!\n");
+    printf("Hello, World!\n");
     print_primes(30);
     return 0;
 }

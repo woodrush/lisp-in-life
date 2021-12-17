@@ -1,7 +1,8 @@
 // `putchar` and `getchar` is provided by default by the compiler
 extern int putchar(int c);
 
-// `%`, `*`, and `\` must be manually provided as `__builtin_mod`, `__builtin_mul`, `__builtin_div`
+// `%`, `*`, and `\` must be manually provided as `__builtin_mod`, `__builtin_mul`, `__builtin_div`.
+// Uses of `%` will be internally converted to calls to `__builtin_mod` by the compiler
 int __builtin_mod (int n, int m) {
     int r = n;
     while(r >= m){

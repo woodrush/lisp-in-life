@@ -37,12 +37,18 @@ run_executable: ./out/lisp
 #================================================================
 hello:
 	./tools/qftasmc.sh  \
-		-i ./misc/hello.c \
+		-i ./misc/hello/hello.c \
 		-o ./out/hello.qftasm \
-		-8 "-Imisc" \
+		-8 "-Imisc/hello" \
 		-p
 
 run_hello:
 	@./tools/qftasmi.sh \
 		-i ./out/hello.qftasm \
 		-u "standard_input"
+
+run_hello_debug:
+	@./tools/qftasmi.sh \
+		-i ./out/hello.qftasm \
+		-u "standard_input" \
+		-p "--debug-ramdump --debug-plot-memdist"
