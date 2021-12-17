@@ -1,31 +1,25 @@
-(define ` (macro* (body)
-  ((lambda (`-helper appendlist)
-    (define appendlist
-      (quote ((lambda* (appendlist)
-        (define appendlist (lambda* (l item)
-          (if l
-            (cons (car l) (appendlist (cdr l) item))
-            item)))))))
+(define ` (macro (body)
+  ((lambda (`-helper)
     (define `-helper (lambda (body)
       (if (atom body)
         (list (quote quote) body)
       (if (eq (quote ~) (car body))
         (car (cdr body))
-      (if (if (eq () (atom (car body))) (eq (quote ~@) (car (car body))) ())
-        (list appendlist (car (cdr (car body))) (`-helper (cdr body)))
+      (if (if (atom (car body)) () (eq (quote ~@) (car (car body))))
+        (list append (car (cdr (car body))) (`-helper (cdr body)))
         (list
           (quote cons)
           (`-helper (car body))
           (`-helper (cdr body))))))))
-    (list (quote eval) (list (quote quote) (`-helper body)))))))
+    (`-helper body)))))
 
-(print (` (1 2 (~@ (quote (3 4))) 5 6)))
-;; => (1 2 3 4 5 6)
+(define append (lambda (l1 l2)
+  (if l1
+    (cons (car l1) (append (cdr l1) l2))
+    l2)))
 
-(define lambdasplice (macro (args blist)
-  (` (lambda (~ args) (~@ blist)))))
+(define splicequote (macro (l x)
+  (` (quote ((~@ l) (~ x) 4)))))
 
-((lambdasplice (n)
-   ((print n) (print (+ 1 n))))
- 7)
-;; => 78
+(print (splicequote (1 2) 3))
+;; => (1 2 3 4)

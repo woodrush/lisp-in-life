@@ -1,35 +1,29 @@
-(define defun (macro (fname varlist body)
-  (list
-    (quote define) fname
-    (list (quote lambda*) varlist body))))
+(define n_max 20)
 
-(defun append (l item)
+(define n 3)
+(define primelist (list 2))
+
+(define append (lambda (l item)
   (if l
     (cons (car l) (append (cdr l) item))
-    (cons item ())))
+    (cons item ()))))
 
-(defun isprime (n primelist)
-  ;; Define p and ret as local variables.
-  ((lambda* (p ret)
-     (while primelist
-       (define p (car primelist))
-       (define primelist (cdr primelist))
-       (if (eq 0 (mod n p))
-         (progn
-           (define primelist ())
-           (define ret ()))
-         ()))
-     ret)
-   () t))
+(while (< n n_max)
+  (define iter primelist)
+  (define isprime t)
 
-(define n 2)
-(define nmax 20)
-(define primelist (quote (2)))
+  (while iter
+    (if (eq 0 (mod n (car iter)))
+      (progn
+        (define iter ())
+        (define isprime ()))
+      ())
+    (define iter (cdr iter)))
 
-(while (< n nmax)
-  (define n (+ 1 n))
-  (if (isprime n primelist)
+  (if isprime
     (define primelist (append primelist n))
-    ()))
+    ())
+
+  (define n (+ 1 n)))
 
 (print primelist)
