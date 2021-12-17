@@ -1,4 +1,4 @@
-lisp_opt_qftasm=./src/lisp_opt.qftasm
+lisp_opt_qftasm=./out/lisp.qftasm
 
 target=./src/lisp_opt_nomemopt.qftasm
 

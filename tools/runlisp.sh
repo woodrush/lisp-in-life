@@ -2,7 +2,7 @@
 set -e
 
 if [ $# -eq 0 ]; then
-    lisp_opt_qftasm=./src/lisp_opt.qftasm
+    lisp_opt_qftasm=./out/lisp.qftasm
 else
     lisp_opt_qftasm=$1
 fi
@@ -15,7 +15,7 @@ fi
 
 QFTASM_INTERPRETER=./elvm/tools/qftasm/qftasm_interpreter.py
 
-ramdump_csv=./src/ramdump.csv
+ramdump_csv=./out/ramdump.csv
 
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
@@ -45,8 +45,6 @@ function lisp_interpreter () {
 #================================================================
 # Run the lisp programs
 #================================================================
-echo "(print (lambda (n) 1))" | lisp_interpreter
-
 cat print.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_print.png
 cat object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_object-oriented-like.png
 cat backquote.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_backquote.png

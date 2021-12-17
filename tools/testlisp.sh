@@ -1,10 +1,10 @@
 if [ $# -eq 0 ]; then
-    input=./src/lisp_opt.qftasm
+    input=./out/lisp.qftasm
 else
     input=$1
 fi
 
-ramdump_csv=./src/ramdump.csv
+ramdump_csv=./out/ramdump.csv
 
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790

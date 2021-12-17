@@ -8,7 +8,7 @@ fi
 
 input_file=$1
 output_file=$2
-tmp_file=/tmp/tmp.qftasmpp
+tmp_file=./build/tmp_opt.qftasmpp
 
 echo "Running qftasmpp compiler optimizations on ${input_file}..."
 

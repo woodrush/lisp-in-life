@@ -33,7 +33,11 @@ git submodule update --init --recursive
 make all
 ```
 
-This will create `./out/lisp_opt.qftasm`. This is the assembly file for the Lisp interpreter.
+This will create the following files:
+- `./out/lisp.qftasm` : The assembly file for the Lisp interpreter
+- `./out/ramdump.csv` : The initial values of the RAM to be loaded before running. Contains the results of various precalculations such as the string hashtable construction.
+
+These files should be identical to `./qftasm/lisp.qftasm` and `./qftasm/ramdump.csv`.
 
 ### 2. Building the Varlife pattern for the Lisp interpreter
 The following steps are done on Golly.
@@ -43,13 +47,13 @@ Open the directory, and copy [./QFT-devkit/Varlife.rule](./QFT-devkit/Varlife.ru
 2. Open File -> Set File Folder, and set the file folder to the root of this repository.
 3. Select `./QFT-devkit/QFT_hashedrom_v11.mc` from the file explorer on the left. A QFT architecture without the ROM and the RAM should appear on the screen.
 4. Select `./QFT-devkit/QFT_prep_rom_ram_hashedrom.py` from the file explorer. Several prompts will appear:
-   - For the prompt to select the QFTASM file to load to the ROM, select `./out/lisp_opt.qftasm`.
+   - For the prompt to select the QFTASM file to load to the ROM, select `./out/lisp.qftasm`.
    - For the next prompt, "the maximum RAM address," use the following setting used in line 9 in `./elvm/target/elc.c`, the C -> QFTASM compiler:
      ```c
      int QFTASM_RAMSTDOUT_BUF_STARTPOSITION = 790;
      ```
      This is where the standard output is written in the RAM. This address will be placed at the very bottom of the RAM module pattern (each byte in the RAM can be ordered arbitrarily in this architecture).
-     The same value appears in `./src/runlisp.sh` and `./src/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
+     The same value appears in `./tools/runlisp.sh` and `./tools/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the next prompt for the "negative RAM buffer size," use 233. This is 1023-790.
    - After a while, the ROM and the RAM patterns will be created.
 5. Save the resulting pattern under `./QFT-devkit`. This file should match with `./QFT-devkit/QFT_hashedrom_v11_interpreter.mc`.
@@ -66,7 +70,7 @@ If you've skipped Steps 1 and 2, follow the first and second instructions in Ste
      int QFTASM_RAMSTDIN_BUF_STARTPOSITION = 290;
      ```
      This is where the standard input, i.e. the Lisp program (expressed as an ASCII string) is written into the RAM.
-     The same value appears in `./src/runlisp.sh` and `./src/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
+     The same value appears in `./tools/runlisp.sh` and `./tools/build_optlisp.sh`. When editing this value in `./elvm/target/elc.c`, edit these shellscripts as well.
    - For the "stdout buffer starting address," use the same value as "the maximum RAM address" in Step 2. THis should be 790.
    - Next, a prompt to load the CSV for the initial RAM values will appear. From the repository's root directory, select `./build/ramdump.csv`. When a message that says the values were successfullly written to the RAM, press OK.
    - Next, a prompt to load the text file to write to the stdin buffer will appear. Select the Lisp program to load to the RAM. When a message that says the values were successfullly written to the RAM, press OK.
@@ -137,7 +141,7 @@ First, compile the Lisp interpreter and create `./out/lisp` by running:
 make ./out/lisp 
 ```
 
-To run some lisp programs and expressions by executing `./src/runlisp_gcc.sh`, run:
+To run some lisp programs and expressions by executing `./tools/runlisp_gcc.sh`, run:
 
 ```sh
 make run_gcc

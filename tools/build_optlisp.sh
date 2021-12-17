@@ -4,7 +4,7 @@ set -e
 lisp_src=./src/lisp.c
 ramdump_stack_csv_headlines=180
 memheader_eir=./src/memheader.eir
-lisp_opt_qftasm=./out/lisp_opt.qftasm
+lisp_opt_qftasm=./out/lisp.qftasm
 
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
@@ -13,15 +13,17 @@ EIGHTCC=./elvm/out/8cc
 ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
 QFTASM_INTERPRETER=./elvm/tools/qftasm/qftasm_interpreter.py
+OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
 
 
 #================================================================
 ramdump_heap_csv=./build/ramdump_heap.csv
 ramdump_stack_csv=./build/ramdump_stack.csv
-ramdump_csv=./build/ramdump.csv
+ramdump_csv=./out/ramdump.csv
 
 tmp_eir=./build/tmp.eir
 tmp2_eir=./build/tmp2.eir
+tmp_qftasm=./build/tmp.qftasm
 tmp_qftasmpp=./build/tmp.qftasmpp
 opt_qftasmpp=./build/opt.qftasmpp
 
@@ -44,15 +46,16 @@ $ELC -qftasm \
   --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
   $tmp_eir > $tmp_qftasmpp
 
-python $QFTASM_PP $tmp_qftasmpp > tmp.qftasm
+python $QFTASM_PP $tmp_qftasmpp > $tmp_qftasm
 
-echo "" | python $QFTASM_INTERPRETER -i tmp.qftasm \
+echo "" | python $QFTASM_INTERPRETER -i $tmp_qftasm \
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
   --debug-ramdump-verbose > $ramdump_stack_csv
 
-echo "Created ${ramdump_stack_csv}.\n"
+echo "Created ${ramdump_stack_csv}."
+echo ""
 
 #================================================================
 # Step 2
@@ -73,7 +76,7 @@ $ELC -qftasm \
 
 echo "Running compiler optimizations on ${tmp_qftasmpp}..."
 
-./src/optimize_qftasmpp.sh $tmp_qftasmpp $opt_qftasmpp
+$OPTIMIZE_QFTASMPP $tmp_qftasmpp $opt_qftasmpp
 
 echo "Running the qftasm preprocessor.."
 python $QFTASM_PP $opt_qftasmpp > $target
@@ -97,7 +100,8 @@ cat $ramdump_heap_csv <(echo "") <(head -n $ramdump_stack_csv_headlines $ramdump
 sed '/^$/d' $ramdump_csv > ${ramdump_csv}.tmp
 mv ${ramdump_csv}.tmp $ramdump_csv
 
-echo "Created ${ramdump_csv}.\n"
+echo "Created ${ramdump_csv}."
+echo ""
 
 #================================================================
 # Step 4
