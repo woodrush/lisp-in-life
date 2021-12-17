@@ -10,6 +10,7 @@ The build process uses a custom Life-like rule called Varlife, defined in the [Q
 - Python 3.*
   - pyparsing>=2.3.1
   - numpy
+  - hy>=0.14.0 (used for testing)
   - matplotlib (optional, required for creating memory access plots)
 - git, gcc, make
 
