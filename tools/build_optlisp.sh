@@ -14,7 +14,7 @@ ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
 QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
 OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
-
+QFTASMC=./tools/qftasmc.sh
 
 #================================================================
 ramdump_heap_csv=./build/ramdump_heap.csv
@@ -36,23 +36,21 @@ mkdir -p build
 mkdir -p out
 
 echo "Step 1: Obtain the ramdump for the precalculations"
-$EIGHTCC -S -DQFT -Dprecalculation_run -Isrc -o $tmp2_eir $lisp_src
 
-cat ./src/memheader.eir > $tmp_eir
-echo "" >> $tmp_eir
-cat $tmp2_eir >> $tmp_eir
-$ELC -qftasm \
-  --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  $tmp_eir > $tmp_qftasmpp
+$QFTASMC \
+    -i $lisp_src \
+    -o $tmp_qftasm \
+    -8 "-DQFT -Dprecalculation_run -Isrc" \
+    -e "" \
+    -h ./src/memheader.eir
 
-python $QFTASM_PP $tmp_qftasmpp > $tmp_qftasm
-
-echo "" | $QFTASM_INTERPRETER -i $tmp_qftasm \
+echo "Running the compiled qftasm to obtain the ramdump for the string hash table precalculations..."
+echo "" | $QFTASM_INTERPRETER -i $tmp_qftasm -m "" -p "\
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
-  --debug-ramdump-verbose > $ramdump_stack_csv
+  --debug-ramdump-verbose" > $ramdump_stack_csv
+echo "Done."
 
 echo "Created ${ramdump_stack_csv}."
 echo ""
@@ -62,25 +60,33 @@ echo ""
 #================================================================
 echo "Step 2: Obtain the optimized ROM, with the memory initializations at the footer"
 
-$EIGHTCC -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
+$QFTASMC \
+    -i $lisp_src \
+    -o $target \
+    -8 "-DQFT -Dskip_precalculation -Isrc" \
+    -e "--qftasm-memory-at-footer" \
+    -h ./src/memheader.eir \
+    -p
 
-cat ./src/memheader.eir > $tmp_eir
-echo "" >> $tmp_eir
-cat $tmp2_eir >> $tmp_eir
-$ELC -qftasm \
-  --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-  --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-  --qftasm-memory-at-footer \
-  $tmp_eir > $tmp_qftasmpp
+# $EIGHTCC -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
+
+# cat ./src/memheader.eir > $tmp_eir
+# echo "" >> $tmp_eir
+# cat $tmp2_eir >> $tmp_eir
+# $ELC -qftasm \
+#   --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
+#   --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
+#   --qftasm-memory-at-footer \
+#   $tmp_eir > $tmp_qftasmpp
 
 
-echo "Running compiler optimizations on ${tmp_qftasmpp}..."
+# echo "Running compiler optimizations on ${tmp_qftasmpp}..."
 
-$OPTIMIZE_QFTASMPP $tmp_qftasmpp $opt_qftasmpp
+# $OPTIMIZE_QFTASMPP $tmp_qftasmpp $opt_qftasmpp
 
-echo "Running the qftasm preprocessor.."
-python $QFTASM_PP $opt_qftasmpp > $target
-echo "Done."
+# echo "Running the qftasm preprocessor.."
+# python $QFTASM_PP $opt_qftasmpp > $target
+# echo "Done."
 echo "Created ${target}."
 wc -l $target
 echo ""
