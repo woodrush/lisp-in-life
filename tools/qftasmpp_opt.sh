@@ -2,7 +2,7 @@
 set -e
 
 if [ "$#" -ne 2 ]; then
-  echo "Usage: ./optimize_qftasmpp.sh [input file] [output_file]" >&2
+  echo "Usage: ./qftasmpp_opt.sh [input file] [output_file]" >&2
   exit 1
 fi
 

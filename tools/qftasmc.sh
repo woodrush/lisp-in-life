@@ -8,7 +8,7 @@ function show_usage_exit() {
     -h: Memory header EIR file (optional)
     -8: 8cc options (wrap in \"\" if there are multiple options)
     -e: elc options (wrap in \"\" if there are multiple options)
-    -p: Use the QFTASM optimizer (./tools/optimize_qftasmpp.sh)" 1>&2;
+    -p: Use the QFTASM optimizer (./tools/qftasmpp_opt.sh)" 1>&2;
     exit 1;
 }
 
@@ -74,7 +74,7 @@ EIGHTCC=./elvm/out/8cc
 ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
 QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
-OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
+QFTASMPP_OPT=./tools/qftasmpp_opt.sh
 
 
 echo "Compiling the C source to EIR..."
@@ -103,7 +103,7 @@ echo "Done."
 
 if [ "$qftasm_optimize" != "" ]; then
     echo "Running compiler optimizations on ${linked_eir_qftasmpp}..."
-    $OPTIMIZE_QFTASMPP $linked_eir_qftasmpp $optimized_qftasmpp
+    $QFTASMPP_OPT $linked_eir_qftasmpp $optimized_qftasmpp
 
     qftasmpp_source=$optimized_qftasmpp
 else

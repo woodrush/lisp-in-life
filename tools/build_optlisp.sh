@@ -2,19 +2,16 @@
 set -e
 
 lisp_src=./src/lisp.c
-ramdump_stack_csv_headlines=180
 memheader_eir=./src/memheader.eir
 lisp_opt_qftasm=./out/lisp.qftasm
+
+ramdump_stack_csv_headlines=180
 
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 
-EIGHTCC=./elvm/out/8cc
-ELC=./elvm/out/elc
-QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
-QFTASM_INTERPRETER=./tools/qftasmi.sh
-OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
 QFTASMC=./tools/qftasmc.sh
+QFTASM_INTERPRETER=./tools/qftasmi.sh
 
 #================================================================
 ramdump_heap_csv=./build/ramdump_heap.csv
