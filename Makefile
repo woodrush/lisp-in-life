@@ -22,3 +22,6 @@ run_qft_memdist:
 
 run_gcc: ./out/lisp
 	./tools/runlisp_gcc.sh
+
+test:
+	./tools/runtest.sh
