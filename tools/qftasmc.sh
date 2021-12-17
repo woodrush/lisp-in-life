@@ -2,12 +2,14 @@
 set -e
 
 function show_usage_exit() {
-    echo "Usage: ./qftasm.sh -i input-file.c -o output-file.qftasm [-h memheader-file.eir] [-8 \"8cc options\"] [-e \"elc options\"] [-p]
+    echo "Usage: ./qftasm.sh -i input-file.c -o output-file.qftasm [-h memheader-file.eir] [-8 \"8cc options\"] [-e \"elc options\"] [-n int] [-t int] [-p]
     -i: Input C source file
     -o: Output qftasm file
     -h: Memory header EIR file (optional)
     -8: 8cc options (wrap in \"\" if there are multiple options)
     -e: elc options (wrap in \"\" if there are multiple options)
+    -n: QFTASM_RAMSTDIN_BUF_STARTPOSITION (memory address of the beginning of the standard input)
+    -t: QFTASM_RAMSTDOUT_BUF_STARTPOSITION (memory address of the beginning of the standard output)
     -p: Use the QFTASM optimizer (./tools/qftasmpp_opt.sh)" 1>&2;
     exit 1;
 }
@@ -18,8 +20,10 @@ elc_opts=""
 memheader_eir=""
 target="a.qftasm"
 qftasm_optimize=""
+QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
+QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 
-while getopts ":i:o:h:8:e:p" o; do
+while getopts ":i:o:h:8:e:n:t:p" o; do
     case "${o}" in
         i)
             c_src=${OPTARG}
@@ -35,6 +39,12 @@ while getopts ":i:o:h:8:e:p" o; do
             ;;
         e)
             elc_opts=${OPTARG}
+            ;;
+        n)
+            QFTASM_RAMSTDIN_BUF_STARTPOSITION=${OPTARG}
+            ;;
+        t)
+            QFTASM_RAMSTDOUT_BUF_STARTPOSITION=${OPTARG}
             ;;
         p)
             qftasm_optimize=true
@@ -52,6 +62,8 @@ echo "o: $target"
 echo "h: $memheader_eir"
 echo "8: $eightcc_opts"
 echo "e: $elc_opts"
+echo "n: $QFTASM_RAMSTDIN_BUF_STARTPOSITION"
+echo "t: $QFTASM_RAMSTDOUT_BUF_STARTPOSITION"
 echo "p: $qftasm_optimize"
 echo ""
 
@@ -65,11 +77,6 @@ linked_eir=./build/linked.eir
 linked_eir_qftasmpp=./build/linked.eir.qftasmpp
 optimized_qftasmpp=./build/optimized.qftasmpp
 
-
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
-QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
-
-
 EIGHTCC=./elvm/out/8cc
 ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
@@ -82,6 +89,8 @@ $EIGHTCC -S $eightcc_opts -o $compiled_eir $c_src
 echo "Done."
 
 echo "Prepending EIR memory headers..."
+
+# Memory regions reserved for registers
 echo ".data
 	.string \"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\"
 " > $linked_eir

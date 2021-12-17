@@ -7,9 +7,6 @@ lisp_opt_qftasm=./out/lisp.qftasm
 
 ramdump_stack_csv_headlines=180
 
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
-QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
-
 QFTASMC=./tools/qftasmc.sh
 QFTASM_INTERPRETER=./tools/qftasmi.sh
 

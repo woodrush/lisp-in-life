@@ -7,7 +7,7 @@ ramdump_csv="./out/ramdump.csv"
 qftasm_executable=./out/lisp
 
 if [ ! -f $lisp_qftasm ] || [ ! -f $ramdump_csv ]; then
-    echo "File ${lisp_qftasm} or ${ramdump_csv} not found. Run \`make all\` to obtain these files."
+    echo "File(s) ${lisp_qftasm} or ${ramdump_csv} not found. Run \`make all\` to obtain these files."
     exit 1
 fi
 
@@ -41,7 +41,7 @@ function runlisp_expect () {
         echo "Passed."
     else
         echo "Test failed!"
-        exit
+        exit 1
     fi   
 }
 
@@ -64,7 +64,7 @@ function run_and_compare_with_hy () {
         echo "Passed."
     else
         echo "Test failed!"
-        exit
+        exit 1
     fi
 }
 
@@ -128,3 +128,5 @@ runlisp_expect "$(< backquote.lisp)" 'Hi!(a b 5)(` (a b (~ c)))'
 runlisp_expect "$(< backquote-splice.lisp)" '(1 2 3 4)'
 runlisp_expect "$(< z-combinator.lisp)" '120'
 runlisp_expect "$(< primes.lisp)" '(2 3 5 7 11 13 17 19)'
+
+echo "All tests have passed."

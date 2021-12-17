@@ -13,13 +13,8 @@ else
     plot_memdist=""
 fi
 
-QFTASM_INTERPRETER=./elvm/tools/qftasm/qftasm_interpreter.py
-
+QFTASM_INTERPRETER=./tools/qftasmi.sh
 ramdump_csv=./out/ramdump.csv
-
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
-QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
-QFTASM_STACK_SIZE=233
 
 function lisp_interpreter () {
     if [ "$plot_memdist" = "" ]; then
@@ -28,14 +23,11 @@ function lisp_interpreter () {
         mkdir -p memdist
         memdist_opt=$1
     fi
-    python $QFTASM_INTERPRETER \
-    --initial-ramvalues $ramdump_csv \
-    --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-    --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-    --stack-size $QFTASM_STACK_SIZE \
-    --debug-ramdump \
-    -i $lisp_opt_qftasm \
-    $memdist_opt < /dev/stdin
+    $QFTASM_INTERPRETER \
+        -i $lisp_opt_qftasm \
+        -m $ramdump_csv \
+        -u "$(< /dev/stdin)" \
+        -p "--debug-ramdump $memdist_opt"
 
     if [ ! $plot_memdist = "" ] && [ ! -z "$2" ]; then
         mv memdist.png "./memdist/memdist_${2}.png"

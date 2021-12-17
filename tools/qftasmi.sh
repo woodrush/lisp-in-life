@@ -13,15 +13,14 @@ function show_usage_exit() {
     exit 1;
 }
 
+input_qftasm=""
+qftasm_stdin=""
+ramdump_csv=""
+ramdump_args=""
 QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
 QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 QFTASM_STACK_SIZE=233
-
-input_qftasm=""
-ramdump_csv=""
 interpreter_options=""
-ramdump_args=""
-qftasm_stdin=""
 
 while getopts ":i:u:m:n:t:s:p:" o; do
     case "${o}" in
