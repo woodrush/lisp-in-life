@@ -1,5 +1,9 @@
-// `putchar` and `getchar` is provided by default by the compiler
+// `putchar` and `getchar` are provided by default by the compiler
 extern int putchar(int c);
+extern int getchar(int c);
+
+// `getchar` will return `-1` when there is no more input
+#define EOF -1
 
 // `%`, `*`, and `\` must be manually provided as `__builtin_mod`, `__builtin_mul`, `__builtin_div`.
 // Uses of `%` will be internally converted to calls to `__builtin_mod` by the compiler

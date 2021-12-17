@@ -22,8 +22,16 @@ void print_primes (int n_max) {
     }
 }
 
+void print_stdin () {
+    char c;
+    while ((c=getchar()) != EOF) {
+        putchar(c);
+    }
+}
+
 int main(void) {
     printf("Hello, World!\n");
     print_primes(30);
+    print_stdin();
     return 0;
 }
