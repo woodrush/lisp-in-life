@@ -5,7 +5,7 @@ function show_usage_exit() {
     echo "Usage: ./qftasm.sh -i input-file.c -o output-file.qftasm [-h memheader-file.eir] [-8 \"8cc options\"] [-e \"elc options\"] [-p]
     -i: Input C source file
     -o: Output qftasm file
-    -h: Memory header EIR file
+    -h: Memory header EIR file (optional)
     -8: 8cc options (wrap in \"\" if there are multiple options)
     -e: elc options (wrap in \"\" if there are multiple options)
     -p: Use the QFTASM optimizer (./tools/optimize_qftasmpp.sh)" 1>&2;
@@ -13,8 +13,8 @@ function show_usage_exit() {
 }
 
 c_src=""
-eightcc_opts="" #-DQFT -Dskip_precalculation
-elc_opts="" #--qftasm-memory-at-footer
+eightcc_opts=""
+elc_opts=""
 memheader_eir=""
 target="a.qftasm"
 qftasm_optimize=""
@@ -54,7 +54,6 @@ echo $memheader_eir
 echo $target
 echo $qftasm_optimize
 echo ""
-# exit 0
 
 if [ ! -f "$c_src" ]; then
     show_usage_exit

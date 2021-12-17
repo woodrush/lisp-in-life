@@ -12,7 +12,7 @@ QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
 EIGHTCC=./elvm/out/8cc
 ELC=./elvm/out/elc
 QFTASM_PP=./elvm/tools/qftasm/qftasm_pp.py
-QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
+QFTASM_INTERPRETER=./tools/qftasmi.sh
 OPTIMIZE_QFTASMPP=./tools/optimize_qftasmpp.sh
 QFTASMC=./tools/qftasmc.sh
 
@@ -68,25 +68,6 @@ $QFTASMC \
     -h ./src/memheader.eir \
     -p
 
-# $EIGHTCC -S -DQFT -Dskip_precalculation -Isrc -o $tmp2_eir $lisp_src
-
-# cat ./src/memheader.eir > $tmp_eir
-# echo "" >> $tmp_eir
-# cat $tmp2_eir >> $tmp_eir
-# $ELC -qftasm \
-#   --qftasm-stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-#   --qftasm-stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-#   --qftasm-memory-at-footer \
-#   $tmp_eir > $tmp_qftasmpp
-
-
-# echo "Running compiler optimizations on ${tmp_qftasmpp}..."
-
-# $OPTIMIZE_QFTASMPP $tmp_qftasmpp $opt_qftasmpp
-
-# echo "Running the qftasm preprocessor.."
-# python $QFTASM_PP $opt_qftasmpp > $target
-# echo "Done."
 echo "Created ${target}."
 wc -l $target
 echo ""

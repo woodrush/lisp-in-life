@@ -1,19 +1,21 @@
 #!/bin/bash
 set -e
 
+QFTASM_INTERPRETER=./tools/qftasmi.sh
+lisp_qftasm="./out/lisp.qftasm"
+ramdump_csv="./out/ramdump.csv"
+qftasm_executable=./out/lisp
+
 if [ ! -f $lisp_qftasm ] || [ ! -f $ramdump_csv ]; then
     echo "File ${lisp_qftasm} or ${ramdump_csv} not found. Run \`make all\` to obtain these files."
     exit 1
 fi
 
-QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
-qftasm_executable=./out/lisp
-
 if [ "$1" = "--test-executable" ]; then
     LISP=$qftasm_executable
     engine_name="Executable"
 else
-    LISP=$QFTASM_INTERPRETER
+    LISP="$QFTASM_INTERPRETER -i ${lisp_qftasm} -m ${ramdump_csv}"
     engine_name="QFTASM    "
 fi
 
@@ -56,8 +58,6 @@ function run_and_compare_with_hy () {
         echo "Passed."
     elif [[ $result_qft == $result_hy ]]; then
         echo "Passed."
-    elif [[ $2 == "--exfail" ]]; then
-        echo "The test failed, but it was expected to fail."
     else
         echo "Test failed!"
         exit
@@ -99,13 +99,13 @@ run_and_compare_with_hy "(print 2000)"
 run_and_compare_with_hy "(print 4000)"
 run_and_compare_with_hy "(print 8000)"
 run_and_compare_with_hy "(print (+ 8191))"
-run_and_compare_with_hy "(print (+ 8191 1))" --exfail
-run_and_compare_with_hy "(print (+ 8191 2))" --exfail
 run_and_compare_with_hy "(print (- 8191))"
-run_and_compare_with_hy "(print (- -8191 1))" --exfail
-run_and_compare_with_hy "(print (- -8191 2))" --exfail
+run_and_compare_with_hy "(print (- -8191 1))"
 
 echo "===="
+runlisp_expect "(print (+ 8191 1))" "-8192"
+runlisp_expect "(print (+ 8191 2))" "-8191"
+runlisp_expect "(print (- -8191 2))" "8191"
 
 runlisp_expect "(print ())" "()"
 runlisp_expect "(print (quote ()))" "()"
