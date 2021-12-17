@@ -1,26 +1,21 @@
 #!/bin/bash
 set -e
 
-if [ $# -eq 0 ]; then
-    input=./out/lisp.qftasm
-else
-    input=$1
+if [ ! -f $lisp_qftasm ] || [ ! -f $ramdump_csv ]; then
+    echo "File ${lisp_qftasm} or ${ramdump_csv} not found. Run \`make all\` to obtain these files."
+    exit 1
 fi
 
-ramdump_csv=./out/ramdump.csv
+QFTASM_INTERPRETER=./tools/runlisp_qftasm_interpreter.sh
+qftasm_executable=./out/lisp
 
-QFTASM_RAMSTDIN_BUF_STARTPOSITION=290
-QFTASM_RAMSTDOUT_BUF_STARTPOSITION=790
-QFTASM_STACK_SIZE=233
-
-function runlisp () {
-    echo "$1" | python ./elvm/tools/qftasm/qftasm_interpreter.py \
-    -i $input \
-    --stdin-pos $QFTASM_RAMSTDIN_BUF_STARTPOSITION \
-    --stdout-pos $QFTASM_RAMSTDOUT_BUF_STARTPOSITION \
-    --stack-size $QFTASM_STACK_SIZE \
-    --initial-ramvalues $ramdump_csv
-}
+if [ "$1" = "--test-executable" ]; then
+    LISP=$qftasm_executable
+    engine_name="Executable"
+else
+    LISP=$QFTASM_INTERPRETER
+    engine_name="QFTASM    "
+fi
 
 function runlisp_expect () {
     if [[ $1 == *$'\n'* ]] || [[ $1 == *$'\r'* ]]; then
@@ -32,9 +27,9 @@ function runlisp_expect () {
     expected=$2
 
     echo "Case ${case}:"
-    result_qft=$(runlisp "$1")
-    echo "QFT     : ${result_qft}"
-    echo "Expected: ${expected}"
+    result_qft=$(echo "$1" | $LISP)
+    echo "${engine_name}: ${result_qft}"
+    echo "Expected  : ${expected}"
 
     if [[ $result_qft == $expected ]]; then
         echo "Passed."
@@ -46,11 +41,11 @@ function runlisp_expect () {
 
 function run_and_compare_with_hy () {
     echo "Case ${1}:"
-    result_qft=$(runlisp "$1")
-    echo "QFT: ${result_qft}"
+    result_qft=$(echo "$1" | $LISP)
+    echo "${engine_name}: ${result_qft}"
 
     result_hy=$(hy -c "$1")
-    echo "Hy : ${result_hy}"
+    echo "Hy        : ${result_hy}"
 
     if [[ $2 == "-notest" ]]; then
         return;

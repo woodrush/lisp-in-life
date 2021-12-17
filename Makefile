@@ -1,4 +1,5 @@
 LISP_QFTASM=./out/lisp.qftasm
+executable=./out/lisp
 
 all:
 	$(MAKE) $(LISP_QFTASM)
@@ -10,6 +11,9 @@ $(LISP_QFTASM):
 test: $(LISP_QFTASM)
 	./tools/runtest.sh
 
+test_executable: $(executable)
+	./tools/runtest.sh --test-executable
+
 run:
 	$(MAKE) run_gcc
 	$(MAKE) run_qft
@@ -20,7 +24,7 @@ run_qft:
 run_qft_memdist:
 	./tools/runlisp.sh $(LISP_QFTASM) --plot-memdist
 
-./out/lisp:
+$(executable):
 	gcc src/lisp.c -Isrc -o ./out/lisp
 
 run_gcc: ./out/lisp

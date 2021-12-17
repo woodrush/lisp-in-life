@@ -48,7 +48,7 @@ $ELC -qftasm \
 
 python $QFTASM_PP $tmp_qftasmpp > $tmp_qftasm
 
-./tools/runlisp_qftasm_interpreter.sh "" -i $tmp_qftasm \
+echo "" | $QFTASM_INTERPRETER -i $tmp_qftasm \
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
