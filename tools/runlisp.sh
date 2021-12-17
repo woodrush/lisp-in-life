@@ -38,16 +38,21 @@ function lisp_interpreter () {
     $memdist_opt < /dev/stdin
 
     if [ ! $plot_memdist = "" ] && [ ! -z "$2" ]; then
-        mv memdist.png $2
+        mv memdist.png "./memdist/memdist_${2}.png"
+        mv memdist2.png "./memdist/memdist2_${2}.png"
+        mv memdist_negative.png "./memdist/memdist-negative_${2}.png"
+        mv memvaluedist.png "./memdist/memvaluedist_${2}.png"
+        mv romdist.png "./memdist/romdist_${2}.png"
+        mv stackdist.png "./memdist/stackdist_${2}.png"
     fi
 }
 
 #================================================================
 # Run the lisp programs
 #================================================================
-cat print.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_print.png
-cat object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_object-oriented-like.png
-cat backquote.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_backquote.png
-cat backquote-splice.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_backquote-splice.png
-cat z-combinator.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_fact.png
-cat primes.lisp | lisp_interpreter --debug-plot-memdist ./memdist/memdist_primes.png
+cat print.lisp | lisp_interpreter --debug-plot-memdist print
+cat object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist object-oriented-like
+cat backquote.lisp | lisp_interpreter --debug-plot-memdist backquote
+cat backquote-splice.lisp | lisp_interpreter --debug-plot-memdist backquote-splice
+cat z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator
+cat primes.lisp | lisp_interpreter --debug-plot-memdist primes
