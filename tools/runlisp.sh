@@ -48,3 +48,4 @@ cat backquote.lisp | lisp_interpreter --debug-plot-memdist backquote
 cat backquote-splice.lisp | lisp_interpreter --debug-plot-memdist backquote-splice
 cat z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator
 cat primes.lisp | lisp_interpreter --debug-plot-memdist primes
+cat primes-print.lisp | lisp_interpreter --debug-plot-memdist primes

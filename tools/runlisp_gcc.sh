@@ -12,3 +12,4 @@ cat backquote.lisp | lisp_interpreter
 cat backquote-splice.lisp | lisp_interpreter
 cat z-combinator.lisp | lisp_interpreter
 cat primes.lisp | lisp_interpreter
+cat primes-print.lisp | lisp_interpreter

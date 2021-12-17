@@ -128,5 +128,6 @@ runlisp_expect "$(< backquote.lisp)" 'Hi!(a b 5)(` (a b (~ c)))'
 runlisp_expect "$(< backquote-splice.lisp)" '(1 2 3 4)'
 runlisp_expect "$(< z-combinator.lisp)" '120'
 runlisp_expect "$(< primes.lisp)" '(2 3 5 7 11 13 17 19)'
+runlisp_expect "$(< primes-print.lisp)" $'2\n3\n5\n7\n11\n13\n17\n19'
 
 echo "All tests have passed."
