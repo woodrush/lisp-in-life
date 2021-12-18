@@ -22,11 +22,29 @@ accessible by `make hello`.
 This build system can be used to compile more general C programs of your own.
 
 
+## Screenshots
+![An animation of the RAM module of the QFT computer in the VarLife rule, while it is running.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
+
+An animation of the RAM module of the QFT computer in the VarLife rule, while it is running.
+The colors of the cells represent the 8 distinct states of the VarLife rule.
+
+![The QFT computer showing the results of the computation.](./img/lisp_512B_ram_printstdin_results_QFT.mc.gif)
+
+The QFT computer showing the results of the computation of the following code:
+
+```lisp
+(print (* 3 14))
+```
+
+The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
+
+![The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running.](./img/lisp_512B_ram_printstdin_QFT.mc.png)
+
+The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running. Each "cell" visible here is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP) zoomed far away.
+
+
+
 ## Pattern Files and Stats
-Pattern files preloaded with various Lisp programs are available here. For details on each Lisp program, please see the Sample Lisp Programs section.
-
-The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)). VarLife patterns can be simulated on Golly as well. Details on VarLife are explained in the next section. For details on running VarLife patterns on Golly, please see the "Running the Patterns" section.
-
 | Program                                                | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |--------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
@@ -37,6 +55,57 @@ The patterns can be simulted on the Game of Life simulator [Golly](https://en.wi
 | [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |
 | [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |
 
+Pattern files preloaded with various Lisp programs are available here. For details on each Lisp program, please see the Sample Lisp Programs section.
+
+The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
+VarLife patterns can be simulated on Golly as well.
+Details on VarLife are explained in the next section.
+To run the VarLife patterns on Golly, additional settings are required. Please see [./build.md](./build.md) for a detailed description.
+
+
+### Descriptions of the Lisp Programs
+
+**print.lisp**: Prints the result of `3 * 14`.
+
+**z-combinator.lisp**:
+Demonstration of the [Z Combinator](https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed-point_combinator) to implement a factorial function
+using [anonymous recursion](https://en.wikipedia.org/wiki/Anonymous_recursion).
+
+**backquote-splice.lisp**:
+Implements the [backquote macro](http://cl-cookbook.sourceforge.net/macros.html#LtohTOCentry-2) used commonly in Lisp to construct macros.
+The macro also supports the unquote and unquote-splice operations, each written as `~` and `~@`.
+
+**backquote.lisp**:
+Another demonstration of the backquote macro, without the unquote-splice operation.
+
+**object-oriented-like.lisp**:
+This example demonstrates the construction of a structure similar to classes in Object-Oriented Programming, using closures.
+
+- The class has named methods and field variables, where each instance carries distinct and persistent memory locations of their own.
+  The example instantiates two counters and concurrently modifies the value held by each instance.
+- New syntaxes for instantiation and method access (`(new classname)` and `(. instance methodname)`) are introduced using macros and functions.
+
+The Lisp interpreter's variable scope of closures and the macro functionalities is powerful enough to manage complex memory management,
+and even providing a new syntax to support the target paradigm.
+
+**primes.lisp**: Prints a list of prime numbers up to 20. This example highlights the use of the `while` syntax.
+
+**primes-print.lisp**: Another prime number finding example, where the prime numbers are printed during the calculations
+instead of creating a list, which reduces the memory usage.
+
+
+### What is VarLife?
+VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project.
+It is used as an intermediate layer to generate the final Conway's Game of Life pattern;
+the computer is first created in VarLife, and then converted to a Game of Life pattern.
+
+When converting VarLife to Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP).
+The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life.
+Each cell carries a binary meta-state and a pre-programmed rule.
+The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states and generations of the VarLife pattern
+matches exactly with the converted Game of Life pattern's meta-states and meta-generations.
+Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
+
 
 ### Running Times for the Varlife Patterns
 | Program                                                | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
@@ -46,8 +115,8 @@ The patterns can be simulted on the Game of Life simulator [Golly](https://en.wi
 | [backquote-splice.lisp](backquote-splice.lisp)         |     142,353 |        869 bytes |          4,100,000,000         |            20.467 mins |               27.5 GiB |
 | [backquote.lisp](backquote.lisp)                       |     142,742 |        876 bytes |          4,100,000,000         |            21.663 mins |               27.5 GiB |
 | [object-oriented-like.lisp](object-oriented-like.lisp) |     161,843 |        838 bytes |          4,673,000,000         |            22.312 mins |               27.5 GiB |
-| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,137,000,000         |                        |                    GiB |
-| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |                                |                        |                    GiB |
+| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,880,000,000         |    25.435 + 1.622 + 2 + 2.45 mins |               27.5 GiB |
+| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |          9,607,100,000         |                        |                    GiB |
 
 The running times for each program are shown above.
 The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
@@ -67,6 +136,13 @@ This gives a rate of 23822.16 generations required per CPU cycle.
 However, this rate is slightly insufficient for the pattern for [z-combinator.lisp](z-combinator.lisp) to finish running (at generation 1,402,720,248).
 The z-combinator outputs its results by generation 1,700,000,000, giving a rate of roughly 28870.81 generations required per CPU cycle.
 This rate works for other patterns such as the patterns for [backquote-splice.lisp](backquote-splice.lisp) and [object-oriented-like.lisp](object-oriented-like.lisp).
+However, this rate was insufficient for [primes-print.lisp](primes-print.lisp), where 8,137,000,000 generations was not enough to finish running, and required 8,880,000,000 generations to finish running,
+with a rate of 31502.43 generations per CPU cycle.
+
+
+### The Running Times for the Conway's Game of Life Patterns
+Since one OTCA Metapixel is 2048 pixels wide and high, this makes the converted Life pattern expand 2048 times larger from the VarLife pattern.
+Therefore, running the Life version is significantly slower than running the VarLife version.
 
 
 ### Running Times and Stats for the Hello World Program
@@ -88,41 +164,8 @@ the program runs significantly faster both in terms of the actual running time a
 The generations per CPU cycle rate is 8899.84 for hello.c.
 
 
-## Loading and Running Your Own Lisp Program
-You can load your own Lisp program into the pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
-
-### What is VarLife?
-VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project. It is used as an intermediate layer to generate the final Conway's Game of Life pattern; the computer is first created in VarLife, and then converted to a Game of Life pattern.
-
-When converting VarLife to Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP). The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life. Each cell carries a binary meta-state and a pre-programmed rule. The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states and generations of VarLife pattern matches exactly with the converted Game of Life pattern's meta-states and meta-generations. Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
-
-### The Running Time
-Since one OTCA Metapixel is 2048 pixels wide and high, this makes the converted Life pattern expand 2048 times larger from the VarLife pattern. Therefore, running the Life version is significantly slower than running the VarLife version.
-
-The running times for each program are shown here. Unfortunately, programs other than arithmetics.lisp is unconfirmed, and is expected to take over one day to finish running.
-
-| Program                      | Running time (VarLife) | Running Time (Conway's Game of Life) |
-|------------------------------|------------------------|--------------------------------------|
-| arithmetics.lisp             |                        | 6 hours                              |
-| object-oriented-like.lisp    |                        | (unconfirmed)                        |
-| primes.lisp                  |                        | (unconfirmed)                        |
-| backquote-splice.lisp        |                        | (unconfirmed)                        |
-
-
-
-### How is the Output Read Out? How is the Program and the Standard Input Provided?
-The output of the computer is read out by examining the bits of the RAM module.
-
-The input is provided byt editing address XX-XX of the RAM module...
-
-
-## Running the Patterns
-Both the Game of Life and VarLife patterns can be run by using [Golly](https://en.wikipedia.org/wiki/Golly_(program)). Golly supports the [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm, which speeds up the computation of the generations of the pattern.
-
-To run VarLife on Golly, additional settings are required. First, obtain [Varlife.rule](https://github.com/QuestForTetris/QFT/blob/master/Varlife.rule) from [the original Quest For Tetris GitHub repository](https://github.com/QuestForTetris/QFT). Then, place Varlife.rule in the same directory as the pattern file you have downloaded. You can also place the rule in Golly's custom rules folder, which is `TODO` on Linux, `~/Library/Application Support/Golly/Rules` on Mac, etc.
-
-### Running your Own Lisp Code
-For instructions on running your own Lisp code on the pattern, please see [details.md](./details.md), which explains the technical details of Lisp in Life.
+### Loading and Running Your Own Lisp and C Programs
+You can load your own Lisp program into the Lisp interpreter pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
 
 
 ## How is it Done?
@@ -139,7 +182,7 @@ The final Game of Life pattern (GoL) for the lisp interpreter is created by port
 In this project, starting from these two existing works, I first wrote the [ELVM QFTASM backend](https://github.com/shinh/elvm/tree/master/tools/qftasm). This module allows the ELVM toolchain to compile ELVM assembly to QFTASM, which means creating a pathway for compiling C code and porting it to the Game of Life. Therefore, I then wrote the Lisp interpreter in C.
 
 
-### Optimization in Various Layers
+### Optimizations in Various Layers
 However, simply compiling the Lisp interpreter and porting it to QFT resulted in a Game of Life pattern that consumed too much computational resources to run in a practical time. This involved performing optimizations in each of the following layers of the project:
 
 - The C Compiler layer - adding the computed goto feature, preserving address symbols, etc.
@@ -150,6 +193,9 @@ However, simply compiling the Lisp interpreter and porting it to QFT resulted in
 
 A more detailed view of the optimizations done in this project is available in [details.md](./details.md).
 
+### How is the Output Read Out? How is the Program and the Standard Input Provided?
+The output is read out by examining the bytes of the RAM module.
+
 
 ## Building from Source
 ### Building the Game of Life Pattern from Source
@@ -157,44 +203,6 @@ Instructions for building the Game of Life pattern from the C source ([lisp.c](.
 
 ### Compiling the Lisp Interpreter with GCC
 The source code used for building the Game of Life pattern can also be compiled with GCC. The details for this are available in [build.md](./build.md) as well.
-
-
-## Sample Lisp Programs
-
-- arithmetics.lisp
-- object-oriented-like.lisp
-- primes.lisp
-- backquote-splice.lisp
-
-**arithmetics.lisp**: This program is simple enough to be actually run in a computer in the Game of Life format. It took 6 hours to run on a 32GB-RAM computer (the Hashlife algorithm used for the simulation consumes a lot of memory space) on [Golly](https://en.wikipedia.org/wiki/Golly_(program)). Note that this pattern runs in XX minutes in the VarLife rule, the abtraction layer used when creating the final pattern - details will be explained later.
-
-
-**object-oriented-like.lisp**: This program is a demonstration of a program writen in an Object-Oriented-Programming-like style, with user-defined classes. Multiple objects can be instantiated, where each object is allocated with distinct memory spaces for their field variables, which can be individually manipulated. Objects are represented as lexical closures over the field variables of the class. This program also features the use of macros to introduce the `.` syntax, dynamically extending the interpreter for expressing programs in a more OOP-like style.
-
-
-**primes.lisp**: This program calculates and prints a list of prime numbers up to 20.
-
-**backquote-splice.lisp**: This program implements the [backquote macro](http://cl-cookbook.sourceforge.net/macros.html#LtohTOCentry-2), which supports the unquote and unquote-splice operations. Unquote and unquote-splice are each written as `~` and `~@`.
-
-
-## Screenshots
-![An animation of the RAM module of the QFT computer in the VarLife rule, while it is running.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
-
-An animation of the RAM module of the QFT computer in the VarLife rule, while it is running. The colors of the cells represent the 8 distinct states of the VarLife rule.
-
-![The QFT computer showing the results of the computation.](./img/lisp_512B_ram_printstdin_results_QFT.mc.gif)
-
-The QFT computer showing the results of the computation of the following code:
-
-```lisp
-(print (* 3 14))
-```
-
-The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
-
-![The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running.](./img/lisp_512B_ram_printstdin_QFT.mc.png)
-
-The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running. Each "cell" visible here is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP) zoomed far away.
 
 
 ## Details of the Lisp Interpreter
