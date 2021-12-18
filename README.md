@@ -108,15 +108,18 @@ Therefore, it is enough to verify the behavior of the VarLife pattern to verify 
 
 
 ### Running Times for the Varlife Patterns
-| Program                                                | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
-|--------------------------------------------------------|-------------|------------------|--------------------------------|------------------------|------------------------|
-| [print.lisp](print.lisp)                               |       4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
-| [z-combinator.lisp](z-combinator.lisp)                 |      58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
-| [backquote-splice.lisp](backquote-splice.lisp)         |     142,353 |        869 bytes |          4,100,000,000         |            20.467 mins |               27.5 GiB |
-| [backquote.lisp](backquote.lisp)                       |     142,742 |        876 bytes |          4,100,000,000         |            21.663 mins |               27.5 GiB |
-| [object-oriented-like.lisp](object-oriented-like.lisp) |     161,843 |        838 bytes |          4,673,000,000         |            22.312 mins |               27.5 GiB |
-| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,880,000,000         |                        |               27.5 GiB |
-| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |          9,607,100,000         |            38.334 mins |               27.5 GiB |
+| Program                                                | #QFT CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
+|--------------------------------------------------------|-----------------|------------------|--------------------------------|------------------------|------------------------|
+| [print.lisp](print.lisp)                               |           4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
+| [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
+| [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |        869 bytes |          4,100,000,000         |            20.467 mins |               27.5 GiB |
+| [backquote.lisp](backquote.lisp)                       |         142,742 |        876 bytes |          4,100,000,000         |            21.663 mins |               27.5 GiB |
+| [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |        838 bytes |          4,673,000,000         |            22.312 mins |               27.5 GiB |
+| [primes-print.lisp](primes-print.lisp)                 |         281,883 |        527 bytes |          8,880,000,000         |            27.543 mins |               27.5 GiB |
+| [primes.lisp](primes.lisp)                             |         304,964 |        943 bytes |          9,607,100,000         |            38.334 mins |               27.5 GiB |
+
+
+
 
 The running times for each program are shown above.
 The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
@@ -140,9 +143,24 @@ However, this rate was insufficient for [primes-print.lisp](primes-print.lisp), 
 with a rate of 31502.43 generations per CPU cycle.
 
 
-### The Running Times for the Conway's Game of Life Patterns
+### Running Times and Stats for the Conway's Game of Life Patterns
+| Program                                                | #QFT CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL) |
+|--------------------------------------------------------|-----------------|------------------|----------------------------|--------------------|--------------------|
+| [print.lisp](print.lisp)                               |           4,425 |         92 bytes |  3,724,032,866,304 (exact) |                    |                    |
+| [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |        544 bytes |                         -  |                 -  |                  - |
+| [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |        869 bytes |                         -  |                 -  |                  - |
+| [backquote.lisp](backquote.lisp)                       |         142,742 |        876 bytes |                         -  |                 -  |                  - |
+| [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |        838 bytes |                         -  |                 -  |                  - |
+| [primes-print.lisp](primes-print.lisp)                 |         281,883 |        527 bytes |                         -  |                 -  |                  - |
+| [primes.lisp](primes.lisp)                             |         304,964 |        943 bytes |                         -  |                 -  |                  - |
+
+The running times for the Conway's Game of Life Patterns is shown above.
+
 Since one OTCA Metapixel is 2048 pixels wide and high, this makes the converted Life pattern expand 2048 times larger from the VarLife pattern.
-Therefore, running the Life version is significantly slower than running the VarLife version.
+Therefore, running the Game of Life (GoL) version is significantly slower than running the VarLife version.
+
+Since the OTCA Metapixel has a phase of 35,328 (according to [LifeWiki - OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel)),
+the number of generations used for simulating the GoL pattern is 35,328 times the VarLife generations shown in the VarLife stats table.
 
 
 ### Running Times and Stats for the Hello World Program
