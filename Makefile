@@ -45,10 +45,10 @@ hello:
 run_hello:
 	@./tools/qftasmi.sh \
 		-i ./out/hello.qftasm \
-		-u "standard_input"
+		-u "$$(cat ./misc/hello/hello_stdin.txt)"
 
 run_hello_debug:
 	@./tools/qftasmi.sh \
 		-i ./out/hello.qftasm \
-		-u "standard_input" \
+		-u "$$(cat ./misc/hello/hello_stdin.txt)" \
 		-p "--debug-ramdump --debug-plot-memdist"
