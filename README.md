@@ -146,13 +146,14 @@ with a rate of 31502.43 generations per CPU cycle.
 ### Running Times and Stats for the Conway's Game of Life Patterns
 | Program                                                | #QFT CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL) |
 |--------------------------------------------------------|-----------------|------------------|----------------------------|--------------------|--------------------|
-| [print.lisp](print.lisp)                               |           4,425 |         92 bytes |  3,724,032,866,304 (exact) |                    |                    |
+| [print.lisp](print.lisp)                               |           4,425 |         92 bytes |         3,724,032,866,304  |      382.415 mins  |           27.5 GiB |
 | [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |        544 bytes |                         -  |                 -  |                  - |
 | [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |        869 bytes |                         -  |                 -  |                  - |
 | [backquote.lisp](backquote.lisp)                       |         142,742 |        876 bytes |                         -  |                 -  |                  - |
 | [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |        838 bytes |                         -  |                 -  |                  - |
 | [primes-print.lisp](primes-print.lisp)                 |         281,883 |        527 bytes |                         -  |                 -  |                  - |
 | [primes.lisp](primes.lisp)                             |         304,964 |        943 bytes |                         -  |                 -  |                  - |
+| [hello.c](./misc/hello/hello.c)                        |          29,214 |        223 bytes |         9,185,280,000,000  |                    |                    |
 
 The running times for the Conway's Game of Life Patterns is shown above.
 
@@ -167,6 +168,8 @@ the number of generations used for simulating the GoL pattern is 35,328 times th
 The patterns for the Hello World program ([hello.c](./misc/hello/hello.c)) are available here:
 - VarLife pattern: [QFT_hello.mc](./patterns/QFT_hello.mc)
 - Conway's Game of Life Pattern: [QFT_hello_metafied.mc](./patterns/metafied/QFT_hello_metafied.mc)
+
+Details on compiling and creating patterns for the Hello World Program and your own C program are available in [build.md](./build.md).
 
 | Program                         | Stdin                                           | ROM Size | #Population | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
 |---------------------------------|-------------------------------------------------|----------|-------------|-------------|------------------|--------------------------------|------------------------|------------------------|
