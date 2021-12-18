@@ -12,9 +12,10 @@ The program is loaded into the pattern by writing the ASCII representation of th
 expressed by editing certain cells in the pattern.
 The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project.
-The [Lisp interpreter](./src/lisp.c), written in C, is compiled using the Game of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) - I have implemented the Game of Life backend for ELVM myself for this project.
-(A modified branch used for this project is available [here](TODO).)
+The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) project.
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled using [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine)
+(I implemented the Game of Life backend for ELVM myself for this project.
+The backend is further modified (available in the submodule) for supporting QFT-specific optimizations.)
 
 Using the toolchains in this project, you can compile any C code compatible with C11 and run in on Conway's Game of Life.
 I've also included a build system for compiling a Hello World program that also finds prime numbers ([hello.c](./misc/hello/hello.c)) to the Game of Life,
@@ -48,10 +49,10 @@ The RAM module of the QFT computer converted to a Conway's Game of Life pattern 
 | Program                                                | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |--------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
+| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |
 | [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator.mc](./patterns/QFT_z-combinator.mc)                 | [QFT_z-combinator_metafied.mc](./patterns/metafied/QFT_z-combinator_metafied.mc)                 |
 | [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice.mc](./patterns/QFT_backquote-splice.mc)         | [QFT_backquote-splice_metafied.mc](./patterns/metafied/QFT_backquote-splice_metafied.mc)         |
 | [backquote.lisp](backquote.lisp)                       | [QFT_backquote.mc](./patterns/QFT_backquote.mc)                       | [QFT_backquote_metafied.mc](./patterns/metafied/QFT_backquote_metafied.mc)                       |
-| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |
 | [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |
 | [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |
 
@@ -60,38 +61,37 @@ Pattern files preloaded with various Lisp programs are available here. For detai
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
 VarLife patterns can be simulated on Golly as well.
 Details on VarLife are explained in the next section.
-To run the VarLife patterns on Golly, additional settings are required. Please see [./build.md](./build.md) for a detailed description.
+To run the VarLife patterns on Golly, additional settings are required. Please see [build.md](./build.md) for a detailed description.
 
 
 ### Descriptions of the Lisp Programs
 
-**print.lisp**: Prints the result of `3 * 14`.
+- **object-oriented-like.lisp**:
+    This example demonstrates the construction of a structure similar to classes in Object-Oriented Programming, using closures.
 
-**z-combinator.lisp**:
+    - The class has named methods and field variables, where each instance carries distinct and persistent memory locations of their own.
+    The example instantiates two counters and concurrently modifies the value held by each instance.
+    - New syntaxes for instantiation and method access (`(new classname)` and `(. instance methodname)`) are introduced using macros and functions.
+
+    The Lisp interpreter's variable scope of closures and the macro functionalities is powerful enough to manage complex memory management,
+    and even providing a new syntax to support the target paradigm.
+
+- **z-combinator.lisp**:
 Demonstration of the [Z Combinator](https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed-point_combinator) to implement a factorial function
 using [anonymous recursion](https://en.wikipedia.org/wiki/Anonymous_recursion).
 
-**backquote-splice.lisp**:
+- **backquote-splice.lisp**:
 Implements the [backquote macro](http://cl-cookbook.sourceforge.net/macros.html#LtohTOCentry-2) used commonly in Lisp to construct macros.
 The macro also supports the unquote and unquote-splice operations, each written as `~` and `~@`.
 
-**backquote.lisp**:
-Another demonstration of the backquote macro, without the unquote-splice operation.
+- **primes.lisp**: Prints a list of prime numbers up to 20. This example highlights the use of the `while` syntax.
 
-**object-oriented-like.lisp**:
-This example demonstrates the construction of a structure similar to classes in Object-Oriented Programming, using closures.
 
-- The class has named methods and field variables, where each instance carries distinct and persistent memory locations of their own.
-  The example instantiates two counters and concurrently modifies the value held by each instance.
-- New syntaxes for instantiation and method access (`(new classname)` and `(. instance methodname)`) are introduced using macros and functions.
+The contents of print.lisp is quite straightforward.
+backquote.lisp and primes-print.lisp are similar to backquote-splice.lisp and primes.lisp, mainly included for performance comparisons.
+backquote.lisp doesn't implement the unquote-splice operation, and demonstrates some more examples.
+primes-print.lisp reduces the number of list operations to save memory usage.
 
-The Lisp interpreter's variable scope of closures and the macro functionalities is powerful enough to manage complex memory management,
-and even providing a new syntax to support the target paradigm.
-
-**primes.lisp**: Prints a list of prime numbers up to 20. This example highlights the use of the `while` syntax.
-
-**primes-print.lisp**: Another prime number finding example, where the prime numbers are printed during the calculations
-instead of creating a list, which reduces the memory usage.
 
 
 ### What is VarLife?
@@ -115,8 +115,8 @@ Therefore, it is enough to verify the behavior of the VarLife pattern to verify 
 | [backquote-splice.lisp](backquote-splice.lisp)         |     142,353 |        869 bytes |          4,100,000,000         |            20.467 mins |               27.5 GiB |
 | [backquote.lisp](backquote.lisp)                       |     142,742 |        876 bytes |          4,100,000,000         |            21.663 mins |               27.5 GiB |
 | [object-oriented-like.lisp](object-oriented-like.lisp) |     161,843 |        838 bytes |          4,673,000,000         |            22.312 mins |               27.5 GiB |
-| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,880,000,000         |    25.435 + 1.622 + 2 + 2.45 mins |               27.5 GiB |
-| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |          9,607,100,000         |                        |                    GiB |
+| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,880,000,000         |                        |               27.5 GiB |
+| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |          9,607,100,000         |            38.334 mins |               27.5 GiB |
 
 The running times for each program are shown above.
 The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
@@ -213,26 +213,22 @@ The source code used for building the Game of Life pattern can also be compiled 
 - quote
 - car, cdr
 - cons
+- list
 - atom
 - print
 - progn
 - while
-- lambda, lambda*, macro, macro*
+- lambda, macro
 - eval
 - eq
 - +, -, *, /, mod, <, >
 
 ### Lexical Closures
-This Lisp implementation supports lexical closures. The implementation of lexical closures is powerful enough to write an object-oriented-like code as shown in [object-oriented-like.lisp](./object-oriented-like.lisp), where classes are represented as lexical closures over the field variables of the class.
+This Lisp implementation supports lexical closures.
+The implementation of lexical closures is powerful enough to write an object-oriented-like code as shown in [object-oriented-like.lisp](./object-oriented-like.lisp),
+where classes are represented as lexical closures over the field variables and the class methods.
 
 ### Macros
-This Lisp implementation has a macro feature. Lisp macros can be thought as a function that receives code and returns code. Following this design, macros are treated exacly the same as lambdas, except it takes the arguments as raw S-expressions, and evaluates the result twice (the first time to build the expression, and the second time to actually evaluate the builded expression).
-
-### `lambda*` and `macro*`
-`lambda*` and `macro*` are byproducts of the lack of proper garbage collection. Both special forms are designed to save memory than their counterparts, `lambda` and `macro`. `lambda*` reuses the graph structure created by the variable namespace when possible. `macro*` builds the expression to be evaluated in a temporary memory region, which is assumed to be overwritten after the macro finishes being evaluated.
-
-
-## Limitations
-As explained in the first section, unfortunately, the running time for the actual Game of Life patterns is unconfirmed.
-
-
+This Lisp implementation has a macro feature. Lisp macros can be thought as a function that receives code and returns code.
+Following this design, macros are treated exacly the same as lambdas, except that it takes the arguments as raw S-expressions,
+and evaluates the result twice (the first time to build the expression, and the second time to actually evaluate the builded expression).
