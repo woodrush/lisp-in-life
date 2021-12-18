@@ -4,47 +4,29 @@ It's not Conway's Game of Life implemented in Lisp - it's a Lisp interpreter imp
 
 The entire pattern is viewable on the browser [here]().
 
-## What This Is
-This repository contains a Conway's Game of Life pattern that runs a Lisp interpreter. The pattern is configurable and can load and run your own lisp code up to 1000 characters. The program is loaded into the pattern by writing the ASCII representation of the program into the pattern's RAM module, expressed by editing certain cells in the pattern. The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project. The [Lisp interpreter](./src/lisp.c), written in C, is compiled using the Game of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) - I have implemented the Game of Life backend for ELVM myself for this project. (A modified branch used for this project is available [here](TODO).)
+## Running Lisp and C on the Game of Life
+This repository contains a Conway's Game of Life pattern that runs a Lisp interpreter.
+The pattern is configurable and can load and run your own lisp code up to 1000 characters.
+The program is loaded into the pattern by writing the ASCII representation of the program into the pattern's RAM module,
+expressed by editing certain cells in the pattern.
+The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-Using the toolchains in this project, you can compile any C code compatible with C11 and run in on Conway's Game of Life. This requires pre-compilation of the C code on a host computer before pre-loading it into the pattern. I took a step further and let the Game of Life pattern *interpret* Lisp code, provided as ASCII characters loaded into the pattern.
+The architecture is based on the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) project.
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled using the Game of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) - I have implemented the Game of Life backend for ELVM myself for this project.
+(A modified branch used for this project is available [here](TODO).)
+
+Using the toolchains in this project, you can compile any C code compatible with C11 and run in on Conway's Game of Life.
+I've also included a build system for compiling a Hello World program that also finds prime numbers ([hello.c](./misc/hello/hello.c)) to the Game of Life,
+accessible by `make hello`.
+This build system can be used to compile more general C programs of your own.
 
 
-## Pattern Files
+## Pattern Files and Stats
 Pattern files preloaded with various Lisp programs are available here. For details on each Lisp program, please see the Sample Lisp Programs section.
 
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)). VarLife patterns can be simulated on Golly as well. Details on VarLife are explained in the next section. For details on running VarLife patterns on Golly, please see the "Running the Patterns" section.
 
-
-### Running Times for the Varlife Patterns
-| Program                                                | #CPU Cycles | QFTASM Memory Usage | #VarLife Generations  | VarLife Running Time | VarLife Memory Usage |
-|--------------------------------------------------------|-------------|---------------------|-----------------------|----------------------|----------------------|
-| [print.lisp](print.lisp)                               |       4,425 |            92 bytes |   105,413,068 (exact) |                      |                   GB |
-| [z-combinator.lisp](z-combinator.lisp)                 |      58,883 |           544 bytes | 1,700,000,000         |                      |              21.0 GB |
-| [backquote-splice.lisp](backquote-splice.lisp)         |     142,353 |           869 bytes | 4,100,000,000         | 20.467 mins          |              27.5 GB |
-| [backquote.lisp](backquote.lisp)                       |     142,742 |           876 bytes |                       |                      |                   GB |
-| [object-oriented-like.lisp](object-oriented-like.lisp) |     161,843 |           838 bytes | 4,673,000,000         | 22.312 mins          |              27.5 GB |
-| [primes-print.lisp](primes-print.lisp)                 |     281,883 |           527 bytes |                       |                      |                   GB |
-| [primes.lisp](primes.lisp)                             |     304,964 |           943 bytes |                       |                      |                   GB |
-
-The running times for each program is shown above.
-After the program counter reaches 65535 and the program exits, no more signals become read from both the ROM and the RAM,
-which eventually makes the VarLife pattern becomes completely stationary, where every pattern after a given timestep becomes completely identical.
-
-Defining this as the stopping time for the calculation, [print.lisp](print.lisp) stops at exactly 105,413,068 VarLife generations.
-By generation 105,387,540, the value 65535 gets written to the program counter.
-At generation 105,413,067, the last signal becomes just one step from disappearing,
-and at generation 105,413,068 and onwards, every pattern becomes identical to each other.
-
-This gives a rate of 23822.16 generations required per CPU cycle.
-However, this rate is slightly insufficient for [z-combinator.lisp](z-combinator.lisp) to finish running (at generation 1,402,720,248).
-The z-combinator outputs its results at generation 1,700,000,000, giving a rate of 28870.81 generations required per CPU cycle.
-This rate is useful for other programs such as [backquote-splice.lisp](backquote-splice.lisp) and [object-oriented-like.lisp](object-oriented-like.lisp).
-
-
-### Patterns
 | Program                                                | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |--------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
@@ -54,6 +36,56 @@ This rate is useful for other programs such as [backquote-splice.lisp](backquote
 | [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |
 | [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |
 | [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |
+
+
+### Running Times for the Varlife Patterns
+| Program                                                | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
+|--------------------------------------------------------|-------------|------------------|--------------------------------|------------------------|------------------------|
+| [print.lisp](print.lisp)                               |       4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
+| [z-combinator.lisp](z-combinator.lisp)                 |      58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
+| [backquote-splice.lisp](backquote-splice.lisp)         |     142,353 |        869 bytes |          4,100,000,000         |            20.467 mins |               27.5 GiB |
+| [backquote.lisp](backquote.lisp)                       |     142,742 |        876 bytes |          4,100,000,000         |            21.663 mins |               27.5 GiB |
+| [object-oriented-like.lisp](object-oriented-like.lisp) |     161,843 |        838 bytes |          4,673,000,000         |            22.312 mins |               27.5 GiB |
+| [primes-print.lisp](primes-print.lisp)                 |     281,883 |        527 bytes |          8,137,000,000         |                        |                    GiB |
+| [primes.lisp](primes.lisp)                             |     304,964 |        943 bytes |                                |                        |                    GiB |
+
+The running times for each program are shown above.
+The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
+The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).
+The memory usage was measured by Ubuntu's activity monitor.
+The number of CPU cycles and the QFT memory usage was obtained by running QFTASM interpreter on the host PC.
+
+After the program counter reaches 65535 and the program exits, no more signals become read from both the ROM and the RAM,
+which eventually makes the VarLife pattern becomes completely stationary, where every pattern after a given timestep becomes completely identical.
+
+Defining this as the halting time for the calculation, the pattern for [print.lisp](print.lisp) halts at exactly 105,413,068 VarLife generations.
+By generation 105,387,540, the value 65535 gets written to the program counter.
+At generation 105,413,067, the last signal becomes just one step from disappearing,
+and at generation 105,413,068 and onwards, every pattern becomes identical to each other.
+
+This gives a rate of 23822.16 generations required per CPU cycle.
+However, this rate is slightly insufficient for the pattern for [z-combinator.lisp](z-combinator.lisp) to finish running (at generation 1,402,720,248).
+The z-combinator outputs its results by generation 1,700,000,000, giving a rate of roughly 28870.81 generations required per CPU cycle.
+This rate works for other patterns such as the patterns for [backquote-splice.lisp](backquote-splice.lisp) and [object-oriented-like.lisp](object-oriented-like.lisp).
+
+
+### Running Times and Stats for the Hello World Program
+The patterns for the Hello World program ([hello.c](./misc/hello/hello.c)) are available here:
+- VarLife pattern: [QFT_hello.mc](./patterns/QFT_hello.mc)
+- Conway's Game of Life Pattern: [QFT_hello_metafied.mc](./patterns/metafied/QFT_hello_metafied.mc)
+
+| Program                         | Stdin                                           | ROM Size | #Population | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
+|---------------------------------|-------------------------------------------------|----------|-------------|-------------|------------------|--------------------------------|------------------------|------------------------|
+| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 |   4,928,762 |       4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
+| [lisp.c](./src/lisp.c)          | [z-combinator.lisp](z-combinator.lisp)          |     3223 |   4,928,762 |      58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |   2,933,214 |      29,214 |        223 bytes |            260,000,000         |             1.107 mins |                4.4 GiB |
+
+The stats comparison for the Hello World program and the Lisp interpreter are shown above.
+The ROM size is the number of rows in the ROM module, which is equivalent to the number of lines in the QFTASM file.
+
+Despite the size of the number of CPU cycles, since the ROM size is significantly smaller for hello.c than lisp.c,
+the program runs significantly faster both in terms of the actual running time and the generations per CPU cycle.
+The generations per CPU cycle rate is 8899.84 for hello.c.
 
 
 ## Loading and Running Your Own Lisp Program
@@ -67,7 +99,7 @@ When converting VarLife to Life, each VarLife cell is mapped to an [OTCA Metapix
 ### The Running Time
 Since one OTCA Metapixel is 2048 pixels wide and high, this makes the converted Life pattern expand 2048 times larger from the VarLife pattern. Therefore, running the Life version is significantly slower than running the VarLife version.
 
-The running time for each program is shown here. Unfortunately, programs other than arithmetics.lisp is unconfirmed, and is expected to take over one day to finish running.
+The running times for each program are shown here. Unfortunately, programs other than arithmetics.lisp is unconfirmed, and is expected to take over one day to finish running.
 
 | Program                      | Running time (VarLife) | Running Time (Conway's Game of Life) |
 |------------------------------|------------------------|--------------------------------------|
