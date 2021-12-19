@@ -63,11 +63,10 @@ The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in b
 
 ## How is it Done?
 The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
-The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of Life backend for ELVM was implemented by myself. The backend and the compiler is further modified for supporting QFT-specific optimizations (available in the submodule).
+The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of Life backend for ELVM was implemented by myself.
 
 Generating a short enough Lisp interpreter assembly code and a Game of Life pattern that runs in a reasonable amount of time required a lot of effort.
-This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, Game of Life layer, the C program layer, etc.
-Examples of these optimizations include:
+This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, including:
 
 - The C Compiler layer - adding the [computed goto](https://en.wikipedia.org/wiki/Goto#Computed_GOTO_and_Assigned_GOTO) feature to the C compiler, preserving variable symbols to be used after compilation, etc.
 - The C layer (the [Lisp interpreter](./src/lisp.c)) - using a string hashtable and binary search for Lisp symbol lookup, minimization of stack region usage with union memory structures, careful memory region map design, etc.
@@ -76,32 +75,16 @@ Examples of these optimizations include:
 - The Game of Life layer - [Hashlife](https://en.wikipedia.org/wiki/Hashlife)-specific optimization
 
 A more detailed description of the optimizations done in this project is available in the [Implementation Details](#implementation-details) section.
-Details for building the interpreter's C source code is available in the [Building from Source](#building-from-source) section.
 
 
 ### Conversion from VarLife to Conway's Game of Life
 VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project.
-It is used as an intermediate layer to generate the final Conway's Game of Life pattern;
-the computer is first created in VarLife, and then converted to a Game of Life pattern.
+It is used as an intermediate layer to generate the final Conway's Game of Life pattern; the computer is first created in VarLife, and then converted to a Game of Life pattern.
 
-When converting VarLife to Conway's Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP).
-The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life.
-Each cell carries a binary meta-state and a pre-programmed rule.
-
-The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states of the VarLife pattern matches exactly with the meta-states of the OTCA Metapixels in the converted Game of Life pattern.
+When converting VarLife to Conway's Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP). The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states of the VarLife pattern matches exactly with the meta-states of the OTCA Metapixels in the converted Game of Life pattern.
 Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
 
-Since one OTCA Metapixel has a bounding box size of 2048x2048 (when tiled together), converting the VarLife pattern to a Conway's Game of Life pattern will expand the pattern size by a factor of 2048x2048.
-Also, since the OTCA Metapixel has a phase of 35,328 (according to [LifeWiki - OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel)), the number of Conway's Game of Life generations required becomes 35,328 times the number of required VarLife generations.
-Therefore, the VarLife patterns run significantly faster than the Game of Life (GoL) version.
-
-### How is the Program and the Standard Input Provided? How is the Output Read Out? 
-The Lisp interpreter accepts the Lisp code from the standard input and writes the results to the standard output.
-Both the standard input and output reside within the RAM module, with memory addresses 290 and 790, respectively.
-
-Since each byte of the RAM module can be ordered arbitrarily in the CPU's architecture, the RAM is arranged so that the standard output is written at the very bottom of the RAM module, and proceeds upwards. Therefore, the contents of the RAM can easily be observed in a Game of Life viewer by directly examining the bottom of the RAM module. A script for examining the output, as well as the input and other register values are available in the [QFT-devkit](https://github.com/woodrush/QFT-devkit) (also included as a submodule in this repository).
-
-Since RAM has 16 bits of memory per memory address, it allows to fit two ASCII-encoded characters per one address. Therefore, the standard input is read out by reading two characters per address. For the standard output, one character is written to one address for aesthetic reasons, so that the characters can be directly observed in a Game of Life viewer the pattern more easily. Also, for the standard output to proceed upwards within the RAM module pattern, the memory pointer for the standard output proceeds backwards in the memory space, while the pointer for the standard input proceeds forwards in the memory space.
+Due to the use of OTCA Metapixels, each VarLife cell becomes extended to a 2048x2048 Game of Life cell, and 1 VarLife generation requires 35328 Game of Life generations. Therefore, the VarLife patterns run significantly faster than the Game of Life (GoL) version.
 
 
 ## Pattern Files
@@ -116,8 +99,7 @@ Since RAM has 16 bits of memory per memory address, it allows to fit two ASCII-e
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
 
 Pattern files preloaded with various Lisp programs are available here.
-Details of the Lisp programs are explained later.
-Detailed statistics such as the running time and the memory consumption are available in the "Running Times and Statistics" section.
+Detailed statistics such as the running time and the memory consumption are available in the [Running Times and Statistics](#running-times-and-statistics) section.
 
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
 The VarLife patterns can be simulated on Golly as well, which requires additional settings described in the [Building from Source](#building-from-source) section.
@@ -153,17 +135,6 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 
 
 ## Running Times and Statistics
-**Common Statistics**
-| Lisp Program                                           | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) |
-|------------------------------------------------------- |-----------------|------------------------------|
-| [print.lisp](print.lisp)                               |           4,425 |                           92 |
-| [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |                          544 |
-| [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |                          869 |
-| [backquote.lisp](backquote.lisp)                       |         142,742 |                          876 |
-| [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |                          838 |
-| [primes-print.lisp](primes-print.lisp)                 |         281,883 |                          527 |
-| [primes.lisp](primes.lisp)                             |         304,964 |                          943 |
-
 **VarLife Patterns**
 | Lisp Program and Pattern (VarLife)                                                                         | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
@@ -186,12 +157,23 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 | [primes-print.lisp](primes-print.lisp)                 [[pattern](./patterns/metafied/QFT_primes-print_metafied.mc)]         |       313,712,640,000,000  |                 -  |                        - |
 | [primes.lisp](primes.lisp)                             [[pattern](./patterns/metafied/QFT_primes_metafied.mc)]               |       339,399,628,800,000  |                 -  |                        - |
 
+**Common Statistics**
+| Lisp Program                                           | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) |
+|------------------------------------------------------- |-----------------|------------------------------|
+| [print.lisp](print.lisp)                               |           4,425 |                           92 |
+| [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |                          544 |
+| [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |                          869 |
+| [backquote.lisp](backquote.lisp)                       |         142,742 |                          876 |
+| [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |                          838 |
+| [primes-print.lisp](primes-print.lisp)                 |         281,883 |                          527 |
+| [primes.lisp](primes.lisp)                             |         304,964 |                          943 |
+
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
 The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).
 The memory usage was measured by Ubuntu's activity monitor.
 The number of CPU cycles and the QFT memory usage was obtained by running the QFTASM interpreter on the host PC.
 The QFT memory usage shows the number of RAM addresses that were written at least once.
-The memory usage is measured in QFT bytes. Since one RAM memory slot includes 16 bits, 1 QFT byte equals 16bits.
+The memory usage is measured in QFT bytes. Since one RAM memory slot consists of 16 bits, 1 QFT byte equals 16bits.
 
 After the program counter is set to 65535 and the program exits, no more ROM and RAM I/O signals become apparent in the entire module.
 This makes the VarLife pattern becomes completely stationary, where every pattern henceforth becomes completely identical.
@@ -498,7 +480,7 @@ In the interpretation phase, since each distinct symbol has a distinct memory ad
 
 #### Usage of jump hash tables for the special form evaluation procedure searches
 There are 17 distinct procedures for evaluating the special forms in the Lisp interpreter,
-`define`, `if`, `quote`, `car`, `cdr`, `cons`, `atom`, `print`, `progn`, `while`, {`lambda`, `macro`}, `eval`, `eq`, {`+`, `-`}, {`<`, `>`}, `list`, and lambda/macro invocations (when if the token is not a special form). Using an `if` statement to find the corresponding procedure for a given token becomes a linear search for the token comparisons. To speed up this search process, a hash table is created for jumping to the corresponding procedures. Since the memory addresses for the special forms can be determined before parsing the Lisp program, all of the symbols for the special forms have a fixed memory address. Therefore, the hash key can be created by subtracting an offset to the symbol's memory address, to point to a hashtable that is created near the register locations. This hashtable is provided in [memheader.eir](./src/memheader.eir). When the hash key is larger than the regions of this hashtable, it means that the symbol is not a special form, so the evaluation jumps to the lambda/macro invocation procedure.
+`define`, `if`, `quote`, `car`, `cdr`, `cons`, `atom`, `print`, `progn`, `while`, {`lambda`, `macro`}, `eval`, `eq`, {`+`, `-`, `*`, `/`, `mod`}, {`<`, `>`}, `list`, and lambda/macro invocations (when if the token is not a special form). Using an `if` statement to find the corresponding procedure for a given token becomes a linear search for the token comparisons. To speed up this search process, a hash table is created for jumping to the corresponding procedures. Since the memory addresses for the special forms can be determined before parsing the Lisp program, all of the symbols for the special forms have a fixed memory address. Therefore, the hash key can be created by subtracting an offset to the symbol's memory address, to point to a hashtable that is created near the register locations. This hashtable is provided in [memheader.eir](./src/memheader.eir). When the hash key is larger than the regions of this hashtable, it means that the symbol is not a special form, so the evaluation jumps to the lambda/macro invocation procedure.
 
 #### Usage of 2-bit headers to represent value types
 The Lisp implementation has 3 distinct value types, `ATOM`, `INT`, and `LAMBDA`. Each value only consumes one QFT byte of memory; the `ATOM` value holds the pointer to the symbol's string hashtable, the `INT` value holds the signed integer value, and `LAMBDA` holds a pointer to the `Lambda` struct, as well as its subtype information, of either `LAMBDA`, `MACRO`, `TEMPLAMBDA` and `TEMPMACRO`. (The `TEMPLAMBDA` and `TEMPMACRO` subtypes are lambda and macro types that recycles its argument value memory space every time it is called, but is unused in the final lisp programs.) Since the RAM's address space is only 10 bits, there are 6 free bits that can be used for addresses holding pointers. Therefore, the value type and subtype information is held in these free bits. This makes the integer in the Lisp implementation to be a 14-bit signed integer, ranging from -8192 to 8191.
@@ -556,6 +538,11 @@ This resulted in a total of exactly 8 opcodes, `ANT`, `XOR`, `SRE`, `SRU`, `SUB`
 
 #### Extended the ROM and RAM address space from 9,7-bit to 12,10-bit
 The original QFT architecture had a ROM and RAM address space of 9 and 7 bits. I extended the ROM and RAM address space to 12 and 10 bits, respectively. This was not a straightforward task as it first seemed, since the signal arrival timings between the modules had to be carefully adjusted in order for the signals to line up correctly. This involved reverse-engineering and experimenting undocumented VarLife pattern units used in the original QFT architecture. The same held for when redesigning other parts of the architecture.
+
+#### Reducing the Standard Input Size
+Since each byte of the RAM module can be ordered arbitrarily in the CPU's architecture, the RAM is arranged so that the standard output is written at the very bottom of the RAM module, and proceeds upwards. Therefore, the contents of the RAM can easily be observed in a Game of Life viewer by directly examining the bottom of the RAM module.
+
+Since RAM has 16 bits of memory per memory address, it allows to fit two ASCII-encoded characters per one address. Therefore, the standard input is read out by reading two characters per address. For the standard output, one character is written to one address for aesthetic reasons, so that the characters can be directly observed in a Game of Life viewer the pattern more easily. Also, for the standard output to proceed upwards within the RAM module pattern, the memory pointer for the standard output proceeds backwards in the memory space, while the pointer for the standard input proceeds forwards in the memory space.
 
 
 ### The Game of Life layer
