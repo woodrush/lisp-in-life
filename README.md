@@ -32,7 +32,7 @@ Examples of these optimizations include:
 A more detailed description of the optimizations done in this project is available in [details.md](./details.md).
 Details for building the interpreter's C source code is available in [build.md](./build.md).
 
-An overview of the build flow is as follows:
+An overview of the build flow is as follows (click for a larger view):
 
 ![The toolchain used for this project](./img/toolchain.png)
 

@@ -1,39 +1,34 @@
 digraph G {
     rankdir="LR"
 
-    C [label="Lisp Interpreter\nwritten in C" color="red" penwidth=2]
+    C [label="Lisp Interpreter\nwritten in C"]
 
-    C->eli [label="ELC"]
+    C->eli [label=" 8cc + ELC"]
 
-    subgraph cluster_0 {
-        label = "ELVM Toolchain"
-        labeljust = "r"
-        
-        eli [label="ELVM\nAssembly"]
+    eli [label="ELVM\nAssembly"]
 
-        elvmqftasm [label="Extended\nELVM QFTASM Backend" shape="rect" color="red" penwidth=2]
-        eli->elvmqftasm [color="red" penwidth=2]
-    } [label="ELVM"]
+    elvmqftasm [label="Extended\nELVM QFTASM Backend" shape="rect"]
+    eli->elvmqftasm
 
-    subgraph cluster_1 {
-        label = "QFT Toolchain"
-        labeljust = "r"
-        lheight = "10.0"
-  
-        QFTASMPP [label="QFTASMPP\nAssembly"]
-        elvmqftasm->QFTASMPP [color="red" penwidth=2]
+    QFTASMPP [label="QFTASM\nAssembly"]
+    elvmqftasm->QFTASMPP
 
-        QFTASMPPopt [label="QFTASM Optimizer\nand Preprocessor" shape="rect" color="red" penwidth=2]
-        QFTASMPP->QFTASMPPopt
+    QFTASMPPopt [label="QFTASM Optimizer\nand Preprocessor" shape="rect"]
+    QFTASMPP->QFTASMPPopt
 
-        QFTASM [label="QFTASM\nAssembly"]
-        QFTASMPPopt->QFTASM [color="red" penwidth=2]
+    QFTASM [label="Optimized\nQFTASM\nAssembly"]
+    QFTASMPPopt->QFTASM
 
 
-        QFTex [label="QFT Architecture\n(VarLife)"]
-        QFTASM -> QFTex [label="ROM Tiling"]
-    }
-    QFTgol [label="QFT Architecture\n(Game of Life)"]
-    QFTex -> QFTgol [taillabel="Metafier"]
+    QFTex [label="VarLife\nQFT Pattern"]
+    QFTASM -> QFTex [label=" ROM Tiling"]
 
+    QFTex_lisp [label="Lisp-Code-Loaded\nVarLife\nQFT Pattern"]
+    QFTex -> QFTex_lisp
+
+    QFTgol [label="Lisp-Code-Loaded\nConway's Game of Life\nQFT Pattern"]
+    QFTex_lisp -> QFTgol [label=" Metafier"]
+
+    LispCode [label="Lisp Code"]
+    LispCode -> QFTex_lisp
 }
