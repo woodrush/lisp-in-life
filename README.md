@@ -32,6 +32,10 @@ Examples of these optimizations include:
 A more detailed description of the optimizations done in this project is available in [details.md](./details.md).
 Details for building the interpreter's C source code is available in [build.md](./build.md).
 
+An overview of the build flow is as follows:
+
+![The toolchain used for this project](./img/toolchain.png)
+
 
 ## Screenshots
 ![An overview of the entire architecture.](./img/ss1.png)
@@ -40,7 +44,7 @@ An overview of the entire architecture.
 
 ![An overview of the CPU and its surrounding units.](./img/ss2.png)
 
-An overview of the CPU and its surrounding units. On the top are the ROM modules, with the lookup module on the right, and the value modules on the left. On the bottom right is the CPU. On the bottom left is the RAM module.
+An overview of the CPU and its surrounding modules. On the top are the ROM modules, with the lookup module on the right, and the value modules on the left. On the bottom left is the CPU. On the bottom right is the RAM module.
 
 This pattern is the VarLife version of the architecture. VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, which is used as an intermediate layer to create the final Conway's Game of Life pattern. The colors of the cells indicate the 8 distinct states of the VarLife rule.
 
@@ -49,12 +53,12 @@ The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/
 ![The Conway's Game of Life version of the architecture, converted from the VarLife pattern.](./img/ss3.png)
 
 The Conway's Game of Life version of the architecture, converted from the VarLife pattern.
-What appears to be single cells in this image are actually [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_metapixel) zoomed away to be shown 2048 times smaller.
+What appears to be a single cell in this image is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) zoomed away to be shown 2048 times smaller.
 
 ![A close-up view of a part of the ROM module in the Conway's Game of Life version.](./img/ss4.png)
 
 A close-up view of a part of the ROM module in the Conway's Game of Life version.
-Each pixel in the previous image is actually these square-shaped structures shown in this image.
+Each pixel in the previous image is actually this square-shaped structure shown in this image.
 These structures are [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_metapixel), which can be seen to be in the On and Off meta-states in this image.
 The OTCA metapixel is a special Conway's Game of Life pattern that can emulate cellular automatons with customized rules.
 The original VarLife pattern is simulated this way so that it can run in Conway's Game of Life.
@@ -71,7 +75,7 @@ A video of the RAM module of the QFT computer in the VarLife rule in action.
 
 ![The QFT computer showing the results of the computation of `(print (* 3 14))`.](./img/ss6.png)
 
-The QFT computer showing the results of the computation of the following Lisp program:
+The computer showing the results of the following Lisp program:
 
 ```lisp
 (print (* 3 14))
@@ -138,6 +142,7 @@ the computer is first created in VarLife, and then converted to a Game of Life p
 When converting VarLife to Conway's Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP).
 The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life.
 Each cell carries a binary meta-state and a pre-programmed rule.
+
 The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states and generations of the VarLife pattern
 matches exactly with the converted Game of Life pattern's meta-states and meta-generations.
 Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
@@ -202,7 +207,7 @@ The Lisp interpreter used in the Game of Life pattern can also be compiled with 
 
 ### Tests
 There are tests to check the behavior of the Lisp interpreter.
-There is a test for checking the QFTASM-compiled Lisp interpreter using the QFTASM interpreter, and a test for checking the GCC-compiled Lisp inter preter on the host pc.
+There is a test for checking the QFTASM-compiled Lisp interpreter using the QFTASM interpreter, and a test for checking the GCC-compiled Lisp interpreter on the host pc.
 To run these tests, use the following commands:
 
 ```sh
@@ -210,8 +215,10 @@ make test             # Run the tests for the QFTASM-compiled Lisp interpreter, 
 make test_executable  # Run the tests for the executable compiled by GCC
 ```
 
-Running `make test` requires [Hy](https://github.com/hylang/hy), a Clojure-like Lisp implemented in Python.
+Running `make test` requires [Hy](https://github.com/hylang/hy), a Clojure-like Lisp implemented in Python available via `pip install hy`.
 Some of the tests compare the output results of Hy and the output of the QFTASM Lisp interpreter.
+
+The tests were run on Ubuntu and Mac.
 
 
 ## How is it Done?

@@ -2,7 +2,7 @@
 
 This file explains how to load the Lisp interpreter (written in C) to the Game of Life pattern, and also how to load a custom Lisp program into the pattern to run it on Game of Life.
 
-The build process uses a custom Life-like rule called Varlife, defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project, as an intermediate representation for creating a working Conway's Game of Life pattern. Once you obtain the Game of Life pattern with the Lisp program loaded into the RAM, the pattern can be run on the Conway's Game of Life rule. The values of the RAM module of a running Game of Life pattern can also be read out any time. There is a work-in-progress script to also write a given program into a pattern with a blank RAM module, which allows one to load and run Lisp programs with operations closed in the Game of Life space.
+The build process uses a custom Life-like rule called Varlife, defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, as an intermediate representation for creating a working Conway's Game of Life pattern. Once you obtain the Game of Life pattern with the Lisp program loaded into the RAM, the pattern can be run on the Conway's Game of Life rule. The values of the RAM module of a running Game of Life pattern can also be read out any time. There is a work-in-progress script to also write a given program into a pattern with a blank RAM module, which allows one to load and run Lisp programs with operations closed in the Game of Life space.
 
 
 ## Requirements
