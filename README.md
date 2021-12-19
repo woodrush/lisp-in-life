@@ -65,8 +65,9 @@ The RAM module of the QFT computer converted to a Conway's Game of Life pattern 
 | [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
 
-Pattern files preloaded with various Lisp programs are available here. For details on each Lisp program, please see the Sample Lisp Programs section.
-Detailed statistics such as the running time and the memory consumption is available in the "Running Times and Stats" section.
+Pattern files preloaded with various Lisp programs are available here.
+Details of the Lisp programs are explained in the next section.
+Detailed statistics such as the running time and the memory consumption are available in the "Running Times and Stats" section.
 
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
 VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project, explained in detail in the next section.
@@ -118,32 +119,35 @@ Therefore, it is enough to verify the behavior of the VarLife pattern to verify 
 
 ## Running Times and Stats
 **VarLife Patterns**
-| Lisp Program                                           | Pattern (VarLife)                                                     | #QFT CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
-|--------------------------------------------------------|-----------------------------------------------------------------------|-----------------|------------------|--------------------------------|------------------------|--------------------------|
-| [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               |           4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                  5.0 GiB |
-| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator.mc](./patterns/QFT_z-combinator.mc)                 |          58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
-| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice.mc](./patterns/QFT_backquote-splice.mc)         |         142,353 |        869 bytes |          4,100,000,000         |            20.467 mins | 27.5 GiB (max. capacity) |
-| [backquote.lisp](backquote.lisp)                       | [QFT_backquote.mc](./patterns/QFT_backquote.mc)                       |         142,742 |        876 bytes |          4,100,000,000         |            21.663 mins | 27.5 GiB (max. capacity) |
-| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) |         161,843 |        838 bytes |          4,673,000,000         |            22.363 mins | 27.5 GiB (max. capacity) |
-| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 |         281,883 |        527 bytes |          8,880,000,000         |            27.543 mins | 27.5 GiB (max. capacity) |
-| [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             |         304,964 |        943 bytes |          9,607,100,000         |            38.334 mins | 27.5 GiB (max. capacity) |
+| Lisp Program                                           | Pattern (VarLife)                                                     | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
+|--------------------------------------------------------|-----------------------------------------------------------------------|-----------------|------------------------------|--------------------------------|------------------------|--------------------------|
+| [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               |           4,425 |                           92 |            105,413,068 (exact) |             1.159 mins |                  5.0 GiB |
+| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator.mc](./patterns/QFT_z-combinator.mc)                 |          58,883 |                          544 |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
+| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice.mc](./patterns/QFT_backquote-splice.mc)         |         142,353 |                          869 |          4,100,000,000         |            20.467 mins | 27.5 GiB (max. capacity) |
+| [backquote.lisp](backquote.lisp)                       | [QFT_backquote.mc](./patterns/QFT_backquote.mc)                       |         142,742 |                          876 |          4,100,000,000         |            21.663 mins | 27.5 GiB (max. capacity) |
+| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) |         161,843 |                          838 |          4,673,000,000         |            22.363 mins | 27.5 GiB (max. capacity) |
+| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 |         281,883 |                          527 |          8,880,000,000         |            27.543 mins | 27.5 GiB (max. capacity) |
+| [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             |         304,964 |                          943 |          9,607,100,000         |            38.334 mins | 27.5 GiB (max. capacity) |
 
 **Conway's Game of Life (GoL) Patterns**
-| Lisp Program                                           | Pattern (GoL)                                                                                    | #QFT CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|-----------------|------------------|----------------------------|--------------------|--------------------------|
-| [print.lisp](print.lisp)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |           4,425 |         92 bytes |         3,724,032,866,304  |      382.415 mins  | 27.5 GiB (max. capacity) |
-| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |          58,883 |        544 bytes |                         -  |                 -  |                        - |
-| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_z-combinator_metafied.mc](./patterns/metafied/QFT_z-combinator_metafied.mc)                 |         142,353 |        869 bytes |                         -  |                 -  |                        - |
-| [backquote.lisp](backquote.lisp)                       | [QFT_backquote-splice_metafied.mc](./patterns/metafied/QFT_backquote-splice_metafied.mc)         |         142,742 |        876 bytes |                         -  |                 -  |                        - |
-| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_backquote_metafied.mc](./patterns/metafied/QFT_backquote_metafied.mc)                       |         161,843 |        838 bytes |                         -  |                 -  |                        - |
-| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |         281,883 |        527 bytes |                         -  |                 -  |                        - |
-| [primes.lisp](primes.lisp)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |         304,964 |        943 bytes |                         -  |                 -  |                        - |
+| Lisp Program                                           | Pattern (GoL)                                                                                    | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
+|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|-----------------|------------------------------|----------------------------|--------------------|--------------------------|
+| [print.lisp](print.lisp)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |           4,425 |                           92 |         3,724,032,866,304  |      382.415 mins  | 27.5 GiB (max. capacity) |
+| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator_metafied.mc](./patterns/metafied/QFT_z-combinator_metafied.mc)                 |          58,883 |                          544 |        60,057,600,000,000  |                 -  |                        - |
+| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice_metafied.mc](./patterns/metafied/QFT_backquote-splice_metafied.mc)         |         142,353 |                          869 |                         -  |                 -  |                        - |
+| [backquote.lisp](backquote.lisp)                       | [QFT_backquote_metafied.mc](./patterns/metafied/QFT_backquote_metafied.mc)                       |         142,742 |                          876 |                         -  |                 -  |                        - |
+| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |         161,843 |                          838 |                         -  |                 -  |                        - |
+| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |         281,883 |                          527 |                         -  |                 -  |                        - |
+| [primes.lisp](primes.lisp)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |         304,964 |                          943 |                         -  |                 -  |                        - |
 
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
-The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences). The memory usage was measured by Ubuntu's activity monitor.
+The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).
+The memory usage was measured by Ubuntu's activity monitor.
 The number of CPU cycles and the QFT memory usage was obtained by running the QFTASM interpreter on the host PC.
+The QFT memory usage shows the number of RAM addresses that were written at least once.
+The memory usage is measured in QFT bytes. Since one RAM memory slot includes 16 bits, 1 QFT byte equals 16bits.
 
-Since one OTCA Metapixel has a size of 2048x2048, converting the VarLife pattern to a Conway's Game of Life pattern will expand the pattern size by a factor of 2048x2048.
+Since one OTCA Metapixel has a bounding box size of 2048x2048 (when tiled together), converting the VarLife pattern to a Conway's Game of Life pattern will expand the pattern size by a factor of 2048x2048.
 Also, since the OTCA Metapixel has a phase of 35,328 (according to [LifeWiki - OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel)), the number of Conway's Game of Life generations required becomes 35,328 times the number of required VarLife generations.
 Therefore, running the Game of Life (GoL) version is significantly slower than running the VarLife version.
 
@@ -170,22 +174,22 @@ This program can be compiled and run by using `make hello` and `make run_hello`.
 **VarLife Patterns**
 | C Program                       | Stdin                                           | ROM Size | #Population | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
 |---------------------------------|-------------------------------------------------|----------|-------------|-------------|------------------|--------------------------------|------------------------|------------------------|
-| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 |   4,928,762 |       4,425 |         92 bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
-| [lisp.c](./src/lisp.c)          | [z-combinator.lisp](z-combinator.lisp)          |     3223 |   4,928,762 |      58,883 |        544 bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
-| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |   2,933,214 |      29,214 |        223 bytes |            260,000,000         |             1.107 mins |                4.4 GiB |
+| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 |   4,928,762 |       4,425 |     92 QFT bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
+| [lisp.c](./src/lisp.c)          | [z-combinator.lisp](z-combinator.lisp)          |     3223 |   4,928,762 |      58,883 |    544 QFT bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |   2,933,214 |      29,214 |    223 QFT bytes |            260,000,000         |             1.107 mins |                4.4 GiB |
 
 **Conway's Game of Life Patterns**
 | C Program                       | Stdin                                           | ROM Size | #Population     | #CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
 |---------------------------------|-------------------------------------------------|----------|-----------------|-------------|------------------|----------------------------|--------------------|--------------------------|
-| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 | 117,849,149,453 |       4,425 |         92 bytes |          3,724,032,866,304 |       382.415 mins | 27.5 GiB (max. capacity) |
-| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |        223 bytes |          9,185,280,000,000 |      1322.537 mins | 27.5 GiB (max. capacity) |
+| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 | 117,849,149,453 |       4,425 |     92 QFT bytes |          3,724,032,866,304 |       382.415 mins | 27.5 GiB (max. capacity) |
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |    223 QFT bytes |          9,185,280,000,000 |      1322.537 mins | 27.5 GiB (max. capacity) |
 
 The stats comparison for the Hello World program and the Lisp interpreter are shown above.
 The ROM size is the number of rows in the ROM module, which is equivalent to the number of lines in the QFTASM file.
 
 Despite the size of the number of CPU cycles, since the ROM size is significantly smaller for hello.c than lisp.c,
 the program runs significantly faster both in terms of the actual running time and the generations per CPU cycle.
-The generations per CPU cycle rate is 8899.84 for hello.c.
+The generations per CPU cycle is 8899.84 for hello.c.
 
 
 ### Loading and Running Your Own Lisp and C Programs
@@ -199,6 +203,19 @@ Further details are available in [build.md](./build.md).
 Instructions for building the Game of Life pattern from the Lisp interpreter's C source ([lisp.c](./src/lisp.c)) is available in [build.md](./build.md).
 
 The Lisp interpreter used in the Game of Life pattern can also be compiled with GCC. The details for this are available in [build.md](./build.md) as well.
+
+### Tests
+There are tests to check the behavior of the Lisp interpreter.
+There is a test for checking the QFTASM-compiled Lisp interpreter using the QFTASM interpreter, and a test for checking the GCC-compiled Lisp inter preter on the host pc.
+To run these tests, use the following commands:
+
+```sh
+make test             # Run the tests for the QFTASM-compiled Lisp interpreter, using the QFTASM interpreter
+make test_executable  # Run the tests for the executable compiled by GCC
+```
+
+Running `make test` requires [Hy](https://github.com/hylang/hy), a Clojure-like Lisp implemented in Python.
+Some of the tests compare the output results of Hy and the output of the QFTASM Lisp interpreter.
 
 
 ## How is it Done?
