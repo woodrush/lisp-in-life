@@ -162,36 +162,6 @@ The required number of generations per CPU cycle depends on many factors such as
 For example, print.lisp has a rate of 23822.16 generations per CPU cycle (GpC), but z-combinator.lisp has a rate of 28870.81 GpC, and primes-print.lisp has 31502.43 GpC. 23822.16 GpC is in fact insufficient for z-combinator.lisp to finish running, and 28870.81 is also insufficient for primes-print.lisp to finish running.
 
 
-## Patterns for the Sample C Program
-The patterns for the sample C program ([hello.c](./misc/hello/hello.c)) are available here:
-- VarLife pattern: [QFT_hello.mc](./patterns/QFT_hello.mc)
-- Conway's Game of Life Pattern: [QFT_hello_metafied.mc](./patterns/metafied/QFT_hello_metafied.mc)
-
-This program can be compiled and run by using `make hello` and `make run_hello`. Further details are available in [build.md](./build.md).
-
-
-### Stats for the Sample C Program
-**VarLife Patterns**
-| C Program                       | Stdin                                           | ROM Size | #Population | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
-|---------------------------------|-------------------------------------------------|----------|-------------|-------------|------------------|--------------------------------|------------------------|------------------------|
-| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 |   4,928,762 |       4,425 |     92 QFT bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
-| [lisp.c](./src/lisp.c)          | [z-combinator.lisp](z-combinator.lisp)          |     3223 |   4,928,762 |      58,883 |    544 QFT bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
-| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |   2,933,214 |      29,214 |    223 QFT bytes |            260,000,000         |             1.107 mins |                4.4 GiB |
-
-**Conway's Game of Life Patterns**
-| C Program                       | Stdin                                           | ROM Size | #Population     | #CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|---------------------------------|-------------------------------------------------|----------|-----------------|-------------|------------------|----------------------------|--------------------|--------------------------|
-| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 | 117,849,149,453 |       4,425 |     92 QFT bytes |          3,724,032,866,304 |       382.415 mins | 27.5 GiB (max. capacity) |
-| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |    223 QFT bytes |          9,185,280,000,000 |      1322.537 mins | 27.5 GiB (max. capacity) |
-
-The stats comparison for the Hello World program and the Lisp interpreter are shown above.
-The ROM size is the number of rows in the ROM module, which is equivalent to the number of lines in the QFTASM file.
-
-Despite the size of the number of CPU cycles, since the ROM size is significantly smaller for hello.c than lisp.c,
-the program runs significantly faster both in terms of the actual running time and the generations per CPU cycle.
-The generations per CPU cycle is 8899.84 for hello.c.
-
-
 ### Loading and Running Your Own Lisp and C Programs
 You can load your own Lisp program into the Lisp interpreter pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
 

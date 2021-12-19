@@ -110,7 +110,9 @@ Methods for running and viewing the results is basically the same for Varlife, e
 - RAM module state interpretation: The RAM bits are stored in the meta-cells with the same meta-locations of the Varlife pattern. The populated and unpopulated meta-states correspond to the bits 0 and 1, respectively.
 - Viewing the RAM content summary: `QFT_ram_reader_metafied.py` is used to view the RAM content summary. The metafied version requires additional parameters due to the metafication process. The details are described in the following paragraph.
 
-When using `QFT_ram_reader_metafied.py`, you will be prompted to input the coordinates of a certain cell within the pattern. This cell is located in the most top-left RAM cell, in the RAM's bit storage meta-cells, in the top-left corner of the OTCA metapixel where there is a [beehive](https://www.conwaylife.com/wiki/Beehive) pattern (shown below). Below is a map to find the specific cell required for the input prompt. Use Golly to find the coordinates of this cell, and input it in the prompt.
+When using `QFT_ram_reader_metafied.py`, you will be prompted to input the coordinates of a certain cell within the pattern. This cell is located in the most top-left RAM cell, in the RAM's bit storage meta-cells, in the top-left corner of the OTCA metapixel where there is a [beehive](https://www.conwaylife.com/wiki/Beehive) pattern (shown below). The values should be `-65648599, -13895568`.
+
+Below is a map to find the specific cell required for the input prompt. Use Golly to find the coordinates of this cell, and input it in the prompt.
 
 ![Map 1](./img/metafied_map_1.png)
 
@@ -169,3 +171,46 @@ This requires installing the Python package matplotlib, by running
 ```sh
 pip install matplotlib
 ```
+
+
+## Compiling the Sample C Program
+The sample C program can be compiled and run by the following commands:
+
+```sh
+make hello
+make run_hello
+```
+
+This creates `./out/hello.qftasm`. This QFTASM does not require `ramdump.csv` to be preloaded into the RAM module for it to run correctly.
+To load the QFTASM file to a VarLife pattern, follow Step 2 ("2. Building the Varlife pattern for the Lisp interpreter").
+To provide standard input to the program, follow Step 3. Using `ramdump.csv` can be skipped if your program does not require any preloading to the RAM.
+
+
+### Patterns for the Sample C Program
+The patterns for the sample C program ([hello.c](./misc/hello/hello.c)) are available here:
+- VarLife pattern: [QFT_hello.mc](./patterns/QFT_hello.mc)
+- Conway's Game of Life Pattern: [QFT_hello_metafied.mc](./patterns/metafied/QFT_hello_metafied.mc)
+
+This program can be compiled and run by using `make hello` and `make run_hello`. Further details are available in [build.md](./build.md).
+
+
+### Stats for the Sample C Program
+**VarLife Patterns**
+| C Program                       | Stdin                                           | ROM Size | #Population | #CPU Cycles | QFT Memory Usage | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife) |
+|---------------------------------|-------------------------------------------------|----------|-------------|-------------|------------------|--------------------------------|------------------------|------------------------|
+| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 |   4,928,762 |       4,425 |     92 QFT bytes |            105,413,068 (exact) |             1.159 mins |                5.0 GiB |
+| [lisp.c](./src/lisp.c)          | [z-combinator.lisp](z-combinator.lisp)          |     3223 |   4,928,762 |      58,883 |    544 QFT bytes |          1,700,000,000         |             9.823 mins |               23.4 GiB |
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |   2,933,214 |      29,214 |    223 QFT bytes |            260,000,000         |             1.107 mins |                4.4 GiB |
+
+**Conway's Game of Life Patterns**
+| C Program                       | Stdin                                           | ROM Size | #Population     | #CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
+|---------------------------------|-------------------------------------------------|----------|-----------------|-------------|------------------|----------------------------|--------------------|--------------------------|
+| [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 | 117,849,149,453 |       4,425 |     92 QFT bytes |          3,724,032,866,304 |       382.415 mins | 27.5 GiB (max. capacity) |
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |    223 QFT bytes |          9,185,280,000,000 |      1322.537 mins | 27.5 GiB (max. capacity) |
+
+The stats comparison for the sample program and the Lisp interpreter are shown above.
+The ROM size is the number of rows in the ROM module, which is equivalent to the number of lines in the QFTASM file.
+
+Despite the size of the number of CPU cycles, since the ROM size is significantly smaller for hello.c than lisp.c,
+the program runs significantly faster both in terms of the actual running time and the generations per CPU cycle.
+The generations per CPU cycle is 8899.84 for hello.c.
