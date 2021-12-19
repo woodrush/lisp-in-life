@@ -11,30 +11,7 @@ The Lisp program is provided by editing certain cells within the pattern to repr
 The interpreter writes its standard output to the bottom end of the RAM module, which can be directly examined in a Game of Life viewer.
 The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
-The compilation is done using [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). (I implemented the Game of Life backend for ELVM myself for this project. The backend is further modified (available in the submodule) for supporting QFT-specific optimizations.)
-
-Using the build system for this project, you can also compile your own C11-compatible C code and run in on Conway's Game of Life.
-Please see [build.md](./build.md) for more details.
-
-
-### Implementations and Optimizations
-Generating a short enough Lisp interpreter assembly code and a Game of Life pattern that runs in a reasonable amount of time required a lot of effort.
-This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, Game of Life layer, the C program layer, etc.
-Examples of these optimizations include:
-
-- The C Compiler layer - adding the [computed goto](https://en.wikipedia.org/wiki/Goto#Computed_GOTO_and_Assigned_GOTO) feature to the C compiler, preserving address symbols to be used after compilation, etc.
-- The C layer (the [Lisp interpreter](./src/lisp.c)) - using a string hashtable and binary search for Lisp symbol lookup, minimization of stack region usage with union memory structures, careful memory region map design, etc.
-- The QFTASM layer - writing a [compiler optimizer](./src/qftasmopt.py) to optimize the length of the assembly code
-- The VarLife layer - creating a lookup table architecture for faster ROM access, expanding the size and length of the RAM module, adding new opcodes, etc.
-- The Game of Life layer - [Hashlife](https://en.wikipedia.org/wiki/Hashlife)-specific optimization
-
-A more detailed description of the optimizations done in this project is available in [details.md](./details.md).
-Details for building the interpreter's C source code is available in [build.md](./build.md).
-
-An overview of the build flow is as follows (click for a larger view):
-
-![The toolchain used for this project](./img/toolchain.png)
+The [Lisp interpreter](./src/lisp.c) is written in C. Using the build system for this project, you can also compile your own C11-compatible C code and run in on Conway's Game of Life.
 
 
 ## Screenshots
@@ -84,6 +61,41 @@ The computer showing the results of the following Lisp program:
 The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
 
 
+## How is it Done?
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
+The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of Life backend for ELVM was implemented by myself. The backend and the compiler is further modified for supporting QFT-specific optimizations (available in the submodule).
+
+Generating a short enough Lisp interpreter assembly code and a Game of Life pattern that runs in a reasonable amount of time required a lot of effort.
+This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, Game of Life layer, the C program layer, etc.
+Examples of these optimizations include:
+
+- The C Compiler layer - adding the [computed goto](https://en.wikipedia.org/wiki/Goto#Computed_GOTO_and_Assigned_GOTO) feature to the C compiler, preserving address symbols to be used after compilation, etc.
+- The C layer (the [Lisp interpreter](./src/lisp.c)) - using a string hashtable and binary search for Lisp symbol lookup, minimization of stack region usage with union memory structures, careful memory region map design, etc.
+- The QFTASM layer - writing a [compiler optimizer](./src/qftasmopt.py) to optimize the length of the assembly code
+- The VarLife layer - creating a lookup table architecture for faster ROM access, expanding the size and length of the RAM module, adding new opcodes, etc.
+- The Game of Life layer - [Hashlife](https://en.wikipedia.org/wiki/Hashlife)-specific optimization
+
+A more detailed description of the optimizations done in this project is available in [details.md](./details.md).
+Details for building the interpreter's C source code is available in [build.md](./build.md).
+
+
+### Conversion from VarLife to Conway's Game of Life
+VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project.
+It is used as an intermediate layer to generate the final Conway's Game of Life pattern;
+the computer is first created in VarLife, and then converted to a Game of Life pattern.
+
+When converting VarLife to Conway's Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP).
+The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life.
+Each cell carries a binary meta-state and a pre-programmed rule.
+
+The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states of the VarLife pattern matches exactly with the meta-states of the OTCA Metapixels in the converted Game of Life pattern.
+Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
+
+Since one OTCA Metapixel has a bounding box size of 2048x2048 (when tiled together), converting the VarLife pattern to a Conway's Game of Life pattern will expand the pattern size by a factor of 2048x2048.
+Also, since the OTCA Metapixel has a phase of 35,328 (according to [LifeWiki - OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel)), the number of Conway's Game of Life generations required becomes 35,328 times the number of required VarLife generations.
+Therefore, the VarLife patterns run significantly faster than the Game of Life (GoL) version.
+
+
 ## Pattern Files
 | Program                                                | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |--------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
@@ -96,12 +108,11 @@ The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in b
 | [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
 
 Pattern files preloaded with various Lisp programs are available here.
-Details of the Lisp programs are explained in the next section.
-Detailed statistics such as the running time and the memory consumption are available in the "Running Times and Stats" section.
+Details of the Lisp programs are explained later.
+Detailed statistics such as the running time and the memory consumption are available in the "Running Times and Statistics" section.
 
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
-VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, explained in detail in the next section.
-VarLife patterns can be simulated on Golly as well, which requires additional settings. Please see [build.md](./build.md) for a detailed description.
+The VarLife patterns can be simulated on Golly as well, which requires additional settings described in [build.md](./build.md).
 
 
 ### Descriptions of the Lisp Programs
@@ -133,43 +144,39 @@ backquote.lisp doesn't implement the unquote-splice operation, and demonstrates 
 primes-print.lisp reduces the number of list operations to save memory usage.
 
 
+## Running Times and Statistics
+**Common Statistics**
+| Lisp Program                                           | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) |
+|------------------------------------------------------- |-----------------|------------------------------|
+| [print.lisp](print.lisp)                               |           4,425 |                           92 |
+| [z-combinator.lisp](z-combinator.lisp)                 |          58,883 |                          544 |
+| [backquote-splice.lisp](backquote-splice.lisp)         |         142,353 |                          869 |
+| [backquote.lisp](backquote.lisp)                       |         142,742 |                          876 |
+| [object-oriented-like.lisp](object-oriented-like.lisp) |         161,843 |                          838 |
+| [primes-print.lisp](primes-print.lisp)                 |         281,883 |                          527 |
+| [primes.lisp](primes.lisp)                             |         304,964 |                          943 |
 
-### What is VarLife?
-VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project.
-It is used as an intermediate layer to generate the final Conway's Game of Life pattern;
-the computer is first created in VarLife, and then converted to a Game of Life pattern.
-
-When converting VarLife to Conway's Game of Life, each VarLife cell is mapped to an [OTCA Metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP).
-The OTCA Metapixel is a special pattern that is capable of emulating a different game-of-life-like rule within the Game of Life.
-Each cell carries a binary meta-state and a pre-programmed rule.
-
-The conversion from VarLife to the Game of Life is done in a way so that the behavior of the states and generations of the VarLife pattern
-matches exactly with the converted Game of Life pattern's meta-states and meta-generations.
-Therefore, it is enough to verify the behavior of the VarLife pattern to verify the behavior of the Game of Life pattern.
-
-
-## Running Times and Stats
 **VarLife Patterns**
-| Lisp Program                                           | Pattern (VarLife)                                                     | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
-|--------------------------------------------------------|-----------------------------------------------------------------------|-----------------|------------------------------|--------------------------------|------------------------|--------------------------|
-| [print.lisp](print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               |           4,425 |                           92 |            105,413,068 (exact) |             1.159 mins |                  5.0 GiB |
-| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator.mc](./patterns/QFT_z-combinator.mc)                 |          58,883 |                          544 |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
-| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice.mc](./patterns/QFT_backquote-splice.mc)         |         142,353 |                          869 |          4,100,000,000         |            20.467 mins | 27.5 GiB (max. capacity) |
-| [backquote.lisp](backquote.lisp)                       | [QFT_backquote.mc](./patterns/QFT_backquote.mc)                       |         142,742 |                          876 |          4,100,000,000         |            21.663 mins | 27.5 GiB (max. capacity) |
-| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like.mc](./patterns/QFT_object-oriented-like.mc) |         161,843 |                          838 |          4,673,000,000         |            22.363 mins | 27.5 GiB (max. capacity) |
-| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 |         281,883 |                          527 |          8,880,000,000         |            27.543 mins | 27.5 GiB (max. capacity) |
-| [primes.lisp](primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             |         304,964 |                          943 |          9,607,100,000         |            38.334 mins | 27.5 GiB (max. capacity) |
+| Lisp Program and Pattern (VarLife)                                                                         | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
+|------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
+| [print.lisp](print.lisp)                               [[pattern](./patterns/QFT_print.mc)]                |            105,413,068 (exact) |             1.159 mins |                  5.0 GiB |
+| [z-combinator.lisp](z-combinator.lisp)                 [[pattern](./patterns/QFT_z-combinator.mc)]         |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
+| [backquote-splice.lisp](backquote-splice.lisp)         [[pattern](./patterns/QFT_backquote-splice.mc)]     |          4,100,000,000         |            20.467 mins | 27.5 GiB (max. capacity) |
+| [backquote.lisp](backquote.lisp)                       [[pattern](./patterns/QFT_backquote.mc)]            |          4,100,000,000         |            21.663 mins | 27.5 GiB (max. capacity) |
+| [object-oriented-like.lisp](object-oriented-like.lisp) [[pattern](./patterns/QFT_object-oriented-like.mc)] |          4,673,000,000         |            22.363 mins | 27.5 GiB (max. capacity) |
+| [primes-print.lisp](primes-print.lisp)                 [[pattern](./patterns/QFT_primes-print.mc)]         |          8,880,000,000         |            27.543 mins | 27.5 GiB (max. capacity) |
+| [primes.lisp](primes.lisp)                             [[pattern](./patterns/QFT_primes.mc)]               |          9,607,100,000         |            38.334 mins | 27.5 GiB (max. capacity) |
 
 **Conway's Game of Life (GoL) Patterns**
-| Lisp Program                                           | Pattern (GoL)                                                                                    | #QFT CPU Cycles | QFT Memory Usage (QFT bytes) | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|--------------------------------------------------------|--------------------------------------------------------------------------------------------------|-----------------|------------------------------|----------------------------|--------------------|--------------------------|
-| [print.lisp](print.lisp)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |           4,425 |                           92 |         3,724,032,866,304  |      382.415 mins  | 27.5 GiB (max. capacity) |
-| [z-combinator.lisp](z-combinator.lisp)                 | [QFT_z-combinator_metafied.mc](./patterns/metafied/QFT_z-combinator_metafied.mc)                 |          58,883 |                          544 |        60,057,600,000,000  |                 -  |                        - |
-| [backquote-splice.lisp](backquote-splice.lisp)         | [QFT_backquote-splice_metafied.mc](./patterns/metafied/QFT_backquote-splice_metafied.mc)         |         142,353 |                          869 |                         -  |                 -  |                        - |
-| [backquote.lisp](backquote.lisp)                       | [QFT_backquote_metafied.mc](./patterns/metafied/QFT_backquote_metafied.mc)                       |         142,742 |                          876 |                         -  |                 -  |                        - |
-| [object-oriented-like.lisp](object-oriented-like.lisp) | [QFT_object-oriented-like_metafied.mc](./patterns/metafied/QFT_object-oriented-like_metafied.mc) |         161,843 |                          838 |                         -  |                 -  |                        - |
-| [primes-print.lisp](primes-print.lisp)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |         281,883 |                          527 |                         -  |                 -  |                        - |
-| [primes.lisp](primes.lisp)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |         304,964 |                          943 |                         -  |                 -  |                        - |
+| Lisp Program and Pattern (GoL)                                                                                               | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
+|------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
+| [print.lisp](print.lisp)                               [[pattern](./patterns/metafied/QFT_print_metafied.mc)]                |         3,724,032,866,304  |      382.415 mins  | 27.5 GiB (max. capacity) |
+| [z-combinator.lisp](z-combinator.lisp)                 [[pattern](./patterns/metafied/QFT_z-combinator_metafied.mc)]         |        60,057,600,000,000  |                 -  |                        - |
+| [backquote-splice.lisp](backquote-splice.lisp)         [[pattern](./patterns/metafied/QFT_backquote-splice_metafied.mc)]     |       144,844,800,000,000  |                 -  |                        - |
+| [backquote.lisp](backquote.lisp)                       [[pattern](./patterns/metafied/QFT_backquote_metafied.mc)]            |       144,844,800,000,000  |                 -  |                        - |
+| [object-oriented-like.lisp](object-oriented-like.lisp) [[pattern](./patterns/metafied/QFT_object-oriented-like_metafied.mc)] |       165,087,744,000,000  |                 -  |                        - |
+| [primes-print.lisp](primes-print.lisp)                 [[pattern](./patterns/metafied/QFT_primes-print_metafied.mc)]         |       313,712,640,000,000  |                 -  |                        - |
+| [primes.lisp](primes.lisp)                             [[pattern](./patterns/metafied/QFT_primes_metafied.mc)]               |       339,399,628,800,000  |                 -  |                        - |
 
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
 The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).
@@ -178,26 +185,9 @@ The number of CPU cycles and the QFT memory usage was obtained by running the QF
 The QFT memory usage shows the number of RAM addresses that were written at least once.
 The memory usage is measured in QFT bytes. Since one RAM memory slot includes 16 bits, 1 QFT byte equals 16bits.
 
-Since one OTCA Metapixel has a bounding box size of 2048x2048 (when tiled together), converting the VarLife pattern to a Conway's Game of Life pattern will expand the pattern size by a factor of 2048x2048.
-Also, since the OTCA Metapixel has a phase of 35,328 (according to [LifeWiki - OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel)), the number of Conway's Game of Life generations required becomes 35,328 times the number of required VarLife generations.
-Therefore, running the Game of Life (GoL) version is significantly slower than running the VarLife version.
-
 After the program counter is set to 65535 and the program exits, no more ROM and RAM I/O signals become apparent in the entire module.
 This makes the VarLife pattern becomes completely stationary, where every pattern henceforth becomes completely identical.
 Defining this as the halting time for the calculation, the pattern for [print.lisp](print.lisp) halts at exactly 105,413,068 VarLife generations.
-By generation 105,387,540, the value 65535 gets written to the program counter. At generation 105,413,067, the last signal becomes just one step from disappearing, and at generation 105,413,068 and onwards, the pattern becomes completely stationary and every pattern becomes identical to each other.
-In the Game of Life version, since the OTCA Metapixel continues running indefinitely, the pattern does not become completly stationary, but the meta-states of the OTCA Metapixels will become completely stationary, since it is an emulation of the VarLife pattern.
-Note that the halting times for programs other than print.lisp is just a sufficient number of generations, and not the exact values.
-
-The required number of generations per CPU cycle depends on many factors such as the ROM and RAM addresses and the types of opcodes, since the arriving times of the I/O signals depend on factors such as these as well. This makes the number of generations required for the program to halt become different between each program.
-For example, print.lisp has a rate of 23822.16 generations per CPU cycle (GpC), but z-combinator.lisp has a rate of 28870.81 GpC, and primes-print.lisp has 31502.43 GpC. 23822.16 GpC is in fact insufficient for z-combinator.lisp to finish running, and 28870.81 is also insufficient for primes-print.lisp to finish running.
-
-
-### Loading and Running Your Own Lisp and C Programs
-You can load your own Lisp program into the Lisp interpreter pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
-
-You can also compile your own C program and run it on the Game of Life, by using the build system used for [hello.c](./misc/hello/hello.c)).
-Further details are available in [build.md](./build.md).
 
 
 ## Building from Source
@@ -219,6 +209,13 @@ Running `make test` requires [Hy](https://github.com/hylang/hy), a Clojure-like 
 Some of the tests compare the output results of Hy and the output of the QFTASM Lisp interpreter.
 
 The tests were run on Ubuntu and Mac.
+
+
+### Loading and Running Your Own Lisp and C Programs
+You can load your own Lisp program into the Lisp interpreter pattern and run it on Game of Life. This is explained in detail in [./build.md](./build.md).
+
+You can also compile your own C program and run it on the Game of Life, by using the build system used for [hello.c](./misc/hello/hello.c)).
+Further details are available in [build.md](./build.md).
 
 
 ## Details of the Lisp Interpreter

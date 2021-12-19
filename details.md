@@ -50,3 +50,12 @@ Since RAM has 16 bits of memory per memory address, it allows to fit two ASCII-e
 ### The Game of Life layer
 - Improved the metafier script so that it could handle large patterns, by improving the memory usage of the memoization procedure
 - Aligned the pattern to 8x8 Varlife cells, to reduce the resulting [Macrocell](https://www.conwaylife.com/wiki/Macrocell) format output (Since the Macrocell format is the data structure used for the [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm, I believe this serves for optimization in the Hashlife layer)
+
+## Miscellaneous
+### Halting Time
+For the VarLife pattern of [print.lisp](print.lisp), by generation 105,387,540, the value 65535 gets written to the program counter. At generation 105,413,067, the last signal becomes just one step from disappearing, and at generation 105,413,068 and onwards, the pattern becomes completely stationary and every pattern becomes identical to each other.
+In the Game of Life version, since the OTCA Metapixel continues running indefinitely, the pattern does not become completly stationary, but the meta-states of the OTCA Metapixels will become completely stationary, since it is an emulation of the VarLife pattern.
+Note that the halting times for programs other than print.lisp is just a sufficient number of generations, and not the exact values.
+
+The required number of generations per CPU cycle depends on many factors such as the ROM and RAM addresses and the types of opcodes, since the arriving times of the I/O signals depend on factors such as these as well. This makes the number of generations required for the program to halt become different between each program.
+For example, print.lisp has a rate of 23822.16 generations per CPU cycle (GpC), but z-combinator.lisp has a rate of 28870.81 GpC, and primes-print.lisp has 31502.43 GpC. 23822.16 GpC is in fact insufficient for z-combinator.lisp to finish running, and 28870.81 is also insufficient for primes-print.lisp to finish running.

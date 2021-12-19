@@ -1,6 +1,4 @@
 digraph G {
-    rankdir="LR"
-
     C [label="Lisp Interpreter\nwritten in C"]
 
     C->eli [label=" 8cc + ELC"]
