@@ -2,7 +2,7 @@
 
 It's not Conway's Game of Life implemented in Lisp - it's a Lisp interpreter implemented in Conway's Game of Life.
 
-The entire pattern is viewable on the browser [here]().
+The entire pattern is viewable on the browser [here](https://woodrush.github.io/lisp-in-life).
 
 
 ## Running Lisp and C on the Game of Life
