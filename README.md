@@ -178,8 +178,7 @@ This program can be compiled and run by using `make hello` and `make run_hello`.
 | C Program                       | Stdin                                           | ROM Size | #Population     | #CPU Cycles | QFT Memory Usage | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
 |---------------------------------|-------------------------------------------------|----------|-----------------|-------------|------------------|----------------------------|--------------------|--------------------------|
 | [lisp.c](./src/lisp.c)          | [print.lisp](print.lisp)                        |     3223 | 117,849,149,453 |       4,425 |         92 bytes |          3,724,032,866,304 |       382.415 mins | 27.5 GiB (max. capacity) |
-| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |        223 bytes |          9,185,280,000,000 |                    |                          |
-
+| [hello.c](./misc/hello/hello.c) | [hello_stdin.txt](./misc/hello/hello_stdin.txt) |      361 |  70,095,748,243 |      29,214 |        223 bytes |          9,185,280,000,000 |      1322.537 mins | 27.5 GiB (max. capacity) |
 
 The stats comparison for the Hello World program and the Lisp interpreter are shown above.
 The ROM size is the number of rows in the ROM module, which is equivalent to the number of lines in the QFTASM file.
