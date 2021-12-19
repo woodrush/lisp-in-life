@@ -11,7 +11,7 @@ The Lisp program is provided by editing certain cells within the pattern to repr
 The interpreter writes its standard output to the bottom end of the RAM module, which can be directly examined in a Game of Life viewer.
 The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
-The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) project.
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
 The compilation is done using [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). (I implemented the Game of Life backend for ELVM myself for this project. The backend is further modified (available in the submodule) for supporting QFT-specific optimizations.)
 
 Using the build system for this project, you can also compile your own C11-compatible C code and run in on Conway's Game of Life.
@@ -34,24 +34,50 @@ Details for building the interpreter's C source code is available in [build.md](
 
 
 ## Screenshots
-![An animation of the RAM module of the QFT computer in the VarLife rule, while it is running.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
+![An overview of the entire architecture.](./img/ss1.png)
+
+An overview of the entire architecture.
+
+![An overview of the CPU and its surrounding units.](./img/ss2.png)
+
+An overview of the CPU and its surrounding units. On the top are the ROM modules, with the lookup module on the right, and the value modules on the left. On the bottom right is the CPU. On the bottom left is the RAM module.
+
+This pattern is the VarLife version of the architecture. VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, which is used as an intermediate layer to create the final Conway's Game of Life pattern. The colors of the cells indicate the 8 distinct states of the VarLife rule.
+
+The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT). Various modifications were made from the original architecture, such as removing and adding new opcodes, creating a new lookup table architecture for the ROM module, reducing the bit length of the instruction size, extending the RAM address space, etc.
+
+![The Conway's Game of Life version of the architecture, converted from the VarLife pattern.](./img/ss3.png)
+
+The Conway's Game of Life version of the architecture, converted from the VarLife pattern.
+What appears to be single cells in this image are actually [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_metapixel) zoomed away to be shown 2048 times smaller.
+
+![A close-up view of a part of the ROM module in the Conway's Game of Life version.](./img/ss4.png)
+
+A close-up view of a part of the ROM module in the Conway's Game of Life version.
+Each pixel in the previous image is actually these square-shaped structures shown in this image.
+These structures are [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_metapixel), which can be seen to be in the On and Off meta-states in this image.
+The OTCA metapixel is a special Conway's Game of Life pattern that can emulate cellular automatons with customized rules.
+The original VarLife pattern is simulated this way so that it can run in Conway's Game of Life.
+
+![A close-up view of a part of the ROM module in the Conway's Game of Life version.](./img/ss5.png)
+
+The ALU unit in the CPU. From the left are the modules for the `ANT`, `XOR`, `SRE`, `SRU`, `SUB`, `ADD`, `MLZ`, and the `MNZ` opcodes.
+
+The `SRE` and the `SRU` opcodes were newly added for this project.
+
+![A video of the RAM module of the QFT computer in the VarLife rule in action.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
 
 A video of the RAM module of the QFT computer in the VarLife rule in action.
-The colors of the cells represent the 8 distinct states of the VarLife rule.
 
-![The QFT computer showing the results of the computation.](./img/lisp_512B_ram_printstdin_results_QFT.mc.gif)
+![The QFT computer showing the results of the computation of `(print (* 3 14))`.](./img/ss6.png)
 
-The QFT computer showing the results of the computation of the following code:
+The QFT computer showing the results of the computation of the following Lisp program:
 
 ```lisp
 (print (* 3 14))
 ```
 
 The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
-
-![The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running.](./img/lisp_512B_ram_printstdin_QFT.mc.png)
-
-The RAM module of the QFT computer converted to a Conway's Game of Life pattern while running. Each "cell" visible here is actually an [OTCA metapixel](https://www.conwaylife.com/wiki/OTCA_metapixel) (OTCAMP) zoomed far away.
 
 
 ## Pattern Files
@@ -70,7 +96,7 @@ Details of the Lisp programs are explained in the next section.
 Detailed statistics such as the running time and the memory consumption are available in the "Running Times and Stats" section.
 
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
-VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project, explained in detail in the next section.
+VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, explained in detail in the next section.
 VarLife patterns can be simulated on Golly as well, which requires additional settings. Please see [build.md](./build.md) for a detailed description.
 
 
@@ -105,7 +131,7 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 
 
 ### What is VarLife?
-VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life) (QFT) Project.
+VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project.
 It is used as an intermediate layer to generate the final Conway's Game of Life pattern;
 the computer is first created in VarLife, and then converted to a Game of Life pattern.
 
@@ -197,7 +223,7 @@ The final Game of Life pattern (GoL) for the Lisp interpreter is created by port
 
 [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine) is a toolchain intended to compile C programs to various target languages. It consists of a frontend and a backend, where the frontend compiles C code to the ELVM assembly language, and the backend compiles the ELVM assembly language to the target language.
 
-[The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT) is a collaborative project that creates a computer that runs Tetris in the Game of Life. The computer is created by first defining a virtual Harvard architecture RISC CPU (which I will refer to as the QFT architecture, or simply QFT) that runs an assembly language called QFTASM. The project is explained in detail in this [Stack Exchange post](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life).
+[The Quest For Tetris](https://github.com/QuestForTetris/QFT) (QFT) is a collaborative project that creates a computer that runs Tetris in the Game of Life. The computer is created by first defining a virtual Harvard architecture RISC CPU (which I will refer to as the QFT architecture, or simply QFT) that runs an assembly language called QFTASM. The project is explained in detail in this [Stack Exchange post](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673).
 
 In this project, starting from these two existing works, I first wrote the [ELVM QFTASM backend](https://github.com/shinh/elvm/tree/master/tools/qftasm). This module allows the ELVM toolchain to compile ELVM assembly to QFTASM, which means creating a pathway for compiling C code and porting it to the Game of Life. Therefore, I then wrote the Lisp interpreter in C.
 
