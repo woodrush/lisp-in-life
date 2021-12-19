@@ -1,4 +1,4 @@
-(define counter
+(define Counter
   (lambda (n)
     (lambda (methodname)
       (if (eq methodname (quote inc))
@@ -15,8 +15,8 @@
 (define new (lambda (x) (x)))
 
 
-(define counter1 (new counter))
-(define counter2 (new counter))
+(define counter1 (new Counter))
+(define counter2 (new Counter))
 
 ((. counter1 set) 0)
 ((. counter2 set) 8)
