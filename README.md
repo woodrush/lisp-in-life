@@ -215,6 +215,8 @@ There is a test for checking the QFTASM-compiled Lisp interpreter using the QFTA
 To run these tests, use the following commands:
 
 ```sh
+git submodule update --init --recursive # Required for building the source
+
 make test             # Run the tests for the QFTASM-compiled Lisp interpreter, using the QFTASM interpreter
 make test_executable  # Run the tests for the executable compiled by GCC
 ```
