@@ -6,10 +6,10 @@ function lisp_interpreter () {
     echo ""
 }
 
-cat print.lisp | lisp_interpreter
-cat object-oriented-like.lisp | lisp_interpreter
-cat backquote.lisp | lisp_interpreter
-cat backquote-splice.lisp | lisp_interpreter
-cat z-combinator.lisp | lisp_interpreter
-cat primes.lisp | lisp_interpreter
-cat primes-print.lisp | lisp_interpreter
+cat ./lisp/print.lisp | lisp_interpreter
+cat ./lisp/object-oriented-like.lisp | lisp_interpreter
+cat ./lisp/backquote.lisp | lisp_interpreter
+cat ./lisp/backquote-splice.lisp | lisp_interpreter
+cat ./lisp/z-combinator.lisp | lisp_interpreter
+cat ./lisp/primes.lisp | lisp_interpreter
+cat ./lisp/primes-print.lisp | lisp_interpreter

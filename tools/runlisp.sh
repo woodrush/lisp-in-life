@@ -42,10 +42,10 @@ function lisp_interpreter () {
 #================================================================
 # Run the lisp programs
 #================================================================
-cat print.lisp | lisp_interpreter --debug-plot-memdist print
-cat object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist object-oriented-like
-cat backquote.lisp | lisp_interpreter --debug-plot-memdist backquote
-cat backquote-splice.lisp | lisp_interpreter --debug-plot-memdist backquote-splice
-cat z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator
-cat primes.lisp | lisp_interpreter --debug-plot-memdist primes
-cat primes-print.lisp | lisp_interpreter --debug-plot-memdist primes
+cat ./lisp/print.lisp | lisp_interpreter --debug-plot-memdist print
+cat ./lisp/object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist object-oriented-like
+cat ./lisp/backquote.lisp | lisp_interpreter --debug-plot-memdist backquote
+cat ./lisp/backquote-splice.lisp | lisp_interpreter --debug-plot-memdist backquote-splice
+cat ./lisp/z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator
+cat ./lisp/primes.lisp | lisp_interpreter --debug-plot-memdist primes
+cat ./lisp/primes-print.lisp | lisp_interpreter --debug-plot-memdist primes
