@@ -2,7 +2,7 @@
 This file explains how to load the Lisp interpreter (written in C) to the Game of Life pattern, and also how to load a custom Lisp program into the pattern to run it on Game of Life.
 
 ## Requirements
-- Golly (version 4.0)
+- Golly (version >=4.0)
 - Python 3.*
   - pyparsing>=2.3.1
   - numpy

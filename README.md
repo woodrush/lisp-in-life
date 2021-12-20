@@ -58,7 +58,7 @@ The computer showing the results of the following Lisp program:
 (print (* 3 14))
 ```
 
-The result is `42`, shown in binary ascii format (0b110100, 0b110010), read in bottom-to-up order.
+The result is `42`, shown in binary ascii format (`0b110100`, `0b110010`), read in bottom-to-up order.
 
 
 ## How is it Done?
@@ -209,8 +209,7 @@ Following this design, macros are treated exacly the same as lambdas, except tha
 and evaluates the result twice (the first time to build the expression, and the second time to actually evaluate the builded expression).
 
 
-## Building from Source
-### Tests
+## Tests
 There are tests to check the behavior of the Lisp interpreter.
 There is a test for checking the QFTASM-compiled Lisp interpreter using the QFTASM interpreter, and a test for checking the GCC-compiled Lisp interpreter on the host pc.
 To run these tests, use the following commands:
@@ -226,7 +225,7 @@ Some of the tests compare the output results of Hy and the output of the QFTASM 
 The tests were run on Ubuntu and Mac.
 
 
-### Build Instruction Details
+## Building from Source
 This section explains how to load the Lisp interpreter (written in C) to the Game of Life pattern, and also how to load a custom Lisp program into the pattern to run it on Game of Life.
 
 Please see [build.md](./build.md).
