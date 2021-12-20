@@ -102,6 +102,10 @@ Another optimization was improving the metafier script used to convert VarLife p
 
 
 ## Miscellaneous
+### How can a 2-state OTCA Metapixel emulate the behavior of an 8-state VarLife pattern?
+This is one of the most interesting ideas in the original QFT project to make the QFT architecture possible. As explained in [the original QFT post](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673), the 8 states of VarLife are actually a mixture of 4 different birth/survival rules with binary states. This means that each VarLife cell can only transition between two fixed states, and the birth/survival rule for that cell does not change at any point in time. Moreover, the OTCA Metapixel is designed so that each metapixel can carry its own birth/survival rules. Therefore, each VarLife cell can be enoded into an OTCA Metapixel by specifying its birth/survival rule and the binary state. This means that the array of OTCA Metapixels in the metafied pattern is actually a mixture of metapixels with different birth/survival rules, arranged in a way so that it makes the computation possible.
+
+
 ### Halting Time
 For the VarLife pattern of [print.lisp](./lisp/print.lisp), by generation 105,387,540, the value 65535 gets written to the program counter. At generation 105,413,067, the last signal becomes just one step from disappearing, and at generation 105,413,068 and onwards, the pattern becomes completely stationary and every pattern becomes identical to each other.
 In the Game of Life version, since the OTCA Metapixel continues running indefinitely, the pattern does not become completly stationary, but the meta-states of the OTCA Metapixels will become completely stationary, since it is an emulation of the VarLife pattern.

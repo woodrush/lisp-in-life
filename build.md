@@ -132,8 +132,18 @@ The top-left corner of the OTCA metapixel for the bit storage meta-cell. There i
 The beehive pattern. Use the coordinates for the top pixel, marked in this figure.
 
 
-## Game-of-Life-Closed Method for Loading and Running Lisp Programs (WIP)
-`QFT_ram_reader_metafied.py` is a work-in-progress script for writing a Lisp program directly into the metafied pattern. This will allow to load and run Lisp programs into the Game of Life pattern closed within Game of Life cell manipulation operations, without using Varlife. The current script is able to write hard-coded values into the metafied RAM. It should be fairly straightforward to create a script to write the values of `ramdump.csv`, required for running the interpreter.
+## Game-of-Life-Closed Method for Loading and Running Lisp Programs
+`QFT_ram_reader_writer_metafied.py` is a for writing a Lisp program directly into the metafied pattern. This will allow you to load and run Lisp programs into the Game of Life pattern closed within Game of Life cell manipulation operations, without using Varlife. This script also requires specifying the cell described in the previous section for `QFT_ram_reader_metafied.py`. The usage is similar as `QFT_ram_reader_writer.py`.
+
+Since the script only modifies the meta-state memory of each cell and not the visualization modules of the cell, the written values are not visualized (the metapixel does not appear to be populated by the MWSS arrays) at first, but become visualized after some generations.
+
+The behavior of this script was verified as follows:
+
+- Open `./patterns/metafied/QFT_print_metafied.mc` in Golly.
+- Write `./src/ramdump.csv` and `./lisp/z-combinator.lisp` into the pattern using `QFT_ram_reader_writer_metafied.py`.
+- Run the resulting pattern until 80000 generations, which should be enough for the OTCA metapixel to be initialized, and for the written metastate to be visualized. Save the resulting pattern.
+- Run `./patterns/metafied/QFT_z-combinator_metafied.mc`, which was created by metafying a VarLife pattern, to 80000 generations as well.
+- Compare the two patterns using `diff`. The files should be exactly identical, meaning that the patterns are exactly identical at generation 80000, meaning that the behavior henceforth should be identical, which serves as a test for the behavior of `QFT_ram_reader_writer_metafied.py`.
 
 
 ## Compiling the Lisp Interpreter with GCC

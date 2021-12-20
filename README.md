@@ -1,6 +1,6 @@
 # Lisp in Conway's Game of Life
 
-It's not Conway's Game of Life implemented in Lisp - it's a Lisp interpreter implemented in Conway's Game of Life.
+Lisp in Life is a Lisp interpreter implemented in Conway's Game of Life.
 
 The entire pattern is viewable on the browser [here](https://woodrush.github.io/lisp-in-life).
 
@@ -86,6 +86,8 @@ Therefore, it is enough to verify the behavior of the VarLife pattern to verify 
 
 Due to the use of OTCA Metapixels, each VarLife cell becomes extended to a 2048x2048 Game of Life cell, and 1 VarLife generation requires 35328 Game of Life generations. Therefore, the VarLife patterns run significantly faster than the Game of Life (GoL) version.
 
+Additional details on VarLife are available in the Miscellaneous section in [details.md](./details.md).
+
 
 ## Pattern Files
 | Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
@@ -112,7 +114,7 @@ The VarLife patterns can be simulated on Golly as well, which requires additiona
 
     - The class has methods and field variables, where each instance carries distinct and persistent memory locations of their own.
     The example instantiates two counters and concurrently modifies the value held by each instance.
-    - New syntaxes for instantiation and method access (`(new classname)` and `(. instance methodname)`) are introduced using macros and functions.
+    - New syntaxes for instantiation and method access, `(new classname)` and `(. instance methodname)`, are introduced using macros and functions.
 
     The Lisp interpreter's variable scope and the macro feature is powerful enough to manage complex memory management,
     and even providing a new syntax to support the target paradigm.
@@ -128,7 +130,7 @@ It also supports the unquote and unquote-splice operations, each written as `~` 
 - **primes.lisp**: Prints a list of prime numbers up to 20. This example highlights the use of the `while` syntax.
 
 
-The contents of print.lisp is quite straightforward.
+The contents of print.lisp is quite straightforward - it calculates and prints the result of `3 * 14`.
 backquote.lisp and primes-print.lisp are similar to backquote-splice.lisp and primes.lisp, mainly included for performance comparisons.
 backquote.lisp doesn't implement the unquote-splice operation, and demonstrates some more examples.
 primes-print.lisp reduces the number of list operations to save memory usage.
