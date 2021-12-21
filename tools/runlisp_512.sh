@@ -2,7 +2,7 @@
 set -e
 
 if [ $# -eq 0 ]; then
-    lisp_opt_qftasm=./out/lisp.qftasm
+    lisp_opt_qftasm=./out/lisp_512.qftasm
 else
     lisp_opt_qftasm=$1
 fi
@@ -14,7 +14,7 @@ else
 fi
 
 QFTASM_INTERPRETER=./tools/qftasmi.sh
-ramdump_csv=./out/ramdump.csv
+ramdump_csv=./out/ramdump_512.csv
 
 function lisp_interpreter () {
     if [ "$plot_memdist" = "" ]; then
@@ -25,6 +25,8 @@ function lisp_interpreter () {
     fi
     $QFTASM_INTERPRETER \
         -i $lisp_opt_qftasm \
+        -n 230 \
+        -t 311 \
         -m $ramdump_csv \
         -u "$(< /dev/stdin)" \
         -p "--debug-ramdump $memdist_opt"
@@ -45,9 +47,3 @@ function lisp_interpreter () {
 cat ./lisp/print.lisp | lisp_interpreter --debug-plot-memdist print
 cat ./lisp/printquote.lisp | lisp_interpreter --debug-plot-memdist printquote
 cat ./lisp/factorial.lisp | lisp_interpreter --debug-plot-memdist factorial
-cat ./lisp/z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator
-cat ./lisp/backquote-splice.lisp | lisp_interpreter --debug-plot-memdist backquote-splice
-cat ./lisp/backquote.lisp | lisp_interpreter --debug-plot-memdist backquote
-cat ./lisp/object-oriented-like.lisp | lisp_interpreter --debug-plot-memdist object-oriented-like
-cat ./lisp/primes-print.lisp | lisp_interpreter --debug-plot-memdist primes
-cat ./lisp/primes.lisp | lisp_interpreter --debug-plot-memdist primes

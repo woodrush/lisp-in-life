@@ -1,13 +1,21 @@
 lisp_qftasm=./out/lisp.qftasm
+lisp_qftasm_512=./out/lisp_512.qftasm
 executable=./out/lisp
 
 
 all:
 	$(MAKE) $(lisp_qftasm)
 
-$(lisp_qftasm):
+$(lisp_qftasm): ./src/lisp.c ./src/lisp.h ./src/qft.h
 	cd elvm && $(MAKE)
 	./tools/build_optlisp.sh
+
+$(lisp_qftasm_512): ./src/lisp.c ./src/lisp.h ./src/qft.h
+	cd elvm && $(MAKE)
+	./tools/build_optlisp_512.sh
+
+lisp_512:
+	$(MAKE) $(lisp_qftasm_512)
 
 test: $(lisp_qftasm)
 	./tools/runtest.sh
@@ -17,6 +25,12 @@ run_qft:
 
 run_qft_memdist:
 	./tools/runlisp.sh $(lisp_qftasm) --plot-memdist
+
+run_qft_512:
+	./tools/runlisp_512.sh $(lisp_qftasm_512)
+
+run_qft_512_memdist:
+	./tools/runlisp_512.sh $(lisp_qftasm_512) --plot-memdist
 
 
 #================================================================
