@@ -107,6 +107,14 @@ This is one of the most interesting ideas in the original QFT project to make th
 
 
 ### Halting Time
+After the program counter is set to 65535 and the program exits, no more ROM and RAM I/O signals become apparent in the entire module.
+This makes the VarLife pattern becomes completely stationary, where every pattern henceforth becomes completely identical.
+Defining this as the halting time for the calculation, the pattern for [print.lisp](./lisp/print.lisp) halts at exactly 105,413,068 VarLife generations.
+
+The halting time for the Game of Life patterns are defined similarly for the meta-states of the OTCA Metapixels.
+Since OTCA Metapixels never become stationary, the Game of Life states do not become stationary after the halting time,
+but the meta-states of the OTCA Metapixels will become stationary after the halting time.
+
 For the VarLife pattern of [print.lisp](./lisp/print.lisp), by generation 105,387,540, the value 65535 gets written to the program counter. At generation 105,413,067, the last signal becomes just one step from disappearing, and at generation 105,413,068 and onwards, the pattern becomes completely stationary and every pattern becomes identical to each other.
 In the Game of Life version, since the OTCA Metapixel continues running indefinitely, the pattern does not become completly stationary, but the meta-states of the OTCA Metapixels will become completely stationary, since it is an emulation of the VarLife pattern.
 Note that the halting times for programs other than print.lisp is just a sufficient number of generations, and not the exact values.

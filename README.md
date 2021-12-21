@@ -116,6 +116,9 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 Pattern files preloaded with various Lisp programs are available here.
 Detailed statistics such as the running time and the memory consumption are available in the [Running Times and Statistics](#running-times-and-statistics) section.
 
+The 512-word-RAM architecture has a RAM module of half the size of the the 1024-word-RAM architecture, and is thus designed to run small programs.
+The ROMs, i.e. the interpreters used are identical for both of the architectures, except for some differences in the memory writing locations due to the differences in the RAM architecture.
+
 The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
 The VarLife patterns can be simulated on Golly as well, which requires additional settings described in the [Building from Source](#building-from-source) section.
 
@@ -131,6 +134,10 @@ The VarLife patterns can be simulated on Golly as well, which requires additiona
 
     The Lisp interpreter's variable scope and the macro feature is powerful enough to manage complex memory management,
     and even providing a new syntax to support the target paradigm.
+
+- **printquote.lisp**: A simple demonstration of macros.
+
+- **factorial.lisp**: A simple demonstration of recursion with the factorial function.
 
 - **z-combinator.lisp**:
 Demonstration of the [Z Combinator](https://en.wikipedia.org/wiki/Fixed-point_combinator#Strict_fixed-point_combinator) to implement a factorial function
@@ -149,8 +156,37 @@ backquote.lisp doesn't implement the unquote-splice operation, and demonstrates 
 primes-print.lisp reduces the number of list operations to save memory usage.
 
 
+## Details of the Lisp Interpreter
+### Special Forms and Builtin Functions
+
+- define
+- if
+- quote
+- car, cdr
+- cons
+- list
+- atom
+- print
+- progn
+- while
+- lambda, macro
+- eval
+- eq
+- +, -, *, /, mod, <, >
+
+### Lexical Closures
+This Lisp interpreter supports lexical closures.
+The implementation of lexical closures is powerful enough to write an object-oriented-like code as shown in [object-oriented-like.lisp](./lisp/object-oriented-like.lisp),
+where classes are represented as lexical closures over the field variables and the class methods.
+
+### Macros
+This Lisp interpreter supports macros. Lisp macros can be thought as a function that receives code and returns code.
+Following this design, macros are treated exacly the same as lambdas, except that it takes the arguments as raw S-expressions,
+and evaluates the result twice (the first time to build the expression, and the second time to actually evaluate the builded expression).
+
+
 ## Running Times and Statistics
-### 1024-QFT-byte RAM Architecture
+### 1024-Word-RAM Architecture
 **VarLife Patterns**
 | Lisp Program and Pattern (VarLife)                                                                                | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
@@ -158,24 +194,24 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 | [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/QFT_printquote.mc)]           |            800,000,000         |             3.424 mins |                 12.5 GiB |
 | [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/QFT_factorial.mc)]            |          1,000,000,000         |             5.200 mins |                 17.9 GiB |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/QFT_z-combinator.mc)]         |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
-| [backquote-splice.lisp](./lisp/backquote-splice.lisp)         [[pattern](./patterns/QFT_backquote-splice.mc)]     |          4,100,000,000         |            20.467 mins | 27.5 GiB (max. capacity) |
-| [backquote.lisp](./lisp/backquote.lisp)                       [[pattern](./patterns/QFT_backquote.mc)]            |          4,100,000,000         |            21.663 mins | 27.5 GiB (max. capacity) |
-| [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) [[pattern](./patterns/QFT_object-oriented-like.mc)] |          4,673,000,000         |            22.363 mins | 27.5 GiB (max. capacity) |
-| [primes-print.lisp](./lisp/primes-print.lisp)                 [[pattern](./patterns/QFT_primes-print.mc)]         |          8,880,000,000         |            27.543 mins | 27.5 GiB (max. capacity) |
-| [primes.lisp](./lisp/primes.lisp)                             [[pattern](./patterns/QFT_primes.mc)]               |          9,607,100,000         |            38.334 mins | 27.5 GiB (max. capacity) |
+| [backquote-splice.lisp](./lisp/backquote-splice.lisp)         [[pattern](./patterns/QFT_backquote-splice.mc)]     |          4,100,000,000         |            20.467 mins |          27.5 GiB (max.) |
+| [backquote.lisp](./lisp/backquote.lisp)                       [[pattern](./patterns/QFT_backquote.mc)]            |          4,100,000,000         |            21.663 mins |          27.5 GiB (max.) |
+| [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) [[pattern](./patterns/QFT_object-oriented-like.mc)] |          4,673,000,000         |            22.363 mins |          27.5 GiB (max.) |
+| [primes-print.lisp](./lisp/primes-print.lisp)                 [[pattern](./patterns/QFT_primes-print.mc)]         |          8,880,000,000         |            27.543 mins |          27.5 GiB (max.) |
+| [primes.lisp](./lisp/primes.lisp)                             [[pattern](./patterns/QFT_primes.mc)]               |          9,607,100,000         |            38.334 mins |          27.5 GiB (max.) |
 
 **Conway's Game of Life (GoL) Patterns**
-| Lisp Program and Pattern (GoL)                                                                                                      | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|-------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
-| [print.lisp](./lisp/print.lisp)                               [[pattern](./patterns/metafied/QFT_print_metafied.mc)]                |         3,724,032,866,304  |      382.415 mins  | 27.5 GiB (max. capacity) |
-| [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/metafied/QFT_printquote_metafied.mc)]           |        28,262,400,000,000  |                 -  |                        - |
-| [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/metafied/QFT_factorial_metafied.mc)]            |        35,328,000,000,000  |                 -  |                        - |
-| [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/metafied/QFT_z-combinator_metafied.mc)]         |        60,057,600,000,000  |                 -  |                        - |
-| [backquote-splice.lisp](./lisp/backquote-splice.lisp)         [[pattern](./patterns/metafied/QFT_backquote-splice_metafied.mc)]     |       144,844,800,000,000  |                 -  |                        - |
-| [backquote.lisp](./lisp/backquote.lisp)                       [[pattern](./patterns/metafied/QFT_backquote_metafied.mc)]            |       144,844,800,000,000  |                 -  |                        - |
-| [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) [[pattern](./patterns/metafied/QFT_object-oriented-like_metafied.mc)] |       165,087,744,000,000  |                 -  |                        - |
-| [primes-print.lisp](./lisp/primes-print.lisp)                 [[pattern](./patterns/metafied/QFT_primes-print_metafied.mc)]         |       313,712,640,000,000  |                 -  |                        - |
-| [primes.lisp](./lisp/primes.lisp)                             [[pattern](./patterns/metafied/QFT_primes_metafied.mc)]               |       339,399,628,800,000  |                 -  |                        - |
+| Lisp Program and Pattern (GoL)                                                                                                      | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL) |
+|-------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------|
+| [print.lisp](./lisp/print.lisp)                               [[pattern](./patterns/metafied/QFT_print_metafied.mc)]                |         3,724,032,866,304  |      382.415 mins  |    27.5 GiB (max.) |
+| [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/metafied/QFT_printquote_metafied.mc)]           |        28,262,400,000,000  |                 -  |                  - |
+| [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/metafied/QFT_factorial_metafied.mc)]            |        35,328,000,000,000  |                 -  |                  - |
+| [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/metafied/QFT_z-combinator_metafied.mc)]         |        60,057,600,000,000  |                 -  |                  - |
+| [backquote-splice.lisp](./lisp/backquote-splice.lisp)         [[pattern](./patterns/metafied/QFT_backquote-splice_metafied.mc)]     |       144,844,800,000,000  |                 -  |                  - |
+| [backquote.lisp](./lisp/backquote.lisp)                       [[pattern](./patterns/metafied/QFT_backquote_metafied.mc)]            |       144,844,800,000,000  |                 -  |                  - |
+| [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) [[pattern](./patterns/metafied/QFT_object-oriented-like_metafied.mc)] |       165,087,744,000,000  |                 -  |                  - |
+| [primes-print.lisp](./lisp/primes-print.lisp)                 [[pattern](./patterns/metafied/QFT_primes-print_metafied.mc)]         |       313,712,640,000,000  |                 -  |                  - |
+| [primes.lisp](./lisp/primes.lisp)                             [[pattern](./patterns/metafied/QFT_primes_metafied.mc)]               |       339,399,628,800,000  |                 -  |                  - |
 
 **Common Statistics**
 | Lisp Program                                                  | #QFT CPU Cycles | QFT RAM Usage (Words) |
@@ -191,7 +227,7 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 | [primes.lisp](./lisp/primes.lisp)                             |         304,964 |                   943 |
 
 
-### 512-QFT-byte RAM Architecture
+### 512-Word-RAM Architecture
 **VarLife Patterns**
 | Lisp Program and Pattern (VarLife)                                                              | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
@@ -215,48 +251,18 @@ primes-print.lisp reduces the number of list operations to save memory usage.
 
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
 The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).
-The memory usage was measured by Ubuntu's activity monitor.
+The memory usage was measured by Ubuntu's activity monitor. "(max.)" shows where the maximum permitted memory was used.
 The number of CPU cycles and the QFT memory usage was obtained by running the QFTASM interpreter on the host PC.
 The QFT memory usage shows the number of RAM addresses that were written at least once.
 The memory usage is measured in words, which is 16 bits in this architecture.
 
-After the program counter is set to 65535 and the program exits, no more ROM and RAM I/O signals become apparent in the entire module.
-This makes the VarLife pattern becomes completely stationary, where every pattern henceforth becomes completely identical.
-Defining this as the halting time for the calculation, the pattern for [print.lisp](./lisp/print.lisp) halts at exactly 105,413,068 VarLife generations.
-However, for all of the other Lisp programs, the table shows the sufficient number of generations for the pattern to halt.
+All of the VarLife patterns can actually be run on a computer. The shortest running time is about 1 minute for [print.lisp](./lisp/print.lisp).
+A sophisticated program such as [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) can even run in about 22 minutes.
 
-The halting time for the Game of Life patterns are defined similarly for the meta-states of the OTCA Metapixels.
-Since OTCA Metapixels never become stationary, the Game of Life states do not become stationary after the halting time,
-but the meta-states of the OTCA Metapixels will become stationary after the halting time.
-
-
-## Details of the Lisp Interpreter
-### Special Forms and Builtin Functions
-
-- define
-- if
-- quote
-- car, cdr
-- cons
-- list
-- atom
-- print
-- progn
-- while
-- lambda, macro
-- eval
-- eq
-- +, -, *, /, mod, <, >
-
-### Lexical Closures
-This Lisp implementation supports lexical closures.
-The implementation of lexical closures is powerful enough to write an object-oriented-like code as shown in [object-oriented-like.lisp](./lisp/object-oriented-like.lisp),
-where classes are represented as lexical closures over the field variables and the class methods.
-
-### Macros
-This Lisp implementation has a macro feature. Lisp macros can be thought as a function that receives code and returns code.
-Following this design, macros are treated exacly the same as lambdas, except that it takes the arguments as raw S-expressions,
-and evaluates the result twice (the first time to build the expression, and the second time to actually evaluate the builded expression).
+On the other hand, the Game of Life patterns take significantly more time than the VarLife patterns, but for short programs it can be run in a moderately reasonable amount of time.
+For example, [print.lisp](./lisp/print.lisp) finishes running in about 6 hours in the Game of Life pattern.
+As mentioned in the "Conversion from VarLife to Conway's Game of Life" section, since the Game of Life pattern emulates the behavior of the VarLife pattern using OTCA Metapixels,
+the behavior of the Game of Life patterns can be verified by running the VarLife patterns.
 
 
 ## Tests
