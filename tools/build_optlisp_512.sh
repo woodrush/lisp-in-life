@@ -35,13 +35,13 @@ $QFTASMC \
     -i $lisp_src \
     -o $tmp_qftasm \
     -n 230 \
-    -t 311 \
-    -8 "-DQFT -Dprecalculation_run -DQFTASM_RAMSTDIN_BUF_STARTPOSITION=230 -DQFTASM_STACK_SIZE=200 -Isrc" \
+    -t 321 \
+    -8 "-DQFT -Dprecalculation_run -DQFTASM_RAMSTDIN_BUF_STARTPOSITION=230 -DQFTASM_STACK_SIZE=190 -Isrc" \
     -e "" \
     -h ./src/memheader.eir
 
 echo "Running the compiled qftasm to obtain the ramdump for the string hash table precalculations..."
-$QFTASM_INTERPRETER -i $tmp_qftasm -u "" -m "" -n 230 -t 311 -s 200 -p "\
+$QFTASM_INTERPRETER -i $tmp_qftasm -u "" -m "" -n 230 -t 321 -s 190 -p "\
   --debug-ramdump-verbose \
   --suppress-stdout \
   --suppress-address-overflow-warning \
@@ -60,8 +60,8 @@ $QFTASMC \
     -i $lisp_src \
     -o $target \
     -n 230 \
-    -t 311 \
-    -8 "-DQFT -Dskip_precalculation -DQFTASM_RAMSTDIN_BUF_STARTPOSITION=230 -DQFTASM_STACK_SIZE=200 -Isrc" \
+    -t 321 \
+    -8 "-DQFT -Dskip_precalculation -DQFTASM_RAMSTDIN_BUF_STARTPOSITION=230 -DQFTASM_STACK_SIZE=190 -Isrc" \
     -e "--qftasm-memory-at-footer" \
     -h ./src/memheader.eir \
     -p

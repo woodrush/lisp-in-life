@@ -231,23 +231,23 @@ and evaluates the result twice (the first time to build the expression, and the 
 **VarLife Patterns**
 | Lisp Program and Pattern (VarLife)                                                              | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
-| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/QFT_512_print.mc)]      |            104,877,532 (exact) |             0.978 mins |                  4.0 GiB |
-| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/QFT_512_printquote.mc)] |            800,000,000         |             2.906 mins |                 12.5 GiB |
-| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/QFT_512_factorial.mc)]  |          1,000,000,000         |             4.429 mins |                 13.7 GiB |
+| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/QFT_512_print.mc)]      |            104,877,532 (exact) |             0.962 mins |                  4.1 GiB |
+| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/QFT_512_printquote.mc)] |            800,000,000         |             2.912 mins |                 12.5 GiB |
+| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/QFT_512_factorial.mc)]  |          1,000,000,000         |             4.448 mins |                 13.9 GiB |
 
 **Conway's Game of Life (GoL) Patterns**
-| Lisp Program and Pattern (GoL)                                                                               | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|--------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
-| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)] |         3,705,113,450,496  |                  - |                        - |
-| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/metafied/QFT_512_printquote.mc)]     |        28,262,400,000,000  |                  - |                        - |
-| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/metafied/QFT_512_factorial.mc)]      |        35,328,000,000,000  |                  - |                        - |
+| Lisp Program and Pattern (GoL)                                                                                    | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
+|-------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
+| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)]      |         3,705,113,450,496  |                  - |                        - |
+| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)] |        28,262,400,000,000  |                  - |                        - |
+| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)]  |        35,328,000,000,000  |                  - |                        - |
 
 **Common Statistics**
 | Lisp Program                              | #QFT CPU Cycles | QFT RAM Usage (Words) |
 |-------------------------------------------|-----------------|-----------------------|
 | [print.lisp](./lisp/print.lisp)           |           4,425 |                    92 |
 | [printquote.lisp](./lisp/printquote.lisp) |          18,730 |                   224 |
-| [factorial.lisp](./lisp/factorial.lisp)   |          28,623 |                   328 |
+| [factorial.lisp](./lisp/factorial.lisp)   |          28,623 |                   327 |
 
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
 The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).

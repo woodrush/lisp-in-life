@@ -26,7 +26,8 @@ function lisp_interpreter () {
     $QFTASM_INTERPRETER \
         -i $lisp_opt_qftasm \
         -n 230 \
-        -t 311 \
+        -t 321 \
+        -s 190 \
         -m $ramdump_csv \
         -u "$(< /dev/stdin)" \
         -p "--debug-ramdump $memdist_opt"
