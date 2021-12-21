@@ -19,7 +19,12 @@ Building the Game of Life pattern consists of four steps:
 3. Loading the Lisp program into the Varlife pattern's RAM module
 4. Metafying the Varlife pattern to a Conway's Game of Life pattern
 
-The results after Step 2 is included in this repo as [./QFT-devkit/QFT_hashedrom_v11_interpreter.mc](./QFT-devkit/QFT_hashedrom_v11_interpreter.mc). If you are trying to load a custom Lisp program into the pattern, you can use this file and start from Step 3.
+The results after Step 2 is included in this repo as [./patterns/QFT_blank_interpreter.mc](./patterns/QFT_blank_interpreter.mc).
+If you are trying to load a custom Lisp program into the pattern, you can use this file and start from Step 3.
+
+The following section describes the build flow for the 1024-word-RAM architecture.
+The flow for the 512-word-RAM architecture is similar, and is described in a later section.
+
 
 ## Summary of the Build Flow
 The summary of the build flow is as follows:
@@ -181,6 +186,33 @@ This requires installing the Python package matplotlib, by running
 
 ```sh
 pip install matplotlib
+```
+
+
+## Building the 512-Word-RAM Architecture
+The process for the 512-word-RAM architecture is similar for building the 1024-word-RAM architecture.
+
+To create the ROM and the ramdump, `lisp_512.qftasm` and `ramdump_512.csv`, run:
+
+```sh
+make lisp_512
+```
+
+When loading the ROM and RAM into `./QFT-devkit/QFT_hashedrom_v11.mc`, use the following configurations:
+
+- `./QFT-devkit/QFT_prep_rom_ram_hashedrom.py`:
+  - Maximum RAM address: 321
+  - Negative RAM buffer size: 190
+- `QFT_ram_reader_writer.py`:
+  - Stack size: 190
+  - Stdin buffer starting address: 230
+  - Stdout buffer starting address: 321
+
+Running the 512-word-RAM architecture on the host PC can be done with:
+
+```sh
+make run_qft_512
+make run_qft_512_memdist
 ```
 
 
