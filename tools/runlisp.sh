@@ -43,6 +43,7 @@ function lisp_interpreter () {
 # Run the lisp programs
 #================================================================
 cat ./lisp/print.lisp | lisp_interpreter --debug-plot-memdist print
+cat ./lisp/lambda.lisp | lisp_interpreter --debug-plot-memdist lambda
 cat ./lisp/printquote.lisp | lisp_interpreter --debug-plot-memdist printquote
 cat ./lisp/factorial.lisp | lisp_interpreter --debug-plot-memdist factorial
 cat ./lisp/z-combinator.lisp | lisp_interpreter --debug-plot-memdist z-combinator

@@ -97,6 +97,7 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 | Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |---------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](./lisp/print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
+| [lambda.lisp](./lisp/lambda.lisp)                             | [QFT_lambda.mc](./patterns/QFT_lambda.mc)                             | [QFT_lambda_metafied.mc](./patterns/metafied/QFT_lambda_metafied.mc)                             |
 | [printquote.lisp](./lisp/printquote.lisp)                     | [QFT_printquote.mc](./patterns/QFT_printquote.mc)                     | [QFT_printquote_metafied.mc](./patterns/metafied/QFT_printquote_metafied.mc)                     |
 | [factorial.lisp](./lisp/factorial.lisp)                       | [QFT_factorial.mc](./patterns/QFT_factorial.mc)                       | [QFT_factorial_metafied.mc](./patterns/metafied/QFT_factorial_metafied.mc)                       |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 | [QFT_z-combinator.mc](./patterns/QFT_z-combinator.mc)                 | [QFT_z-combinator_metafied.mc](./patterns/metafied/QFT_z-combinator_metafied.mc)                 |
@@ -110,6 +111,7 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 | Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |---------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](./lisp/print.lisp)                               | [QFT_512_print.mc](./patterns/ram-512/QFT_512_print.mc)               | [QFT_512_print_metafied.mc](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)               |
+| [lambda.lisp](./lisp/lambda.lisp)                             | [QFT_512_lambda.mc](./patterns/ram-512/QFT_512_lambda.mc)             | [QFT_512_lambda_metafied.mc](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)             |
 | [printquote.lisp](./lisp/printquote.lisp)                     | [QFT_512_printquote.mc](./patterns/ram-512/QFT_512_printquote.mc)     | [QFT_512_printquote_metafied.mc](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)     |
 | [factorial.lisp](./lisp/factorial.lisp)                       | [QFT_512_factorial.mc](./patterns/ram-512/QFT_512_factorial.mc)       | [QFT_512_factorial_metafied.mc](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)       |
 
@@ -191,6 +193,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program and Pattern (VarLife)                                                                                | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
 | [print.lisp](./lisp/print.lisp)                               [[pattern](./patterns/QFT_print.mc)]                |            105,413,068 (exact) |             1.159 mins |                  5.0 GiB |
+| [lambda.lisp](./lisp/lambda.lisp)                             [[pattern](./patterns/QFT_lambda.mc)]               |            700,000,000         |             2.966 mins |                 12.5 GiB |
 | [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/QFT_printquote.mc)]           |            800,000,000         |             3.424 mins |                 12.5 GiB |
 | [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/QFT_factorial.mc)]            |          1,000,000,000         |             5.200 mins |                 17.9 GiB |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/QFT_z-combinator.mc)]         |          1,700,000,000         |             9.823 mins |                 23.4 GiB |
@@ -204,6 +207,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program and Pattern (GoL)                                                                                                      | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL) |
 |-------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------|
 | [print.lisp](./lisp/print.lisp)                               [[pattern](./patterns/metafied/QFT_print_metafied.mc)]                |         3,724,032,866,304  |      382.415 mins  |    27.5 GiB (max.) |
+| [lambda.lisp](./lisp/lambda.lisp)                             [[pattern](./patterns/metafied/QFT_lambda_metafied.mc)]               |        24,729,600,000,000  |                 -  |                  - |
 | [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/metafied/QFT_printquote_metafied.mc)]           |        28,262,400,000,000  |                 -  |                  - |
 | [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/metafied/QFT_factorial_metafied.mc)]            |        35,328,000,000,000  |                 -  |                  - |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/metafied/QFT_z-combinator_metafied.mc)]         |        60,057,600,000,000  |                 -  |                  - |
@@ -217,6 +221,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program                                                  | #QFT CPU Cycles | QFT RAM Usage (Words) |
 |-------------------------------------------------------------- |-----------------|-----------------------|
 | [print.lisp](./lisp/print.lisp)                               |           4,425 |                    92 |
+| [lambda.lisp](./lisp/lambda.lisp)                             |          13,814 |                   227 |
 | [printquote.lisp](./lisp/printquote.lisp)                     |          18,730 |                   271 |
 | [factorial.lisp](./lisp/factorial.lisp)                       |          28,623 |                   371 |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 |          58,883 |                   544 |
@@ -232,6 +237,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program and Pattern (VarLife)                                                              | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
 | [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/QFT_512_print.mc)]      |            104,877,532 (exact) |             0.962 mins |                  4.1 GiB |
+| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/QFT_512_lambda.mc)]     |            700,000,000         |             2.428 mins |                  9.2 GiB |
 | [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/QFT_512_printquote.mc)] |            800,000,000         |             2.912 mins |                 12.5 GiB |
 | [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/QFT_512_factorial.mc)]  |          1,000,000,000         |             4.448 mins |                 13.9 GiB |
 
@@ -239,6 +245,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program and Pattern (GoL)                                                                                    | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
 |-------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
 | [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)]      |         3,705,113,450,496  |                  - |                        - |
+| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)]     |        24,729,600,000,000  |                  - |                        - |
 | [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)] |        28,262,400,000,000  |                  - |                        - |
 | [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)]  |        35,328,000,000,000  |                  - |                        - |
 
@@ -246,6 +253,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 | Lisp Program                              | #QFT CPU Cycles | QFT RAM Usage (Words) |
 |-------------------------------------------|-----------------|-----------------------|
 | [print.lisp](./lisp/print.lisp)           |           4,425 |                    92 |
+| [lambda.lisp](./lisp/printquote.lisp)     |          13,814 |                   198 |
 | [printquote.lisp](./lisp/printquote.lisp) |          18,730 |                   224 |
 | [factorial.lisp](./lisp/factorial.lisp)   |          28,623 |                   327 |
 
