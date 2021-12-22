@@ -119,10 +119,13 @@ Pattern files preloaded with various Lisp programs are available here.
 Detailed statistics such as the running time and the memory consumption are available in the [Running Times and Statistics](#running-times-and-statistics) section.
 
 The 512-word-RAM architecture has a RAM module of half the size of the the 1024-word-RAM architecture, and is thus designed to run small programs.
-The ROMs, i.e. the interpreters used are identical for both of the architectures, except for some differences in the memory writing locations due to the differences in the RAM architecture.
+The interpreter is identical for both of the architectures, except some differences in the memory writing locations.
 
-The patterns can be simulted on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
-The VarLife patterns can be simulated on Golly as well, which requires additional settings described in the [Building from Source](#building-from-source) section.
+The patterns can be simulated on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
+
+The VarLife patterns can be simulated on Golly as well.
+To run the VarLife patterns, open Golly and see File -> Preferences -> Control, and Check the "Your Rules" directory.
+Open the directory, and copy [./QFT-devkit/Varlife.rule](https://github.com/woodrush/QFT-devkit/blob/main/Varlife.rule) to the directory.
 
 
 ### Descriptions of the Lisp Programs

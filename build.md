@@ -50,7 +50,7 @@ These files should be identical to `./qftasm/lisp.qftasm` and `./qftasm/ramdump.
 The following steps are done on Golly.
 
 1. Open Golly and see File -> Preferences -> Control. Check the "Your Rules" directory.
-Open the directory, and copy [./QFT-devkit/Varlife.rule](./QFT-devkit/Varlife.rule) to the directory.
+Open the directory, and copy [./QFT-devkit/Varlife.rule](https://github.com/woodrush/QFT-devkit/blob/main/Varlife.rule) to the directory.
 2. Open File -> Set File Folder, and set the file folder to the root of this repository.
 3. Select `./QFT-devkit/QFT_hashedrom_v11.mc` from the file explorer on the left. A QFT architecture without the ROM and the RAM should appear on the screen.
 4. Select `./QFT-devkit/QFT_prep_rom_ram_hashedrom.py` from the file explorer. Several prompts will appear:
