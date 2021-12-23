@@ -96,7 +96,6 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 
 
 ## Pattern Files
-**1024-Word-RAM Architecture**
 | Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
 |---------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [print.lisp](./lisp/print.lisp)                               | [QFT_print.mc](./patterns/QFT_print.mc)                               | [QFT_print_metafied.mc](./patterns/metafied/QFT_print_metafied.mc)                               |
@@ -110,19 +109,8 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 | [primes-print.lisp](./lisp/primes-print.lisp)                 | [QFT_primes-print.mc](./patterns/QFT_primes-print.mc)                 | [QFT_primes-print_metafied.mc](./patterns/metafied/QFT_primes-print_metafied.mc)                 |
 | [primes.lisp](./lisp/primes.lisp)                             | [QFT_primes.mc](./patterns/QFT_primes.mc)                             | [QFT_primes_metafied.mc](./patterns/metafied/QFT_primes_metafied.mc)                             |
 
-**512-Word-RAM Architecture**
-| Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
-|---------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| [print.lisp](./lisp/print.lisp)                               | [QFT_512_print.mc](./patterns/ram-512/QFT_512_print.mc)               | [QFT_512_print_metafied.mc](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)               |
-| [lambda.lisp](./lisp/lambda.lisp)                             | [QFT_512_lambda.mc](./patterns/ram-512/QFT_512_lambda.mc)             | [QFT_512_lambda_metafied.mc](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)             |
-| [printquote.lisp](./lisp/printquote.lisp)                     | [QFT_512_printquote.mc](./patterns/ram-512/QFT_512_printquote.mc)     | [QFT_512_printquote_metafied.mc](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)     |
-| [factorial.lisp](./lisp/factorial.lisp)                       | [QFT_512_factorial.mc](./patterns/ram-512/QFT_512_factorial.mc)       | [QFT_512_factorial_metafied.mc](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)       |
-
 Pattern files preloaded with various Lisp programs are available here.
 Detailed statistics such as the running time and the memory consumption are available in the [Running Times and Statistics](#running-times-and-statistics) section.
-
-The 512-word-RAM architecture has a RAM module of half the size of the the 1024-word-RAM architecture, and is thus designed to run small programs.
-The interpreter is identical for both of the architectures, except some differences in the memory writing locations.
 
 The patterns can be simulated on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
 
@@ -194,7 +182,6 @@ and evaluates the result twice (the first time to build the expression, and the 
 
 
 ## Running Times and Statistics
-### 1024-Word-RAM Architecture
 **VarLife Patterns**
 | Lisp Program and Pattern (VarLife)                                                                                | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
 |-------------------------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
@@ -236,32 +223,6 @@ and evaluates the result twice (the first time to build the expression, and the 
 | [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) |         161,843 |                   838 |
 | [primes-print.lisp](./lisp/primes-print.lisp)                 |         281,883 |                   527 |
 | [primes.lisp](./lisp/primes.lisp)                             |         304,964 |                   943 |
-
-
-### 512-Word-RAM Architecture
-**VarLife Patterns**
-| Lisp Program and Pattern (VarLife)                                                              | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
-|-------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
-| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/QFT_512_print.mc)]      |            104,877,532 (exact) |             0.962 mins |                  4.1 GiB |
-| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/QFT_512_lambda.mc)]     |            700,000,000         |             2.428 mins |                  9.2 GiB |
-| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/QFT_512_printquote.mc)] |            800,000,000         |             2.912 mins |                 12.5 GiB |
-| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/QFT_512_factorial.mc)]  |          1,000,000,000         |             4.448 mins |                 13.9 GiB |
-
-**Conway's Game of Life (GoL) Patterns**
-| Lisp Program and Pattern (GoL)                                                                                    | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
-|-------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
-| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)]      |         3,705,113,450,496  |                  - |                        - |
-| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)]     |        24,729,600,000,000  |                  - |                        - |
-| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)] |        28,262,400,000,000  |                  - |                        - |
-| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)]  |        35,328,000,000,000  |                  - |                        - |
-
-**Common Statistics**
-| Lisp Program                              | #QFT CPU Cycles | QFT RAM Usage (Words) |
-|-------------------------------------------|-----------------|-----------------------|
-| [print.lisp](./lisp/print.lisp)           |           4,425 |                    92 |
-| [lambda.lisp](./lisp/printquote.lisp)     |          13,814 |                   198 |
-| [printquote.lisp](./lisp/printquote.lisp) |          18,730 |                   224 |
-| [factorial.lisp](./lisp/factorial.lisp)   |          28,623 |                   327 |
 
 The running times for each program are shown above. The [Hashlife](https://en.wikipedia.org/wiki/Hashlife) algorithm used for the simulation requires a lot of memory in exchange of speedups.
 The simulations were run on a 32GB-RAM computer, with Golly's memory usage limit set to 28000 MB, and the default base step to 2 (configurable from the preferences).

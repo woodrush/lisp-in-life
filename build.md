@@ -215,6 +215,41 @@ make run_qft_512
 make run_qft_512_memdist
 ```
 
+### Patterns for the 512-Word-RAM Architecture
+**Patterns for the 512-Word-RAM Architecture**
+| Program                                                       | VarLife Pattern                                                       | Conway's Game of Life Pattern                                                                    |
+|---------------------------------------------------------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
+| [print.lisp](./lisp/print.lisp)                               | [QFT_512_print.mc](./patterns/ram-512/QFT_512_print.mc)               | [QFT_512_print_metafied.mc](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)               |
+| [lambda.lisp](./lisp/lambda.lisp)                             | [QFT_512_lambda.mc](./patterns/ram-512/QFT_512_lambda.mc)             | [QFT_512_lambda_metafied.mc](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)             |
+| [printquote.lisp](./lisp/printquote.lisp)                     | [QFT_512_printquote.mc](./patterns/ram-512/QFT_512_printquote.mc)     | [QFT_512_printquote_metafied.mc](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)     |
+| [factorial.lisp](./lisp/factorial.lisp)                       | [QFT_512_factorial.mc](./patterns/ram-512/QFT_512_factorial.mc)       | [QFT_512_factorial_metafied.mc](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)       |
+
+
+### Running times and Statistics for the 512-Word-RAM Architecture
+**VarLife Patterns**
+| Lisp Program and Pattern (VarLife)                                                              | #Halting Generations (VarLife) | Running Time (VarLife) | Memory Usage (VarLife)   |
+|-------------------------------------------------------------------------------------------------|--------------------------------|------------------------|--------------------------|
+| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/QFT_512_print.mc)]      |            104,877,532 (exact) |             0.962 mins |                  4.1 GiB |
+| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/QFT_512_lambda.mc)]     |            700,000,000         |             2.428 mins |                  9.2 GiB |
+| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/QFT_512_printquote.mc)] |            800,000,000         |             2.912 mins |                 12.5 GiB |
+| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/QFT_512_factorial.mc)]  |          1,000,000,000         |             4.448 mins |                 13.9 GiB |
+
+**Conway's Game of Life (GoL) Patterns**
+| Lisp Program and Pattern (GoL)                                                                                    | #Halting Generations (GoL) | Running Time (GoL) | Memory Usage (GoL)       |
+|-------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------------|
+| [print.lisp](./lisp/print.lisp)           [[pattern](./patterns/ram-512/metafied/QFT_512_print_metafied.mc)]      |         3,705,113,450,496  |                  - |                        - |
+| [lambda.lisp](./lisp/lambda.lisp)         [[pattern](./patterns/ram-512/metafied/QFT_512_lambda_metafied.mc)]     |        24,729,600,000,000  |                  - |                        - |
+| [printquote.lisp](./lisp/printquote.lisp) [[pattern](./patterns/ram-512/metafied/QFT_512_printquote_metafied.mc)] |        28,262,400,000,000  |                  - |                        - |
+| [factorial.lisp](./lisp/factorial.lisp)   [[pattern](./patterns/ram-512/metafied/QFT_512_factorial_metafied.mc)]  |        35,328,000,000,000  |                  - |                        - |
+
+**Common Statistics**
+| Lisp Program                              | #QFT CPU Cycles | QFT RAM Usage (Words) |
+|-------------------------------------------|-----------------|-----------------------|
+| [print.lisp](./lisp/print.lisp)           |           4,425 |                    92 |
+| [lambda.lisp](./lisp/printquote.lisp)     |          13,814 |                   198 |
+| [printquote.lisp](./lisp/printquote.lisp) |          18,730 |                   224 |
+| [factorial.lisp](./lisp/factorial.lisp)   |          28,623 |                   327 |
+
 
 ## Compiling the Sample C Program
 The sample C program can be compiled and run by the following commands:
@@ -227,7 +262,6 @@ make run_hello
 This creates `./out/hello.qftasm`. This QFTASM does not require `ramdump.csv` to be preloaded into the RAM module for it to run correctly.
 To load the QFTASM file to a VarLife pattern, follow Step 2 ("2. Building the Varlife pattern for the Lisp interpreter").
 To provide standard input to the program, follow Step 3. Using `ramdump.csv` can be skipped if your program does not require any preloading to the RAM.
-
 
 ### Patterns for the Sample C Program
 The patterns for the sample C program ([hello.c](./misc/hello/hello.c)) are available here:
