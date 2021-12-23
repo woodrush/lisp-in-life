@@ -68,6 +68,8 @@ This repository also contains scripts that run on Golly to decode and view the c
 
 
 ## How is it Done?
+![The build flow of Lisp in Life.](./img/build-flow.png)
+
 The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
 The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of Life backend for ELVM was implemented by myself.
 
