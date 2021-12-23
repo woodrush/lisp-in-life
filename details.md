@@ -121,3 +121,10 @@ Note that the halting times for programs other than print.lisp is just a suffici
 
 The required number of generations per CPU cycle depends on many factors such as the ROM and RAM addresses and the types of opcodes, since the arriving times of the I/O signals depend on factors such as these as well. This makes the number of generations required for the program to halt become different between each program.
 For example, print.lisp has a rate of 23822.16 generations per CPU cycle (GpC), but z-combinator.lisp has a rate of 28870.81 GpC, and primes-print.lisp has 31502.43 GpC. 23822.16 GpC is in fact insufficient for z-combinator.lisp to finish running, and 28870.81 is also insufficient for primes-print.lisp to finish running.
+
+### Miscellaneous Screenshots
+![A close-up view of a part of the ROM module in the Conway's Game of Life version.](./img/ss5.png)
+
+The ALU unit in the CPU. From the left are the modules for the `ANT`, `XOR`, `SRE`, `SRU`, `SUB`, `ADD`, `MLZ`, and the `MNZ` opcodes.
+
+The `SRE` and the `SRU` opcodes were newly added for this project.

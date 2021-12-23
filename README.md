@@ -25,8 +25,6 @@ An overview of the CPU and its surrounding modules. On the top are the ROM modul
 
 This pattern is the VarLife version of the architecture. VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, which is used as an intermediate layer to create the final Conway's Game of Life pattern. The colors of the cells indicate the 8 distinct states of the VarLife rule.
 
-The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT). Various modifications were made from the original architecture, such as removing and adding new opcodes, creating a new lookup table architecture for the ROM module, reducing the bit length of the instruction size, extending the RAM address space, etc.
-
 ![The Conway's Game of Life version of the architecture, converted from the VarLife pattern.](./img/ss3.png)
 
 The Conway's Game of Life version of the architecture, converted from the VarLife pattern.
@@ -40,15 +38,9 @@ These structures are [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_meta
 The OTCA metapixel is a special Conway's Game of Life pattern that can emulate cellular automatons with customized rules.
 The original VarLife pattern is simulated this way so that it can run in Conway's Game of Life.
 
-![A close-up view of a part of the ROM module in the Conway's Game of Life version.](./img/ss5.png)
+![A video of the RAM module of the computer in the VarLife rule in action.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
 
-The ALU unit in the CPU. From the left are the modules for the `ANT`, `XOR`, `SRE`, `SRU`, `SUB`, `ADD`, `MLZ`, and the `MNZ` opcodes.
-
-The `SRE` and the `SRU` opcodes were newly added for this project.
-
-![A video of the RAM module of the QFT computer in the VarLife rule in action.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
-
-A video of the RAM module of the QFT computer in the VarLife rule in action.
+A video of the RAM module of the computer in the VarLife rule in action.
 
 ![The QFT computer showing the results of the computation of `(print (* 3 14))`.](./img/ss6.png)
 
@@ -70,16 +62,16 @@ This repository also contains scripts that run on Golly to decode and view the c
 ## How is it Done?
 ![The build flow of Lisp in Life.](./img/build-flow.png)
 
-The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project.
-The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of Life backend for ELVM was implemented by myself.
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project. The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT).
+The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of  Life backend for ELVM was implemented by myself.
 
-Generating a short enough Lisp interpreter assembly code and a Game of Life pattern that runs in a reasonable amount of time required a lot of effort.
+Generating a short enough Lisp interpreter assembly code, a Game of Life architecture, and a working pattern that runs in a reasonable amount of time required a lot of effort.
 This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, including:
 
 - The C Compiler layer - adding the [computed goto](https://en.wikipedia.org/wiki/Goto#Computed_GOTO_and_Assigned_GOTO) feature to the C compiler, preserving variable symbols to be used after compilation, etc.
 - The C layer (the [Lisp interpreter](./src/lisp.c)) - using a string hashtable and binary search for Lisp symbol lookup, minimization of stack region usage with union memory structures, careful memory region map design, etc.
 - The QFTASM layer - writing a [compiler optimizer](./src/qftasmopt.py) to optimize the length of the assembly code
-- The VarLife layer - creating a lookup table architecture for faster ROM access, expanding the size and length of the RAM module, adding new opcodes, etc.
+- The VarLife layer (the CPU architecture) - creating a lookup table architecture for faster ROM access, expanding the size and length of the RAM module, adding new opcodes, etc.
 - The Game of Life layer - [Hashlife](https://en.wikipedia.org/wiki/Hashlife)-specific optimization
 
 A more detailed description of the optimizations done in this project is available in the [Implementation Details](#implementation-details) section.
@@ -121,7 +113,7 @@ To run the VarLife patterns, open Golly and see File -> Preferences -> Control, 
 Open the directory, and copy [./QFT-devkit/Varlife.rule](https://github.com/woodrush/QFT-devkit/blob/main/Varlife.rule) to the directory.
 
 
-### Descriptions of the Lisp Programs
+## Descriptions of the Lisp Programs
 
 - **object-oriented-like.lisp**:
     This example creates a structure similar to classes in Object-Oriented Programming, using closures.
