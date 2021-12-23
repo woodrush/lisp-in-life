@@ -26,12 +26,6 @@ The following section describes the build flow for the 1024-word-RAM architectur
 The flow for the 512-word-RAM architecture is similar, and is described in a later section.
 
 
-## Summary of the Build Flow
-The summary of the build flow is as follows:
-
-![The summary of the build flow](./img/toolchain.png)
-
-
 ### 1. Building the assembly (QFTASM) file for the Lisp interpreter
 First, initialize the git submodules and then run `make all`.
 
