@@ -55,7 +55,10 @@ A video of the RAM module of the QFT computer in the VarLife rule in action.
 The computer showing the results of the following Lisp program:
 
 ```lisp
-(print (* 3 14))
+(define mult (lambda (m n)
+  (* m n)))
+
+(print (mult 3 14))
 ```
 
 The result is `42`, shown in binary ascii format (`0b110100`, `0b110010`), read in bottom-to-up order.
