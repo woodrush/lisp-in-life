@@ -65,8 +65,8 @@ This repository also contains scripts that run on Golly to decode and view the c
 The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project. The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT).
 The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of  Life backend for ELVM was implemented by myself.
 
-Generating a short enough Lisp interpreter assembly code, a Game of Life architecture, and a working pattern that runs in a reasonable amount of time required a lot of effort.
-This required optimizations and improvements in every layer of the project, including the C compiler layer, the CPU architecture layer, including:
+Generating a small enough pattern that runs in a reasonable amount of time required a lot of effort.
+This required optimizations and improvements in every layer of the project; a brief summary would be:
 
 - The C Compiler layer - adding the [computed goto](https://en.wikipedia.org/wiki/Goto#Computed_GOTO_and_Assigned_GOTO) feature to the C compiler, preserving variable symbols to be used after compilation, etc.
 - The C layer (the [Lisp interpreter](./src/lisp.c)) - using a string hashtable and binary search for Lisp symbol lookup, minimization of stack region usage with union memory structures, careful memory region map design, etc.
