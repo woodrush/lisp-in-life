@@ -195,7 +195,7 @@ and evaluates the result twice (the first time to build the expression, and the 
 |-------------------------------------------------------------------------------------------------------------------------------------|----------------------------|--------------------|--------------------|
 | [print.lisp](./lisp/print.lisp)                               [[pattern](./patterns/metafied/QFT_print_metafied.mc)]                |         3,724,032,866,304  |      382.415 mins  |    27.5 GiB (max.) |
 | [lambda.lisp](./lisp/lambda.lisp)                             [[pattern](./patterns/metafied/QFT_lambda_metafied.mc)]               |        24,729,600,000,000  |     1372.985 mins  |    27.5 GiB (max.) |
-| [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/metafied/QFT_printquote_metafied.mc)]           |        28,262,400,000,000  |                 -  |                  - |
+| [printquote.lisp](./lisp/printquote.lisp)                     [[pattern](./patterns/metafied/QFT_printquote_metafied.mc)]           |        28,262,400,000,000  |     1938.455 mins  |    27.5 GiB (max.) |
 | [factorial.lisp](./lisp/factorial.lisp)                       [[pattern](./patterns/metafied/QFT_factorial_metafied.mc)]            |        35,328,000,000,000  |                 -  |                  - |
 | [z-combinator.lisp](./lisp/z-combinator.lisp)                 [[pattern](./patterns/metafied/QFT_z-combinator_metafied.mc)]         |        60,057,600,000,000  |                 -  |                  - |
 | [backquote-splice.lisp](./lisp/backquote-splice.lisp)         [[pattern](./patterns/metafied/QFT_backquote-splice_metafied.mc)]     |       144,844,800,000,000  |                 -  |                  - |
