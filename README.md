@@ -5,10 +5,17 @@ Lisp in Life is a Lisp interpreter implemented in Conway's Game of Life.
 The entire pattern is viewable on the browser [here](https://woodrush.github.io/lisp-in-life).
 
 
-## Running Lisp and C on the Game of Life
-This repository contains a Conway's Game of Life pattern that runs a Lisp interpreter.
-The Lisp program is provided by editing certain cells within the pattern to represent the ASCII-encoding of the Lisp program.
-The interpreter writes its standard output to the bottom end of the RAM module, which can be directly examined in a Game of Life viewer.
+## Running Lisp on the Game of Life
+Lisp is a language with a simple and elegant design, having an extensive ability to express sophisticated ideas as simple programs. Notably, the powerful feature of _macros_ could be used to modify the language's syntax to write programs in a highly flexible way. For example, macros can be used to introduce new programming paradigms to the language, as demonstrated in [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) (which can actually be evaluated by the interpreter, although complex programs take quite a long time to finish running), where a structure and syntax similar to classes in Object Oriented Programming is constructed. Despite the expressibility of Lisp, it is [the world's second oldest high-level programming language](https://en.wikipedia.org/wiki/Lisp_(programming_language)) introduced in 1958, only to be preceded by Fortran.
+
+Conway's Game of Life is a cellular automaton proposed in 1970. Despite it having a very simple set of rules, it is known to be Turing Complete. Lisp in Life demonstrates this fact in a rather straightforward way.
+
+How can simple systems allow human thoughts to be articulated and be expanded? With the expressibility of Lisp and the basis of Conway's Game of Life, Lisp in Life provides an answer to this question.
+
+
+### Input and Output
+The Lisp program is provided by editing certain cells within the pattern to represent the ASCII-encoding of the Lisp program. The pattern directly reads this text and evaluates the results. You can also load your own Lisp program into the pattern and run it.
+The standard output is written at the bottom end of the RAM module, which can be easily located and directly examined in a Game of Life viewer.
 The Lisp implementation supports lexical closures and macros, allowing one to write Lisp programs in a Lisp-like taste, as far as the memory limit allows you to.
 
 The [Lisp interpreter](./src/lisp.c) is written in C. Using the build system for this project, you can also compile your own C11-compatible C code and run in on Conway's Game of Life.
@@ -25,6 +32,8 @@ An overview of the CPU and its surrounding modules. On the top are the ROM modul
 
 This pattern is the VarLife version of the architecture. VarLife is an 8-state cellular automaton defined in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) Project, which is used as an intermediate layer to create the final Conway's Game of Life pattern. The colors of the cells indicate the 8 distinct states of the VarLife rule.
 
+The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT). Various modifications were made to make the pattern compact, such as introducing a new lookup table architecture for the ROM, removing and adding new opcodes, expanding the ROM and RAM address space, etc.
+
 ![The Conway's Game of Life version of the architecture, converted from the VarLife pattern.](./img/ss3.png)
 
 The Conway's Game of Life version of the architecture, converted from the VarLife pattern.
@@ -35,14 +44,16 @@ What appears to be a single cell in this image is actually an [OTCA metapixel](h
 A close-up view of a part of the ROM module in the Conway's Game of Life version.
 Each pixel in the previous image is actually this square-shaped structure shown in this image.
 These structures are [OTCA metapixels](https://www.conwaylife.com/wiki/OTCA_metapixel), which can be seen to be in the On and Off meta-states in this image.
-The OTCA metapixel is a special Conway's Game of Life pattern that can emulate cellular automatons with customized rules.
+The OTCA Metapixel is a special Conway's Game of Life pattern that can emulate cellular automatons with customized rules.
 The original VarLife pattern is simulated this way so that it can run in Conway's Game of Life.
+
+The OTCA Metapixel simulating Life in Life can be seen in this wonderful video by Phillip Bradbury: [https://www.youtube.com/watch?v=xP5-iIeKXE8](https://www.youtube.com/watch?v=xP5-iIeKXE8)
 
 ![A video of the RAM module of the computer in the VarLife rule in action.](./img/lisp_512B_ram_printstdin_QFT.mc.gif)
 
-A video of the RAM module of the computer in the VarLife rule in action.
+A video of the RAM module in the VarLife rule in action.
 
-![The QFT computer showing the results of the computation of `(print (* 3 14))`.](./img/ss6.png)
+![The computer showing the results of the computation of `(print (* 3 14))`.](./img/ss6.png)
 
 The computer showing the results of the following Lisp program:
 
@@ -62,8 +73,7 @@ This repository also contains scripts that run on Golly to decode and view the c
 ## How is it Done?
 ![The build flow of Lisp in Life.](./img/build-flow.png)
 
-The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project. The architecture is based on [Tetris8.mc](https://github.com/QuestForTetris/QFT/blob/master/Tetris8.mc) in the [original QFT repository](https://github.com/QuestForTetris/QFT).
-The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of  Life backend for ELVM was implemented by myself.
+The [Lisp interpreter](./src/lisp.c), written in C, is compiled to an assembly language for a CPU architecture implemented in the Game of Life, which is a modification of the computer used in the [Quest For Tetris](https://codegolf.stackexchange.com/questions/11880/build-a-working-game-of-tetris-in-conways-game-of-life/142673#142673) (QFT) project. The compilation is done using an extended version of [ELVM](https://github.com/shinh/elvm) (the Esoteric Language Virtual Machine). The Game of  Life backend for ELVM was implemented by myself.
 
 Generating a small enough pattern that runs in a reasonable amount of time required a lot of effort.
 This required optimizations and improvements in every layer of the project; a brief summary would be:
