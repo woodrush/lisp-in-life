@@ -100,6 +100,30 @@ As for optimization, I first noticed that the QFT pattern had a 1-pixel high pat
 
 Another optimization was improving the metafier script used to convert VarLife patterns to Game of Life ([MetafierV3.py](https://github.com/woodrush/QFT-devkit/blob/main/MetafierV3.py)). The original script used a square region to fit the entire pattern to create the quadtree representation. However, since the Lisp in Life VarLife pattern is 968 pixels wide but 42354 pixels high, it tried to allocate a 65536x65536-sized integer array, which was prohibitively large to run. I modified the script so that it uses a rectangular region, where absent regions of the quadtree are represented as absent cells. Although this is very straightforward with the knowledge of the Macrocell format, it was difficult at first until I became fond of the algorithms surrounding the Game of Life.
 
+## Memory Region Map and the Phases of Operation
+![The memory region map of Lisp in Life.](./img/memmap.png)
+
+The memory region map is carefully designed to save space. This is best described with the operation phases of the interpreter.
+
+### Phase 0: Precalculations
+Various precalculations are done after the interpreter starts running. The construction of the string interning hashtable for reserved atoms such as `define`, `quote`, etc. are done in this phase. For the GCC-compiled interpreter, some variables that are defined in the QFT memory header are defined in the C source.
+
+Since the outcome of these precalculations are always the same for any incoming Lisp program, this phase is done on the host PC, and the results are saved as ramdump.csv during the QFTASM compile time. The results are then pre-loaded into the RAM when the VarLife and Game of Life patterns are created. This allows to saves some CPU cycles when running the interpreter.
+
+As explained earlier, the QFT architecture holds register values in the RAM. There are 11 registers, which are placed in the addresses from 0 to 10.
+
+The reserved values in the image include strings such as reserved atoms and the destinations of the jump hashtable used for evaluation. The rest of the region is used for storing global variables in the interpreter's C source code.
+
+### Phase 1: Parsing
+The Lisp program provided from the standard input is parsed into S-expressions, which is written into the heap region.
+
+Notice that the string interning hashtables are created in the later end of the stack region. This is because these hashtables are only used during the parsing phase, and can be overwritten during the evaluation phase. For most Lisp programs including the ones in this repository, the stack region does not grow far enough to overwrite these values. This allows to place 3 growing memory regions during the parsing phase, the stack region used for nested S-expressions, the heap region which stores the parsed S-expressions, and the string interning hashtables when new strings are detected within the Lisp program. Newly detected strings such as variable names in the Lisp program are also written into the heap region.
+
+The heap region is also designed so that it overwrites the standard input as it parses the program. Since older parts of the program can be discarded once it is parsed, this allows to naturally free the standard input region which save a lot of space after parsing. The standard input also gets overwritten by the Standard output if the output is long enough. However, due to this design, long programs may have trouble at parsing, since the input may be overwritten too far and get deleted before it is parsed. A workaround for this is to use indentation which places the program further ahead into the memory, which will prevent the program from being overwritten from the growing heap region. For all of the programs included in this repository, this is not an issue and the programs become successfully parsed.
+
+### Phase 2: Evaluation
+By this time, all of the contents of the stack region and what is ahead of the head of the heap region can be overwritten in the further steps. Note that a similar issue with the standard input happens with the standard output - when too many Lisp objects are created during runtime, it may overwrite the existing standard output, or may simply exceed the heap region and proceed into the stack region. Since the heap region is connected to the later end of the stack region, this may be safe if the standard output is carefully handled, but the interpreter will eventually start overwriting values of the stack region if the heap continues to grow.
+
 
 ## Miscellaneous
 ### How can a 2-state OTCA Metapixel emulate the behavior of an 8-state VarLife pattern?
