@@ -4,6 +4,8 @@ Lisp in Life is a Lisp interpreter implemented in Conway's Game of Life.
 
 The entire pattern is viewable on the browser [here](https://woodrush.github.io/lisp-in-life).
 
+To the best of my knowledge, this is the first time a high-level programming language was interpreted in Conway's Game of Life.
+
 
 ## Running Lisp on the Game of Life
 Lisp is a language with a simple and elegant design, having an extensive ability to express sophisticated ideas as simple programs. Notably, the powerful feature of _macros_ could be used to modify the language's syntax to write programs in a highly flexible way. For example, macros can be used to introduce new programming paradigms to the language, as demonstrated in [object-oriented-like.lisp](./lisp/object-oriented-like.lisp) (which can actually be evaluated by the interpreter, although complex programs take quite a long time to finish running), where a structure and syntax similar to classes in Object Oriented Programming is constructed. Despite the expressibility of Lisp, it is [the world's second oldest high-level programming language](https://en.wikipedia.org/wiki/Lisp_(programming_language)) introduced in 1958, only to be preceded by Fortran.
