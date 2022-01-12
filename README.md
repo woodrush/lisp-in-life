@@ -1,5 +1,7 @@
 # Lisp in Conway's Game of Life
 
+![An overview of the Lisp in Life architecture.](./img/ss2.png)
+
 Lisp in Life is a Lisp interpreter implemented in Conway's Game of Life.
 
 The entire pattern is viewable on the browser [here](https://woodrush.github.io/lisp-in-life).
