@@ -25,6 +25,14 @@ The Lisp implementation supports lexical closures and macros, allowing one to wr
 The [Lisp interpreter](./src/lisp.c) is written in C. Using the build system for this project, you can also compile your own C11-compatible C code and run in on Conway's Game of Life.
 
 
+
+
+## Video
+Here is a YouTube video showing Lisp in Life in action:
+
+<a href="https://www.youtube.com/watch?v=foAJTAu_gyE" target="_blank">![A YouTube video of Lisp in Life.](./img/youtube-ss.png)</a>
+
+
 ## Screenshots
 ![An overview of the entire architecture.](./img/ss1.png)
 
@@ -120,11 +128,19 @@ Additional details on VarLife are available in the Miscellaneous section in [det
 Pattern files preloaded with various Lisp programs are available here.
 Detailed statistics such as the running time and the memory consumption are available in the [Running Times and Statistics](#running-times-and-statistics) section.
 
-The patterns can be simulated on the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)).
+
+## Viewing and Running the Patterns on a Computer
+For a quick look of the entire pattern, a pattern featuring [lambda.lisp](./lisp/lambda.lisp) can be viewed on the browser [here](https://woodrush.github.io/lisp-in-life).
+
+For an in-depth view as well as actually simulating the patterns to evaluate the Lisp programs,
+the Game of Life simulator [Golly](https://en.wikipedia.org/wiki/Golly_(program)) can be used.
 
 The VarLife patterns can be simulated on Golly as well.
 To run the VarLife patterns, open Golly and see File -> Preferences -> Control, and Check the "Your Rules" directory.
 Open the directory, and copy [./QFT-devkit/Varlife.rule](https://github.com/woodrush/QFT-devkit/blob/main/Varlife.rule) to the directory.
+
+Since the differences for the pattern for each program is only the values of the RAM,
+the entire structure is the same except for the RAM values for all of the patterns.
 
 
 ## Descriptions of the Lisp Programs
